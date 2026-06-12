@@ -1,0 +1,421 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Modal } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LocalizationContext';
+import { DataService } from '../../services/dataService';
+import { UserProduct, Product } from '../../services/mockDb';
+import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+
+export default function ProductsScreen() {
+  const { user, isPremium } = useAuth();
+  const { t } = useTranslation();
+  const router = useRouter();
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [cabinet, setCabinet] = useState<UserProduct[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Modal de adição
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [globalCatalog, setGlobalCatalog] = useState<Product[]>([]);
+  const [filteredCatalog, setFilteredCatalog] = useState<Product[]>([]);
+  
+  // Estados para inserção manual
+  const [customName, setCustomName] = useState<string>('');
+  const [customBrand, setCustomBrand] = useState<string>('');
+  const [customCategory, setCustomCategory] = useState<'cleanser' | 'toner' | 'treatment' | 'moisturizer' | 'spf'>('cleanser');
+  const [customActives, setCustomActives] = useState<string>('');
+  const [openedAt, setOpenedAt] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [expiration, setExpiration] = useState<string>('12');
+
+  const loadData = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const userProds = await DataService.getUserProducts(user.id);
+      setCabinet(userProds);
+
+      const catalog = await DataService.getGlobalProducts();
+      setGlobalCatalog(catalog);
+    } catch (e) {
+      console.warn('Erro ao carregar prateleira', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [user]);
+
+  // Filtrar catálogo global com base na query do usuário
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredCatalog([]);
+      return;
+    }
+    const q = searchQuery.toLowerCase();
+    const filtered = globalCatalog.filter(p => 
+      p.name.toLowerCase().includes(q) || 
+      p.brand.toLowerCase().includes(q)
+    );
+    setFilteredCatalog(filtered);
+  }, [searchQuery, globalCatalog]);
+
+  const handleDelete = async (id: string) => {
+    Alert.alert(
+      'Elimina Prodotto',
+      'Sei sicuro di voler rimuovere questo prodotto? Verrà rimosso anche dalle tue routine.',
+      [
+        { text: 'Annulla', style: 'cancel' },
+        { 
+          text: 'Elimina', 
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            await DataService.deleteUserProduct(user?.id || 'guest-user-id', id);
+            await loadData();
+          }
+        }
+      ]
+    );
+  };
+
+  // Verificar limite de plano gratuito antes de adicionar
+  const checkLimitBeforeAction = (): boolean => {
+    if (!isPremium && cabinet.length >= 5) {
+      Alert.alert(
+        'Limite Raggiunto',
+        t('products.limit_warning'),
+        [
+          { text: 'Annulla', style: 'cancel' },
+          { text: t('settings.upgrade'), onPress: () => router.push('/paywall') }
+        ]
+      );
+      return false;
+    }
+    return true;
+  };
+
+  // Adicionar produto a partir do catálogo global
+  const handleAddFromCatalog = async (prod: Product) => {
+    if (!checkLimitBeforeAction()) return;
+
+    setLoading(true);
+    try {
+      await DataService.addUserProduct(user?.id || 'guest-user-id', {
+        product_id: prod.id,
+        custom_name: prod.name,
+        custom_brand: prod.brand,
+        custom_category: prod.category,
+        custom_active_ingredients: prod.active_ingredients,
+        opened_at: new Date().toISOString().split('T')[0],
+        expiration_months: 12
+      });
+      setSearchQuery('');
+      setIsAddModalOpen(false);
+      await loadData();
+    } catch (e) {
+      console.warn(e);
+      setLoading(false);
+    }
+  };
+
+  // Adicionar produto manualmente
+  const handleManualAdd = async () => {
+    if (!customName || !customBrand) {
+      Alert.alert('Erro', 'Nome e Marchio sono campi obbligatori.');
+      return;
+    }
+
+    if (!checkLimitBeforeAction()) return;
+
+    setLoading(true);
+    // Converter ativos string em array
+    const activesArr = customActives
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+
+    try {
+      await DataService.addUserProduct(user?.id || 'guest-user-id', {
+        product_id: null,
+        custom_name: customName,
+        custom_brand: customBrand,
+        custom_category: customCategory,
+        custom_active_ingredients: activesArr,
+        opened_at: openedAt || null,
+        expiration_months: expiration ? parseInt(expiration, 10) : null
+      });
+
+      // Limpar formulário
+      setCustomName('');
+      setCustomBrand('');
+      setCustomActives('');
+      setIsAddModalOpen(false);
+      await loadData();
+    } catch (e) {
+      console.warn(e);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
+        <ActivityIndicator size="large" color="#8F9779" />
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-[#FAF9F6] pt-12">
+      {/* Header */}
+      <View className="px-6 py-4 flex-row justify-between items-center border-b border-[#F2F0EB]">
+        <View>
+          <Text className="text-2xl font-serif text-[#2C2C2E] font-bold">
+            {t('products.title')}
+          </Text>
+          <Text className="text-xs font-sans text-[#8E8E93]">
+            {t('products.subtitle')} ({cabinet.length}/5)
+          </Text>
+        </View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setIsAddModalOpen(true)}
+          className="bg-[#8F9779] p-3 rounded-full shadow-sm"
+        >
+          <Plus size={18} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Grid de Produtos cadastrados */}
+      {cabinet.length === 0 ? (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
+          <View className="flex-1 items-center justify-center py-12 bg-white rounded-[32px] border border-[#F2F0EB]">
+            <HelpCircle size={48} color="#C6C6C8" />
+            <Text className="font-serif text-lg text-[#2C2C2E] font-bold mt-4">Nessun prodotto</Text>
+            <Text className="font-sans text-xs text-[#8E8E93] text-center px-8 mt-2 leading-relaxed">
+              Il tuo armadietto è vuoto. Clicca sul tasto '+' in alto per inserire i tuoi prodotti di bellezza.
+            </Text>
+          </View>
+        </ScrollView>
+      ) : (
+        <ScrollView className="flex-1 px-6 pt-4">
+          <View className="flex-row flex-wrap justify-between pb-24">
+            {cabinet.map(item => (
+              <View
+                key={item.id}
+                className="w-[48%] bg-white p-4 border border-[#F2F0EB] rounded-3xl mb-4 shadow-sm justify-between min-h-[160px]"
+              >
+                <View>
+                  <Text className="font-sans text-xs font-bold text-[#8F9779] uppercase tracking-wider">
+                    {item.custom_category}
+                  </Text>
+                  <Text className="font-serif text-sm font-bold text-[#2C2C2E] mt-1" numberOfLines={2}>
+                    {item.custom_name}
+                  </Text>
+                  <Text className="font-sans text-[11px] text-[#8E8E93]" numberOfLines={1}>
+                    {item.custom_brand}
+                  </Text>
+                  
+                  {item.custom_active_ingredients.length > 0 && (
+                    <Text className="font-sans text-[10px] text-[#D97D64] mt-2 font-medium" numberOfLines={2}>
+                      ✨ {item.custom_active_ingredients.join(', ')}
+                    </Text>
+                  )}
+                </View>
+
+                <View className="flex-row justify-between items-center mt-4 pt-2 border-t border-[#FAF9F6]">
+                  <View className="flex-row items-center space-x-1">
+                    <Calendar size={12} color="#8E8E93" />
+                    <Text className="font-sans text-[10px] text-[#8E8E93]">
+                      {item.expiration_months ? `${item.expiration_months}M` : 'N/A'}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => handleDelete(item.id)}
+                    className="p-1.5 bg-[#D97D64]/10 rounded-lg"
+                    accessibilityLabel="Elimina prodotto"
+                  >
+                    <Trash2 size={12} color="#D97D64" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      )}
+
+      {/* MODAL ADICIONAR PRODUTO */}
+      <Modal
+        visible={isAddModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsAddModalOpen(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-[32px] p-6 h-[88%]">
+            
+            {/* Header Modal */}
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-xl font-serif text-[#2C2C2E] font-bold">
+                Aggiungi Prodotto
+              </Text>
+              <TouchableOpacity
+                onPress={() => setIsAddModalOpen(false)}
+                className="p-2 bg-[#F2F0EB] rounded-full"
+              >
+                <X size={16} color="#8E8E93" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Abas de Busca vs Manual */}
+            <ScrollView className="flex-1 space-y-4" keyboardShouldPersistTaps="handled">
+              
+              {/* Barra de busca */}
+              <View className="bg-[#F2F0EB] flex-row items-center px-4 py-3 rounded-2xl">
+                <Search size={18} color="#8E8E93" className="mr-2" />
+                <TextInput
+                  placeholder={t('products.search_placeholder')}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  className="flex-1 font-sans text-sm text-[#2C2C2E]"
+                />
+              </View>
+
+              {/* Resultados da busca rápida */}
+              {searchQuery.length > 0 && (
+                <View className="bg-[#FAF9F6] border border-[#F2F0EB] rounded-2xl p-2 max-h-[160px]">
+                  <ScrollView nestedScrollEnabled={true}>
+                    {filteredCatalog.length === 0 ? (
+                      <Text className="font-sans text-xs text-[#8E8E93] text-center p-4">
+                        Nessun prodotto trovato nel catalogo.
+                      </Text>
+                    ) : (
+                      filteredCatalog.map(p => (
+                        <TouchableOpacity
+                          key={p.id}
+                          onPress={() => handleAddFromCatalog(p)}
+                          className="flex-row justify-between items-center p-3 border-b border-[#F2F0EB] active:bg-[#F2F0EB]"
+                        >
+                          <View>
+                            <Text className="font-sans text-xs font-bold text-[#2C2C2E]">{p.name}</Text>
+                            <Text className="font-sans text-[10px] text-[#8E8E93]">{p.brand} • <Text className="capitalize">{p.category}</Text></Text>
+                          </View>
+                          <Plus size={16} color="#8F9779" />
+                        </TouchableOpacity>
+                      ))
+                    )}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Inserção Manual */}
+              <View className="border-t border-[#F2F0EB] pt-4">
+                <Text className="font-serif text-sm font-bold text-[#2C2C2E] mb-3">
+                  {t('products.manual_title')}
+                </Text>
+
+                <View className="space-y-3">
+                  <View>
+                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      {t('products.name')} *
+                    </Text>
+                    <TextInput
+                      placeholder="es. Effaclar Duo"
+                      value={customName}
+                      onChangeText={setCustomName}
+                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                    />
+                  </View>
+
+                  <View>
+                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      {t('products.brand')} *
+                    </Text>
+                    <TextInput
+                      placeholder="es. La Roche-Posay"
+                      value={customBrand}
+                      onChangeText={setCustomBrand}
+                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                    />
+                  </View>
+
+                  <View>
+                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      {t('products.category')}
+                    </Text>
+                    <View className="flex-row flex-wrap justify-between">
+                      {(['cleanser', 'toner', 'treatment', 'moisturizer', 'spf'] as const).map(cat => (
+                        <TouchableOpacity
+                          key={cat}
+                          onPress={() => setCustomCategory(cat)}
+                          className={`w-[31%] py-2 mb-2 border rounded-xl items-center ${customCategory === cat ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-[#FAF9F6] border-[#E5E5EA]'}`}
+                        >
+                          <Text className={`font-sans text-[10px] font-bold capitalize ${customCategory === cat ? 'text-[#8F9779]' : 'text-[#8E8E93]'}`}>
+                            {cat}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+
+                  <View>
+                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      {t('products.active_ingredients')}
+                    </Text>
+                    <TextInput
+                      placeholder="es. Retinolo, Vitamina C, Acido Ialuronico"
+                      value={customActives}
+                      onChangeText={setCustomActives}
+                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                    />
+                  </View>
+
+                  <View className="flex-row justify-between">
+                    <View className="w-[48%]">
+                      <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                        {t('products.opened')}
+                      </Text>
+                      <TextInput
+                        placeholder="AAAA-MM-GG"
+                        value={openedAt}
+                        onChangeText={setOpenedAt}
+                        className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                      />
+                    </View>
+
+                    <View className="w-[48%]">
+                      <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                        {t('products.expiration')}
+                      </Text>
+                      <TextInput
+                        placeholder="es. 12"
+                        keyboardType="number-pad"
+                        value={expiration}
+                        onChangeText={setExpiration}
+                        className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              onPress={handleManualAdd}
+              activeOpacity={0.9}
+              className="w-full py-4 bg-[#8F9779] rounded-full items-center mt-4"
+            >
+              <Text className="text-white font-sans text-base font-bold">
+                {t('products.add_button')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}

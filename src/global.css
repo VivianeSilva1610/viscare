@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-bg: #FAF9F6;
+  --color-brand-sage: #8F9779;
+  --color-brand-terracotta: #D97D64;
+  --color-brand-charcoal: #2C2C2E;
+  --color-brand-warm-gray: #F2F0EB;
+  
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
+}
