@@ -187,10 +187,10 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              <View className="items-center mb-8">
+              <View style={{ alignItems: 'center', marginBottom: 32 }}>
                 <Image
                   source={require('../../assets/images/icon.png')}
-                  className="w-24 h-24 rounded-3xl"
+                  style={{ width: 100, height: 100, borderRadius: 24 }}
                   resizeMode="contain"
                 />
               </View>
