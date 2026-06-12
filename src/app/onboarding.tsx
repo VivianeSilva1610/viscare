@@ -1,91 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import { useTranslation } from '../context/LocalizationContext';
+import { useTranslation, Language } from '../context/LocalizationContext';
 import { DataService } from '../services/dataService';
 import { supabase } from '../services/supabase';
 import { NotificationService } from '../services/notifications';
+import { AIRecommendationService, ProductRecommendation } from '../services/aiRecommendations';
 
-import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles } from 'lucide-react-native';
+import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles, Globe, CheckCircle2 } from 'lucide-react-native';
 
 export default function Onboarding() {
-  const { t, language } = useTranslation();
-  const { signUp, signIn, loginAsGuest, user } = useAuth();
+  const { t, language, setLanguage } = useTranslation();
+  const { signUp, signIn, loginAsGuest, user, profile } = useAuth();
   const router = useRouter();
 
-  // Estados de navegação do quiz
+  // Estados de navegação do onboarding
   const [step, setStep] = useState<number>(0);
-  const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Estados dos dados do quiz
+  // STEP 0: Auth
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isSignUpMode, setIsSignUpMode] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Se o utilizador já estiver logado (ex: recarregou a página mas não tem skinProfile),
+    // pula a tela de Auth e vai direto para o Disclaimer/Quiz
+    if (user && step === 0) {
+      setStep(1);
+    }
+  }, [user]);
+
+  // STEP 1: Disclaimer
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(false);
+
+  // STEP 2: Quiz
   const [age, setAge] = useState<string>('');
   const [skinType, setSkinType] = useState<'oily' | 'dry' | 'combination' | 'normal'>('normal');
   const [isSensitive, setIsSensitive] = useState<boolean>(false);
   const [goals, setGoals] = useState<string[]>([]);
   const [concerns, setConcerns] = useState<string[]>([]);
 
-  // Estados de autenticação
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [isSignUpMode, setIsSignUpMode] = useState<boolean>(true);
+  // STEP 3: AI Recommendations
+  const [recommendations, setRecommendations] = useState<ProductRecommendation[]>([]);
+  const [addingProducts, setAddingProducts] = useState<boolean>(false);
 
-  // Lista de objetivos e preocupações para renderizar
   const goalsOptions = ['hydration', 'anti_aging', 'acne', 'brightening', 'barrier'];
   const concernsOptions = ['redness', 'dark_spots', 'acne_scars', 'fine_lines', 'pores', 'dryness'];
 
-  const toggleGoal = (goal: string) => {
-    if (goals.includes(goal)) {
-      setGoals(goals.filter(g => g !== goal));
-    } else {
-      setGoals([...goals, goal]);
-    }
-  };
+  // === NAVEGAÇÃO ===
+  const nextStep = () => setStep(prev => prev + 1);
+  const prevStep = () => setStep(prev => (prev > 0 ? prev - 1 : 0));
 
-  const toggleConcern = (concern: string) => {
-    if (concerns.includes(concern)) {
-      setConcerns(concerns.filter(c => c !== concern));
-    } else {
-      setConcerns([...concerns, concern]);
-    }
-  };
-
-  // Avançar nos passos
-  const nextStep = () => {
-    if (step === 0 && !disclaimerAccepted) {
-      Alert.alert(
-        language === 'it' ? 'Attenzione' : language === 'pt' ? 'Atenção' : 'Warning',
-        language === 'it' 
-          ? 'Devi accettare la dichiarazione di non responsabilità medica per continuare.' 
-          : language === 'pt' 
-            ? 'Você deve aceitar o aviso de isenção de responsabilidade médica para continuar.' 
-            : 'You must accept the medical disclaimer to continue.'
-      );
+  // === STEP 0: AUTH LOGIC ===
+  const handleAuthSubmit = async () => {
+    if (!email || !password) {
+      Alert.alert('Erro', t('auth.error_fill'));
       return;
     }
-    if (step === 1) {
-      const parsedAge = parseInt(age, 10);
-      if (!age || isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
-        Alert.alert(
-          language === 'it' ? 'Età non valida' : language === 'pt' ? 'Idade inválida' : 'Invalid Age',
-          language === 'it' 
-            ? 'Per favore, inserisci un\'età valida per continuare.' 
-            : language === 'pt' 
-              ? 'Por favor, insira uma idade válida para continuar.' 
-              : 'Please enter a valid age to continue.'
-        );
-        return;
-      }
+    if (isSignUpMode && !name.trim()) {
+      Alert.alert('Erro', t('auth.error_name'));
+      return;
     }
-    setStep(step + 1);
+
+    setLoading(true);
+    let res;
+    if (isSignUpMode) {
+      res = await signUp(email, password, name.trim());
+    } else {
+      res = await signIn(email, password);
+    }
+
+    if (res.success) {
+      // Avança para o Disclaimer
+      nextStep();
+    } else {
+      Alert.alert('Erro', res.error || 'Erro na autenticação');
+    }
+    setLoading(false);
   };
 
-  const prevStep = () => {
-    if (step > 0) setStep(step - 1);
+  const handleGuestAccess = async () => {
+    setLoading(true);
+    await loginAsGuest(name.trim() || undefined);
+    setLoading(false);
+    nextStep();
   };
 
-  // Tratar ativação de notificações
+  // === STEP 1: DISCLAIMER LOGIC ===
+  const handleDisclaimerNext = () => {
+    if (!disclaimerAccepted) {
+      Alert.alert('Attenzione', 'Devi accettare per continuare.');
+      return;
+    }
+    nextStep();
+  };
+
+  // === STEP 2: QUIZ LOGIC ===
+  const toggleGoal = (g: string) => goals.includes(g) ? setGoals(goals.filter(x => x !== g)) : setGoals([...goals, g]);
+  const toggleConcern = (c: string) => concerns.includes(c) ? setConcerns(concerns.filter(x => x !== c)) : setConcerns([...concerns, c]);
+
+  const handleQuizSubmit = async () => {
+    const parsedAge = parseInt(age, 10);
+    if (!age || isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
+      Alert.alert('Erro', 'Età non valida');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Salvar perfil de pele
+      const currentUid = user?.id || 'guest-user-id';
+      const skinData = {
+        skin_type: skinType,
+        age: parsedAge,
+        is_sensitive: isSensitive,
+        goals: goals.map(g => t(`quiz.goal_${g}`)),
+        concerns: concerns.map(c => t(`quiz.concern_${c}`))
+      };
+      await DataService.saveSkinProfile(currentUid, skinData);
+
+      // Gerar recomendações via IA
+      const recs = await AIRecommendationService.getRecommendations({ user_id: currentUid, ...skinData });
+      setRecommendations(recs);
+      
+      setLoading(false);
+      nextStep(); // Vai para Step 3 (Recomendações)
+    } catch (e) {
+      console.warn('Erro ao salvar quiz', e);
+      setLoading(false);
+    }
+  };
+
+  // === STEP 3: RECOMMENDATIONS LOGIC ===
+  const handleAddRecommendations = async () => {
+    setAddingProducts(true);
+    const currentUid = user?.id || 'guest-user-id';
+    await AIRecommendationService.addRecommendationsToCABinet(currentUid, recommendations);
+    setAddingProducts(false);
+    nextStep(); // Vai para Step 4 (Notificações)
+  };
+
+  // === STEP 4: NOTIFICATIONS LOGIC ===
   const handleEnableNotifications = async () => {
     setLoading(true);
     const granted = await NotificationService.requestPermissions();
@@ -93,343 +151,86 @@ export default function Onboarding() {
       await NotificationService.scheduleDailyReminders(language);
     }
     setLoading(false);
-    nextStep();
+    nextStep(); // Vai para Step 5 (Welcome)
   };
 
-  // Salvar perfil do quiz e redirecionar
-  const handleSaveQuizAndNavigate = async (userId: string) => {
-    try {
-      await DataService.saveSkinProfile(userId, {
-        skin_type: skinType,
-        age: parseInt(age, 10),
-        is_sensitive: isSensitive,
-        goals: goals.map(g => t(`quiz.goal_${g}`)),
-        concerns: concerns.map(c => t(`quiz.concern_${c}`))
-      });
-      router.replace('/(tabs)/today');
-    } catch (e) {
-      console.warn('Erro ao salvar quiz de pele', e);
-      router.replace('/(tabs)/today');
-    }
+  // === STEP 5: FINALIZATION ===
+  const finishOnboarding = () => {
+    router.replace('/(tabs)/today');
   };
 
-  // Finalizar como Guest
-  const handleGuestAccess = async () => {
-    setLoading(true);
-    await loginAsGuest();
-    // Após logar como guest, o `user` é criado com ID guest. Passamos esse ID diretamente.
-    await handleSaveQuizAndNavigate('guest-user-id');
-    setLoading(false);
-  };
-
-  // Autenticação Real ou Fallback
-  const handleAuthSubmit = async () => {
-    if (!email || !password) {
-      Alert.alert('Erro', 'Inserisci email e password.');
-      return;
-    }
-    setLoading(true);
-    let res;
-    if (isSignUpMode) {
-      res = await signUp(email, password);
-    } else {
-      res = await signIn(email, password);
-    }
-
-    if (res.success) {
-      // Como o Supabase Auth cria o usuário assincronamente e altera a sessão,
-      // buscamos a sessão ativa para obter o ID do usuário criado.
-      const { data } = await supabase.auth.getSession();
-      const currentUid = data.session?.user?.id || 'guest-user-id';
-      await handleSaveQuizAndNavigate(currentUid);
-    } else {
-      Alert.alert('Erro', res.error || 'Erro na autenticação');
-    }
-    setLoading(false);
-  };
-
+  // RENDERS
   return (
     <View className="flex-1 bg-[#FAF9F6]">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
-        
-        {/* PASSO 0: BOAS-VINDAS E ADVERTÊNCIA MÉDICA */}
+
+        {/* STEP 0: AUTH */}
         {step === 0 && (
-          <View className="flex-1 justify-between py-6">
-            <View className="items-center mt-6">
-              <Text className="text-4xl font-serif text-[#2C2C2E] font-bold text-center tracking-tight">
-                {t('welcome.title')}
-              </Text>
-              <Text className="text-base font-sans text-[#8F9779] mt-2 tracking-wide uppercase font-semibold">
-                {t('welcome.subtitle')}
-              </Text>
-            </View>
-
-            <View className="my-8 space-y-4">
-              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
-                <Sparkles size={24} color="#8F9779" />
-                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">
-                  {t('welcome.value_prop1')}
-                </Text>
-              </View>
-
-              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
-                <Heart size={24} color="#8F9779" />
-                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">
-                  {t('welcome.value_prop2')}
-                </Text>
-              </View>
-
-              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
-                <Shield size={24} color="#8F9779" />
-                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">
-                  {t('welcome.value_prop3')}
-                </Text>
-              </View>
-            </View>
-
-            {/* Aviso Médico */}
-            <View className="p-5 bg-white border border-[#F2F0EB] rounded-3xl shadow-sm mb-6">
-              <Text className="text-sm font-serif text-[#D97D64] font-bold mb-2 flex-row items-center">
-                ⚠️ {t('welcome.disclaimer_title')}
-              </Text>
-              <Text className="text-xs font-sans text-[#6E6E73] leading-relaxed">
-                {t('welcome.disclaimer_text')}
-              </Text>
-              
-              <TouchableOpacity 
-                activeOpacity={0.8}
-                onPress={() => setDisclaimerAccepted(!disclaimerAccepted)}
-                className="flex-row items-center mt-4 p-2"
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: disclaimerAccepted }}
-                accessibilityLabel="Accetta la dichiarazione medica"
-              >
-                <View className={`w-5 h-5 rounded-md border items-center justify-center mr-3 ${disclaimerAccepted ? 'bg-[#8F9779] border-[#8F9779]' : 'border-[#C6C6C8]'}`}>
-                  {disclaimerAccepted && <Check size={14} color="white" />}
-                </View>
-                <Text className="text-xs font-sans text-[#2C2C2E] font-medium">
-                  {t('welcome.accept_disclaimer')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={nextStep}
-              className={`w-full py-4 rounded-full flex-row items-center justify-center space-x-2 ${disclaimerAccepted ? 'bg-[#8F9779]' : 'bg-[#C6C6C8]'}`}
-            >
-              <Text className="text-white font-sans text-base font-bold">{t('welcome.next')}</Text>
-              <ArrowRight size={18} color="white" />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* PASSO 1: QUIZ DA PELE */}
-        {step === 1 && (
-          <View className="flex-1 justify-between py-6">
+          <View className="flex-1 justify-between py-6 mt-8">
             <View>
-              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center">
-                {t('quiz.title')}
-              </Text>
-              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-1">
-                {t('quiz.subtitle')}
-              </Text>
-
-              {/* Idade */}
-              <View className="mt-6">
-                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">
-                  {t('quiz.age_question')}
-                </Text>
-                <TextInput
-                  placeholder="25"
-                  keyboardType="number-pad"
-                  value={age}
-                  onChangeText={setAge}
-                  className="bg-white px-4 py-3 border border-[#E5E5EA] rounded-2xl font-sans text-base text-[#2C2C2E]"
-                />
+              {/* Language Selector */}
+              <View className="flex-row justify-end mb-6 space-x-4">
+                <TouchableOpacity onPress={() => setLanguage('pt')}>
+                  <Text className={`text-lg ${language === 'pt' ? 'opacity-100' : 'opacity-40'}`}>🇵🇹</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setLanguage('it')}>
+                  <Text className={`text-lg ${language === 'it' ? 'opacity-100' : 'opacity-40'}`}>🇮🇹</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setLanguage('en')}>
+                  <Text className={`text-lg ${language === 'en' ? 'opacity-100' : 'opacity-40'}`}>🇬🇧</Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Tipo de Pele */}
-              <View className="mt-6">
-                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">
-                  {t('quiz.type_question')}
-                </Text>
-                <View className="flex-row flex-wrap justify-between">
-                  {(['oily', 'dry', 'combination', 'normal'] as const).map(type => (
-                    <TouchableOpacity
-                      key={type}
-                      onPress={() => setSkinType(type)}
-                      className={`w-[48%] py-3 mb-3 border rounded-2xl items-center ${skinType === type ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}
-                    >
-                      <Text className={`font-sans text-sm font-medium ${skinType === type ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>
-                        {t(`quiz.type_${type}`)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Sensibilidade */}
-              <View className="mt-4">
-                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">
-                  {t('quiz.sensitivity_question')}
-                </Text>
-                <View className="flex-row justify-between">
-                  <TouchableOpacity
-                    onPress={() => setIsSensitive(true)}
-                    className={`w-[48%] py-3 border rounded-2xl items-center ${isSensitive ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}
-                  >
-                    <Text className={`font-sans text-sm font-medium ${isSensitive ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>
-                      {t('quiz.sens_yes')}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setIsSensitive(false)}
-                    className={`w-[48%] py-3 border rounded-2xl items-center ${!isSensitive ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}
-                  >
-                    <Text className={`font-sans text-sm font-medium ${!isSensitive ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>
-                      {t('quiz.sens_no')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Objetivos (Múltipla Escolha) */}
-              <View className="mt-6">
-                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">
-                  {t('quiz.goals_question')}
-                </Text>
-                <View className="flex-row flex-wrap">
-                  {goalsOptions.map(g => {
-                    const isSelected = goals.includes(g);
-                    return (
-                      <TouchableOpacity
-                        key={g}
-                        onPress={() => toggleGoal(g)}
-                        className={`mr-2 mb-2 px-3 py-2 border rounded-full ${isSelected ? 'bg-[#8F9779] border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}
-                      >
-                        <Text className={`font-sans text-xs font-medium ${isSelected ? 'text-white' : 'text-[#2C2C2E]'}`}>
-                          {t(`quiz.goal_${g}`)}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-
-              {/* Preocupações (Múltipla Escolha) */}
-              <View className="mt-4">
-                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">
-                  {t('quiz.concerns_question')}
-                </Text>
-                <View className="flex-row flex-wrap">
-                  {concernsOptions.map(c => {
-                    const isSelected = concerns.includes(c);
-                    return (
-                      <TouchableOpacity
-                        key={c}
-                        onPress={() => toggleConcern(c)}
-                        className={`mr-2 mb-2 px-3 py-2 border rounded-full ${isSelected ? 'bg-[#D97D64] border-[#D97D64]' : 'bg-white border-[#E5E5EA]'}`}
-                      >
-                        <Text className={`font-sans text-xs font-medium ${isSelected ? 'text-white' : 'text-[#2C2C2E]'}`}>
-                          {t(`quiz.concern_${c}`)}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            </View>
-
-            <View className="flex-row justify-between mt-8">
-              <TouchableOpacity
-                onPress={prevStep}
-                className="w-[45%] py-4 border border-[#E5E5EA] bg-white rounded-full items-center"
-              >
-                <Text className="text-[#2C2C2E] font-sans font-bold">Indietro</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={nextStep}
-                className="w-[45%] py-4 bg-[#8F9779] rounded-full items-center"
-              >
-                <Text className="text-white font-sans font-bold">{t('welcome.next')}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* PASSO 2: NOTIFICAÇÕES */}
-        {step === 2 && (
-          <View className="flex-1 justify-between py-6">
-            <View className="items-center justify-center flex-1 my-10">
-              <View className="w-20 h-20 bg-[#8F9779]/10 rounded-full items-center justify-center mb-6">
-                <Bell size={40} color="#8F9779" />
-              </View>
-              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center">
-                {t('notif.title')}
-              </Text>
-              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-4 leading-relaxed max-w-xs">
-                {t('notif.text')}
-              </Text>
-            </View>
-
-            <View className="space-y-3">
-              <TouchableOpacity
-                onPress={handleEnableNotifications}
-                className="w-full py-4 bg-[#8F9779] rounded-full items-center flex-row justify-center space-x-2"
-              >
-                {loading ? <ActivityIndicator size="small" color="white" /> : (
-                  <>
-                    <Bell size={18} color="white" />
-                    <Text className="text-white font-sans text-base font-bold">{t('notif.enable')}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={nextStep}
-                className="w-full py-4 bg-transparent rounded-full items-center"
-              >
-                <Text className="text-[#8F9779] font-sans text-base font-semibold">{t('notif.skip')}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* PASSO 3: CRIAR CONTA OU GUEST */}
-        {step === 3 && (
-          <View className="flex-1 justify-between py-6">
-            <View>
-              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center">
+              <Text className="text-3xl font-serif text-[#2C2C2E] font-bold text-center">
                 {t('auth.title')}
               </Text>
-              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-1 mb-8">
+              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-2 mb-8">
                 {t('auth.subtitle')}
               </Text>
 
-              {/* Formulário de Email/Senha */}
               <View className="space-y-4">
+                {isSignUpMode && (
+                  <View>
+                    <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.name')}</Text>
+                    <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
+                      <User size={18} color="#8E8E93" />
+                      <TextInput
+                        placeholder={t('auth.name_placeholder')}
+                        value={name}
+                        onChangeText={setName}
+                        className="flex-1 px-3 py-3 font-sans text-base"
+                      />
+                    </View>
+                  </View>
+                )}
+
                 <View>
                   <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.email')}</Text>
-                  <TextInput
-                    placeholder="example@email.com"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                    className="bg-white px-4 py-3 border border-[#E5E5EA] rounded-2xl font-sans text-base"
-                  />
+                  <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
+                    <Mail size={18} color="#8E8E93" />
+                    <TextInput
+                      placeholder="example@email.com"
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      value={email}
+                      onChangeText={setEmail}
+                      className="flex-1 px-3 py-3 font-sans text-base"
+                    />
+                  </View>
                 </View>
 
                 <View>
                   <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.password')}</Text>
-                  <TextInput
-                    placeholder="••••••••"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    className="bg-white px-4 py-3 border border-[#E5E5EA] rounded-2xl font-sans text-base"
-                  />
+                  <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
+                    <Lock size={18} color="#8E8E93" />
+                    <TextInput
+                      placeholder="••••••••"
+                      secureTextEntry
+                      value={password}
+                      onChangeText={setPassword}
+                      className="flex-1 px-3 py-3 font-sans text-base"
+                    />
+                  </View>
                 </View>
 
                 <TouchableOpacity
@@ -444,55 +245,296 @@ export default function Onboarding() {
                   )}
                 </TouchableOpacity>
 
-                {/* Alternar entre Login/Cadastro */}
-                <TouchableOpacity
-                  onPress={() => setIsSignUpMode(!isSignUpMode)}
-                  className="py-2 items-center"
-                >
+                <TouchableOpacity onPress={() => setIsSignUpMode(!isSignUpMode)} className="py-2 items-center">
                   <Text className="text-sm font-sans text-[#8F9779] font-medium">
-                    {isSignUpMode 
-                      ? (language === 'it' ? 'Hai già un account? Accedi' : language === 'pt' ? 'Já tem uma conta? Entrar' : 'Already have an account? Sign In')
-                      : (language === 'it' ? 'Non hai un account? Registrati' : language === 'pt' ? 'Não tem uma conta? Cadastrar' : 'Don\'t have an account? Sign Up')}
+                    {isSignUpMode ? t('auth.toggle_signin') : t('auth.toggle_signup')}
                   </Text>
                 </TouchableOpacity>
               </View>
 
-              {/* Separador */}
               <View className="flex-row items-center my-6">
                 <View className="flex-1 h-[1px] bg-[#E5E5EA]" />
                 <Text className="text-xs font-sans text-[#6E6E73] px-3">{t('auth.or')}</Text>
                 <View className="flex-1 h-[1px] bg-[#E5E5EA]" />
               </View>
 
-              {/* Botões Sociais Mockados */}
-              <View className="flex-row justify-between mb-4">
-                <TouchableOpacity
-                  onPress={handleGuestAccess}
-                  className="w-[48%] py-3 border border-[#E5E5EA] bg-white rounded-2xl items-center flex-row justify-center space-x-2"
-                >
-                  <Text className="font-sans text-sm font-medium text-[#2C2C2E]">{t('auth.google')}</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleGuestAccess}
+                className="w-full py-4 bg-transparent border border-[#8F9779] rounded-full items-center"
+              >
+                <Text className="text-[#8F9779] font-sans text-base font-bold">{t('auth.guest')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
-                <TouchableOpacity
-                  onPress={handleGuestAccess}
-                  className="w-[48%] py-3 border border-[#E5E5EA] bg-white rounded-2xl items-center flex-row justify-center space-x-2"
-                >
-                  <Text className="font-sans text-sm font-medium text-[#2C2C2E]">{t('auth.apple')}</Text>
-                </TouchableOpacity>
+        {/* STEP 1: DISCLAIMER */}
+        {step === 1 && (
+          <View className="flex-1 justify-between py-6 mt-8">
+            <View className="items-center mt-6">
+              <Text className="text-4xl font-serif text-[#2C2C2E] font-bold text-center tracking-tight">
+                {t('welcome.title')}
+              </Text>
+              <Text className="text-base font-sans text-[#8F9779] mt-2 tracking-wide uppercase font-semibold">
+                {t('welcome.subtitle')}
+              </Text>
+            </View>
+
+            <View className="my-8 space-y-4">
+              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
+                <Sparkles size={24} color="#8F9779" />
+                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">{t('welcome.value_prop1')}</Text>
+              </View>
+              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
+                <Heart size={24} color="#8F9779" />
+                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">{t('welcome.value_prop2')}</Text>
+              </View>
+              <View className="flex-row items-start space-x-3 p-4 bg-[#F2F0EB] rounded-2xl">
+                <Shield size={24} color="#8F9779" />
+                <Text className="flex-1 font-sans text-sm text-[#2C2C2E] leading-relaxed">{t('welcome.value_prop3')}</Text>
               </View>
             </View>
 
-            {/* Acesso Visitante */}
+            <View className="p-5 bg-white border border-[#F2F0EB] rounded-3xl shadow-sm mb-6">
+              <Text className="text-sm font-serif text-[#D97D64] font-bold mb-2">⚠️ {t('welcome.disclaimer_title')}</Text>
+              <Text className="text-xs font-sans text-[#6E6E73] leading-relaxed">{t('welcome.disclaimer_text')}</Text>
+              
+              <TouchableOpacity 
+                activeOpacity={0.8}
+                onPress={() => setDisclaimerAccepted(!disclaimerAccepted)}
+                className="flex-row items-center mt-4 p-2"
+              >
+                <View className={`w-5 h-5 rounded-md border items-center justify-center mr-3 ${disclaimerAccepted ? 'bg-[#8F9779] border-[#8F9779]' : 'border-[#C6C6C8]'}`}>
+                  {disclaimerAccepted && <Check size={14} color="white" />}
+                </View>
+                <Text className="text-xs font-sans text-[#2C2C2E] font-medium">{t('welcome.accept_disclaimer')}</Text>
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity
-              onPress={handleGuestAccess}
-              className="w-full py-4 bg-transparent border border-[#8F9779] rounded-full items-center"
+              activeOpacity={0.9}
+              onPress={handleDisclaimerNext}
+              className={`w-full py-4 rounded-full flex-row items-center justify-center space-x-2 ${disclaimerAccepted ? 'bg-[#8F9779]' : 'bg-[#C6C6C8]'}`}
             >
-              <Text className="text-[#8F9779] font-sans text-base font-bold">
-                {t('auth.guest')}
-              </Text>
+              <Text className="text-white font-sans text-base font-bold">{t('welcome.next')}</Text>
+              <ArrowRight size={18} color="white" />
             </TouchableOpacity>
           </View>
         )}
+
+        {/* STEP 2: QUIZ */}
+        {step === 2 && (
+          <View className="flex-1 justify-between py-6 mt-4">
+            <View>
+              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center">{t('quiz.title')}</Text>
+              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-1">{t('quiz.subtitle')}</Text>
+
+              {/* Idade */}
+              <View className="mt-6">
+                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.age_question')}</Text>
+                <TextInput
+                  placeholder="25"
+                  keyboardType="number-pad"
+                  value={age}
+                  onChangeText={setAge}
+                  className="bg-white px-4 py-3 border border-[#E5E5EA] rounded-2xl font-sans text-base"
+                />
+              </View>
+
+              {/* Tipo de Pele */}
+              <View className="mt-6">
+                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.type_question')}</Text>
+                <View className="flex-row flex-wrap justify-between">
+                  {(['oily', 'dry', 'combination', 'normal'] as const).map(type => (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => setSkinType(type)}
+                      className={`w-[48%] py-3 mb-3 border rounded-2xl items-center ${skinType === type ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}
+                    >
+                      <Text className={`font-sans text-sm font-medium ${skinType === type ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>{t(`quiz.type_${type}`)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Sensibilidade */}
+              <View className="mt-4">
+                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.sensitivity_question')}</Text>
+                <View className="flex-row justify-between">
+                  <TouchableOpacity onPress={() => setIsSensitive(true)} className={`w-[48%] py-3 border rounded-2xl items-center ${isSensitive ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}>
+                    <Text className={`font-sans text-sm font-medium ${isSensitive ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>{t('quiz.sens_yes')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setIsSensitive(false)} className={`w-[48%] py-3 border rounded-2xl items-center ${!isSensitive ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}>
+                    <Text className={`font-sans text-sm font-medium ${!isSensitive ? 'text-[#8F9779]' : 'text-[#2C2C2E]'}`}>{t('quiz.sens_no')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Objetivos */}
+              <View className="mt-6">
+                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.goals_question')}</Text>
+                <View className="flex-row flex-wrap">
+                  {goalsOptions.map(g => (
+                    <TouchableOpacity key={g} onPress={() => toggleGoal(g)} className={`mr-2 mb-2 px-3 py-2 border rounded-full ${goals.includes(g) ? 'bg-[#8F9779] border-[#8F9779]' : 'bg-white border-[#E5E5EA]'}`}>
+                      <Text className={`font-sans text-xs font-medium ${goals.includes(g) ? 'text-white' : 'text-[#2C2C2E]'}`}>{t(`quiz.goal_${g}`)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Preocupações */}
+              <View className="mt-4">
+                <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.concerns_question')}</Text>
+                <View className="flex-row flex-wrap">
+                  {concernsOptions.map(c => (
+                    <TouchableOpacity key={c} onPress={() => toggleConcern(c)} className={`mr-2 mb-2 px-3 py-2 border rounded-full ${concerns.includes(c) ? 'bg-[#D97D64] border-[#D97D64]' : 'bg-white border-[#E5E5EA]'}`}>
+                      <Text className={`font-sans text-xs font-medium ${concerns.includes(c) ? 'text-white' : 'text-[#2C2C2E]'}`}>{t(`quiz.concern_${c}`)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity onPress={handleQuizSubmit} className="w-full mt-8 py-4 bg-[#8F9779] rounded-full items-center">
+              {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-sans font-bold">{t('quiz.finish')}</Text>}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* STEP 3: AI RECOMMENDATIONS */}
+        {step === 3 && (
+          <View className="flex-1 py-6 mt-8">
+            <View className="items-center mb-8">
+              <View className="w-16 h-16 bg-[#8F9779]/10 rounded-full items-center justify-center mb-4">
+                <Sparkles size={32} color="#8F9779" />
+              </View>
+              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center mb-2">
+                {t('ai_rec.title')}
+              </Text>
+              <Text className="text-sm font-sans text-[#6E6E73] text-center px-4">
+                {t('ai_rec.subtitle')}
+              </Text>
+            </View>
+
+            <View className="space-y-4 mb-8">
+              {recommendations.map((rec, idx) => (
+                <View key={idx} className="bg-white p-4 rounded-3xl border border-[#8F9779]/20 shadow-sm">
+                  <View className="flex-row items-center mb-2">
+                    <CheckCircle2 size={20} color="#8F9779" />
+                    <Text className="font-sans text-base font-bold text-[#2C2C2E] ml-2">{rec.product.name}</Text>
+                  </View>
+                  <Text className="font-sans text-xs text-[#8E8E93] mb-3">{rec.product.brand} • {rec.product.category.toUpperCase()}</Text>
+                  
+                  <View className="bg-[#FAF9F6] p-3 rounded-2xl">
+                    <Text className="font-sans text-xs font-semibold text-[#D97D64] mb-1">{t('ai_rec.why')}</Text>
+                    <Text className="font-sans text-xs text-[#2C2C2E] italic">"{rec.reason[language]}"</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity 
+              onPress={handleAddRecommendations}
+              className="w-full py-4 bg-[#8F9779] rounded-full items-center mb-4"
+            >
+              {addingProducts ? (
+                <View className="flex-row items-center space-x-2">
+                  <ActivityIndicator size="small" color="white" />
+                  <Text className="text-white font-sans font-bold">{t('ai_rec.adding')}</Text>
+                </View>
+              ) : (
+                <Text className="text-white font-sans font-bold">Aggiungi Tutti all'Armadietto</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={nextStep} className="py-2 items-center">
+              <Text className="text-[#8F9779] font-sans font-semibold">{t('notif.skip')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* STEP 4: NOTIFICATIONS */}
+        {step === 4 && (
+          <View className="flex-1 justify-center py-6">
+            <View className="items-center justify-center mb-10 mt-12">
+              <View className="w-20 h-20 bg-[#8F9779]/10 rounded-full items-center justify-center mb-6">
+                <Bell size={40} color="#8F9779" />
+              </View>
+              <Text className="text-2xl font-serif text-[#2C2C2E] font-bold text-center">
+                {t('notif.title')}
+              </Text>
+              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-4 leading-relaxed max-w-xs">
+                {t('notif.text')}
+              </Text>
+            </View>
+
+            <View className="space-y-3">
+              <TouchableOpacity onPress={handleEnableNotifications} className="w-full py-4 bg-[#8F9779] rounded-full items-center flex-row justify-center space-x-2">
+                {loading ? <ActivityIndicator size="small" color="white" /> : (
+                  <>
+                    <Bell size={18} color="white" />
+                    <Text className="text-white font-sans text-base font-bold">{t('notif.enable')}</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={nextStep} className="w-full py-4 bg-transparent rounded-full items-center">
+                <Text className="text-[#8F9779] font-sans text-base font-semibold">{t('notif.skip')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* STEP 5: WELCOME SCREEN */}
+        {step === 5 && (
+          <View className="flex-1 justify-center py-6">
+            <View className="items-center mb-10">
+              <View className="w-24 h-24 bg-[#8F9779]/20 rounded-full items-center justify-center mb-6">
+                <Text className="text-5xl">✨</Text>
+              </View>
+              <Text className="text-3xl font-serif text-[#2C2C2E] font-bold text-center mb-2">
+                {t('welcome_screen.title')} {profile?.display_name || name || ''}!
+              </Text>
+              <Text className="text-base font-sans text-[#6E6E73] text-center px-4">
+                {t('welcome_screen.message')}
+              </Text>
+            </View>
+
+            <View className="bg-white rounded-3xl p-5 border border-[#F2F0EB] shadow-sm mb-10">
+              <Text className="font-sans text-xs font-bold text-[#8E8E93] uppercase tracking-widest mb-4">
+                {t('welcome_screen.profile_summary')}
+              </Text>
+              
+              <View className="flex-row justify-between border-b border-[#F2F0EB] pb-3 mb-3">
+                <Text className="font-sans text-[#6E6E73]">{t('welcome_screen.skin_type')}</Text>
+                <Text className="font-sans font-bold text-[#8F9779] capitalize">{t(`quiz.type_${skinType}`)}</Text>
+              </View>
+
+              <View className="flex-row justify-between border-b border-[#F2F0EB] pb-3 mb-3">
+                <Text className="font-sans text-[#6E6E73]">{t('welcome_screen.goals')}</Text>
+                <Text className="font-sans font-bold text-[#2C2C2E] text-right w-1/2" numberOfLines={1}>
+                  {goals.length} scelti
+                </Text>
+              </View>
+
+              <View className="flex-row justify-between">
+                <Text className="font-sans text-[#6E6E73]">Armadietto</Text>
+                <Text className="font-sans font-bold text-[#2C2C2E]">
+                  {recommendations.length} {t('welcome_screen.products_added')}
+                </Text>
+              </View>
+            </View>
+
+            <Text className="text-center font-sans italic text-[#D97D64] mb-8">
+              {t('welcome_screen.motivation')}
+            </Text>
+
+            <TouchableOpacity onPress={finishOnboarding} className="w-full py-4 bg-[#8F9779] rounded-full flex-row items-center justify-center space-x-2">
+              <Text className="text-white font-sans text-base font-bold">{t('welcome_screen.cta')}</Text>
+              <ArrowRight size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+
       </ScrollView>
     </View>
   );

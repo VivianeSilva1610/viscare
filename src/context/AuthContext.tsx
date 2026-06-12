@@ -11,8 +11,8 @@ interface AuthContextProps {
   isGuest: boolean;
   isPremium: boolean;
   isLoading: boolean;
-  loginAsGuest: () => Promise<void>;
-  signUp: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  loginAsGuest: (displayName?: string) => Promise<void>;
+  signUp: (email: string, pass: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   purchasePremium: (plan: 'monthly' | 'yearly') => Promise<void>;
@@ -92,33 +92,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const setupGuestUser = async () => {
+  const setupGuestUser = async (displayName: string = 'Visitatore') => {
     const guestId = 'guest-user-id';
     setUser({ id: guestId, email: 'guest@viscare.com' });
-    const userProfile = await DataService.getProfile(guestId);
+    let userProfile = await DataService.getProfile(guestId);
+    if (displayName && displayName !== 'Visitatore' || !userProfile.display_name) {
+      userProfile = await DataService.updateProfile(guestId, { display_name: displayName || 'Visitatore' });
+    }
     setProfile(userProfile);
     setIsPremium(userProfile.subscription_plan === 'premium');
     setIsGuest(true);
     await AsyncStorage.setItem('viscare_is_guest', 'true');
   };
 
-  const loginAsGuest = async () => {
+  const loginAsGuest = async (displayName?: string) => {
     setIsLoading(true);
-    await setupGuestUser();
+    await setupGuestUser(displayName);
     setIsLoading(false);
   };
 
-  const signUp = async (email: string, pass: string) => {
+  const signUp = async (email: string, pass: string, displayName: string) => {
     if (!isSupabaseConfigured) {
-      return { success: false, error: 'Supabase real não está configurado. Cadastre-se como visitante ou defina suas chaves.' };
+      return { success: false, error: 'Supabase real não está configurado. Cadastre-se como visitante o defina suas chaves.' };
     }
     try {
       setIsLoading(true);
       const { data, error } = await supabase.auth.signUp({ email, password: pass });
       if (error) throw error;
       if (data.user) {
-        // Criar perfil
-        const userProfile = await DataService.getProfile(data.user.id);
+        // Criar perfil com nome
+        const userProfile = await DataService.updateProfile(data.user.id, { display_name: displayName });
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');

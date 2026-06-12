@@ -36,40 +36,40 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="today"
         options={{
-          title: 'Oggi',
-          tabBarLabel: 'Oggi',
+          title: t('tabs.today'),
+          tabBarLabel: t('tabs.today'),
           tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="routine"
         options={{
-          title: t('routine.tab_title'),
-          tabBarLabel: t('routine.tab_title'),
+          title: t('tabs.routine'),
+          tabBarLabel: t('tabs.routine'),
           tabBarIcon: ({ color, size }) => <Layers size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="products"
         options={{
-          title: 'Armadietto',
-          tabBarLabel: 'Cabinet',
+          title: t('tabs.products'),
+          tabBarLabel: t('tabs.products'),
           tabBarIcon: ({ color, size }) => <FolderHeart size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="discover"
         options={{
-          title: t('discover.title'),
-          tabBarLabel: t('discover.title'),
+          title: t('tabs.discover'),
+          tabBarLabel: t('tabs.discover'),
           tabBarIcon: ({ color, size }) => <Compass size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Impostazioni',
-          tabBarLabel: 'Settings',
+          title: t('tabs.settings'),
+          tabBarLabel: t('tabs.settings'),
           tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />

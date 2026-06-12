@@ -15,7 +15,26 @@ interface LocalizationContextProps {
 
 const translations = {
   it: {
-    // Onboarding - Welcome
+    // Onboarding - Auth (STEP 0 - ora primo passo)
+    'auth.title': 'Benvenuta in Viscare',
+    'auth.subtitle': 'La tua spa-tech tascabile per la cura della pelle',
+    'auth.name': 'Il tuo Nome',
+    'auth.name_placeholder': 'Come ti chiami?',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.signin': 'Accedi',
+    'auth.signup': 'Registrati',
+    'auth.toggle_signin': 'Hai già un account? Accedi',
+    'auth.toggle_signup': 'Non hai un account? Registrati',
+    'auth.or': 'oppure continua con',
+    'auth.google': 'Google',
+    'auth.apple': 'Apple',
+    'auth.guest': 'Continua come Ospite',
+    'auth.error_fill': 'Inserisci email e password.',
+    'auth.error_name': 'Inserisci il tuo nome per continuare.',
+    'auth.select_language': 'Seleziona la tua lingua',
+
+    // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
     'welcome.subtitle': 'La tua spa-tech tascabile',
     'welcome.value_prop1': 'Crea routine personalizzate basate sulle tue esigenze reali.',
@@ -26,7 +45,7 @@ const translations = {
     'welcome.accept_disclaimer': 'Accetta ed Continua',
     'welcome.next': 'Continua',
 
-    // Onboarding - Quiz
+    // Onboarding - Quiz (STEP 2)
     'quiz.title': 'Quiz sulla Pelle',
     'quiz.subtitle': 'Aiutaci a conoscerti meglio',
     'quiz.age_question': 'Quanti anni hai?',
@@ -53,24 +72,35 @@ const translations = {
     'quiz.concern_dryness': 'Secchezza',
     'quiz.finish': 'Completa Quiz',
 
-    // Onboarding - Notifications & Auth
+    // Onboarding - AI Recommendations (STEP 3)
+    'ai_rec.title': 'Prodotti Consigliati per Te',
+    'ai_rec.subtitle': 'In base al tuo profilo cutaneo, la nostra IA ha selezionato questi prodotti essenziali.',
+    'ai_rec.adding': 'Aggiungendo al tuo armadietto...',
+    'ai_rec.added': 'Aggiunto all\'armadietto!',
+    'ai_rec.why': 'Perché questo prodotto?',
+    'ai_rec.loading': 'Analizzando il tuo profilo...',
+
+    // Onboarding - Notifications (STEP 4)
     'notif.title': 'Resta Costante',
     'notif.text': 'Abilita le notifiche per ricordarti la routine AM (7:00), riapplicare l\'SPF (12:00) e la routine PM (22:00). La costanza è il segreto per una pelle radiosa.',
     'notif.enable': 'Abilita Notifiche',
     'notif.skip': 'Salta per Ora',
-    'auth.title': 'Crea il tuo Account',
-    'auth.subtitle': 'Salva i tuoi dati e sincronizzali su tutti i dispositivi',
-    'auth.email': 'Email',
-    'auth.password': 'Password',
-    'auth.signin': 'Accedi',
-    'auth.signup': 'Registrati',
-    'auth.or': 'oppure continua con',
-    'auth.google': 'Google',
-    'auth.apple': 'Apple',
-    'auth.guest': 'Continua come Ospite',
+
+    // Onboarding - Welcome Screen (STEP 5)
+    'welcome_screen.title': 'Benvenuta in Viscare,',
+    'welcome_screen.message': 'Il tuo viaggio verso una pelle radiosa inizia ora! Abbiamo preparato tutto per te.',
+    'welcome_screen.profile_summary': 'Il tuo profilo',
+    'welcome_screen.skin_type': 'Tipo di pelle',
+    'welcome_screen.goals': 'Obiettivi',
+    'welcome_screen.products_added': 'prodotti aggiunti al tuo armadietto',
+    'welcome_screen.cta': 'Entra nel mio Viscare',
+    'welcome_screen.motivation': '✨ Ogni passo conta. La tua pelle ti ringrazierà!',
+
+    // Navigation
+    'nav.back': 'Indietro',
 
     // Home / Today
-    'home.greeting_morning': 'Buongiorno, splendore',
+    'home.greeting_morning': 'Buongiorno',
     'home.greeting_afternoon': 'Buon pomeriggio',
     'home.greeting_evening': 'Buonasera',
     'home.streak': 'giorni consecutivi',
@@ -79,6 +109,9 @@ const translations = {
     'home.checklist_empty': 'Nessun prodotto in questa routine. Vai alla scheda "Routine" per configurarla.',
     'home.complete_task': 'Completato!',
     'home.incomplete_task': 'Segna come fatto',
+    'home.create_routine': 'Crea Routine',
+    'home.product_default': 'Prodotto',
+    'home.brand_default': 'Marca',
 
     // Routine
     'routine.tab_title': 'Le Mie Routine',
@@ -135,6 +168,13 @@ const translations = {
     'settings.privacy': 'Informativa sulla Privacy',
     'settings.terms': 'Termini di Servizio',
 
+    // Tabs
+    'tabs.today': 'Oggi',
+    'tabs.routine': 'Routine',
+    'tabs.products': 'Armadietto',
+    'tabs.discover': 'Esplora',
+    'tabs.settings': 'Impostazioni',
+
     // Paywall
     'paywall.title': 'Passa a Viscare Premium',
     'paywall.subtitle': 'Sblocca tutto il potenziale per la cura della tua pelle',
@@ -148,7 +188,26 @@ const translations = {
     'paywall.close': 'Chiudi'
   },
   en: {
-    // Onboarding - Welcome
+    // Onboarding - Auth (STEP 0)
+    'auth.title': 'Welcome to Viscare',
+    'auth.subtitle': 'Your pocket spa-tech skincare companion',
+    'auth.name': 'Your Name',
+    'auth.name_placeholder': 'What\'s your name?',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.signin': 'Sign In',
+    'auth.signup': 'Sign Up',
+    'auth.toggle_signin': 'Already have an account? Sign In',
+    'auth.toggle_signup': 'Don\'t have an account? Sign Up',
+    'auth.or': 'or continue with',
+    'auth.google': 'Google',
+    'auth.apple': 'Apple',
+    'auth.guest': 'Continue as Guest',
+    'auth.error_fill': 'Please enter email and password.',
+    'auth.error_name': 'Please enter your name to continue.',
+    'auth.select_language': 'Select your language',
+
+    // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
     'welcome.subtitle': 'Your pocket spa-tech companion',
     'welcome.value_prop1': 'Create personalized skincare routines based on your real needs.',
@@ -159,7 +218,7 @@ const translations = {
     'welcome.accept_disclaimer': 'Accept & Continue',
     'welcome.next': 'Continue',
 
-    // Onboarding - Quiz
+    // Onboarding - Quiz (STEP 2)
     'quiz.title': 'Skin Quiz',
     'quiz.subtitle': 'Help us know you better',
     'quiz.age_question': 'How old are you?',
@@ -186,24 +245,35 @@ const translations = {
     'quiz.concern_dryness': 'Dryness',
     'quiz.finish': 'Finish Quiz',
 
-    // Onboarding - Notifications & Auth
+    // Onboarding - AI Recommendations (STEP 3)
+    'ai_rec.title': 'Products Recommended for You',
+    'ai_rec.subtitle': 'Based on your skin profile, our AI has selected these essential products for you.',
+    'ai_rec.adding': 'Adding to your cabinet...',
+    'ai_rec.added': 'Added to cabinet!',
+    'ai_rec.why': 'Why this product?',
+    'ai_rec.loading': 'Analyzing your profile...',
+
+    // Onboarding - Notifications (STEP 4)
     'notif.title': 'Stay Consistent',
     'notif.text': 'Enable notifications to remind you of your AM routine (7:00), SPF reapplication (12:00), and PM routine (22:00). Consistency is key to glowing skin.',
     'notif.enable': 'Enable Notifications',
     'notif.skip': 'Skip for Now',
-    'auth.title': 'Create your Account',
-    'auth.subtitle': 'Save your data and sync across devices',
-    'auth.email': 'Email',
-    'auth.password': 'Password',
-    'auth.signin': 'Sign In',
-    'auth.signup': 'Sign Up',
-    'auth.or': 'or continue with',
-    'auth.google': 'Google',
-    'auth.apple': 'Apple',
-    'auth.guest': 'Continue as Guest',
+
+    // Onboarding - Welcome Screen (STEP 5)
+    'welcome_screen.title': 'Welcome to Viscare,',
+    'welcome_screen.message': 'Your journey to radiant skin starts now! We\'ve set everything up for you.',
+    'welcome_screen.profile_summary': 'Your profile',
+    'welcome_screen.skin_type': 'Skin type',
+    'welcome_screen.goals': 'Goals',
+    'welcome_screen.products_added': 'products added to your cabinet',
+    'welcome_screen.cta': 'Enter my Viscare',
+    'welcome_screen.motivation': '✨ Every step counts. Your skin will thank you!',
+
+    // Navigation
+    'nav.back': 'Back',
 
     // Home / Today
-    'home.greeting_morning': 'Good morning, sunshine',
+    'home.greeting_morning': 'Good morning',
     'home.greeting_afternoon': 'Good afternoon',
     'home.greeting_evening': 'Good evening',
     'home.streak': 'day streak',
@@ -212,6 +282,9 @@ const translations = {
     'home.checklist_empty': 'No products in this routine. Go to "Routine" tab to set it up.',
     'home.complete_task': 'Completed!',
     'home.incomplete_task': 'Mark as done',
+    'home.create_routine': 'Create Routine',
+    'home.product_default': 'Product',
+    'home.brand_default': 'Brand',
 
     // Routine
     'routine.tab_title': 'My Routines',
@@ -268,6 +341,13 @@ const translations = {
     'settings.privacy': 'Privacy Policy',
     'settings.terms': 'Terms of Service',
 
+    // Tabs
+    'tabs.today': 'Today',
+    'tabs.routine': 'Routine',
+    'tabs.products': 'Cabinet',
+    'tabs.discover': 'Explore',
+    'tabs.settings': 'Settings',
+
     // Paywall
     'paywall.title': 'Upgrade to Viscare Premium',
     'paywall.subtitle': 'Unlock the full potential of your skin care',
@@ -281,7 +361,26 @@ const translations = {
     'paywall.close': 'Close'
   },
   pt: {
-    // Onboarding - Welcome
+    // Onboarding - Auth (STEP 0)
+    'auth.title': 'Bem-vinda ao Viscare',
+    'auth.subtitle': 'Sua spa-tech de bolso para cuidados com a pele',
+    'auth.name': 'Seu Nome',
+    'auth.name_placeholder': 'Qual é o seu nome?',
+    'auth.email': 'E-mail',
+    'auth.password': 'Senha',
+    'auth.signin': 'Entrar',
+    'auth.signup': 'Cadastrar',
+    'auth.toggle_signin': 'Já tem uma conta? Entrar',
+    'auth.toggle_signup': 'Não tem uma conta? Cadastrar',
+    'auth.or': 'ou continue com',
+    'auth.google': 'Google',
+    'auth.apple': 'Apple',
+    'auth.guest': 'Continuar como Convidada',
+    'auth.error_fill': 'Preencha o e-mail e a senha.',
+    'auth.error_name': 'Insira seu nome para continuar.',
+    'auth.select_language': 'Selecione seu idioma',
+
+    // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
     'welcome.subtitle': 'Sua spa-tech de bolso',
     'welcome.value_prop1': 'Crie rotinas de cuidados personalizadas com base em suas necessidades reais.',
@@ -292,7 +391,7 @@ const translations = {
     'welcome.accept_disclaimer': 'Aceitar e Continuar',
     'welcome.next': 'Continuar',
 
-    // Onboarding - Quiz
+    // Onboarding - Quiz (STEP 2)
     'quiz.title': 'Quiz da Pele',
     'quiz.subtitle': 'Ajude-nos a te conhecer melhor',
     'quiz.age_question': 'Qual é a sua idade?',
@@ -319,24 +418,35 @@ const translations = {
     'quiz.concern_dryness': 'Ressecamento',
     'quiz.finish': 'Concluir Quiz',
 
-    // Onboarding - Notifications & Auth
+    // Onboarding - AI Recommendations (STEP 3)
+    'ai_rec.title': 'Produtos Recomendados para Você',
+    'ai_rec.subtitle': 'Com base no seu perfil de pele, nossa IA selecionou estes produtos essenciais para você.',
+    'ai_rec.adding': 'Adicionando ao seu armário...',
+    'ai_rec.added': 'Adicionado ao armário!',
+    'ai_rec.why': 'Por que este produto?',
+    'ai_rec.loading': 'Analisando seu perfil...',
+
+    // Onboarding - Notifications (STEP 4)
     'notif.title': 'Mantenha a Constância',
-    'notif.text': 'Ative as notificações para lembrá-lo da rotina matinal (7:00), reaplicação do protetor solar (12:00) e rotina noturna (22:00). A constância é o segredo para uma pele radiante.',
+    'notif.text': 'Ative as notificações para lembrá-la da rotina matinal (7:00), reaplicação do protetor solar (12:00) e rotina noturna (22:00). A constância é o segredo para uma pele radiante.',
     'notif.enable': 'Ativar Notificações',
     'notif.skip': 'Pular por Enquanto',
-    'auth.title': 'Crie sua Conta',
-    'auth.subtitle': 'Salve seus dados e sincronize em todos os dispositivos',
-    'auth.email': 'E-mail',
-    'auth.password': 'Senha',
-    'auth.signin': 'Entrar',
-    'auth.signup': 'Cadastrar',
-    'auth.or': 'ou continue com',
-    'auth.google': 'Google',
-    'auth.apple': 'Apple',
-    'auth.guest': 'Continuar como Convidado',
+
+    // Onboarding - Welcome Screen (STEP 5)
+    'welcome_screen.title': 'Bem-vinda ao Viscare,',
+    'welcome_screen.message': 'Sua jornada para uma pele radiante começa agora! Preparamos tudo para você.',
+    'welcome_screen.profile_summary': 'Seu perfil',
+    'welcome_screen.skin_type': 'Tipo de pele',
+    'welcome_screen.goals': 'Objetivos',
+    'welcome_screen.products_added': 'produtos adicionados ao seu armário',
+    'welcome_screen.cta': 'Entrar no meu Viscare',
+    'welcome_screen.motivation': '✨ Cada passo conta. Sua pele vai agradecer!',
+
+    // Navigation
+    'nav.back': 'Voltar',
 
     // Home / Today
-    'home.greeting_morning': 'Bom dia, brilho do dia',
+    'home.greeting_morning': 'Bom dia',
     'home.greeting_afternoon': 'Boa tarde',
     'home.greeting_evening': 'Boa noite',
     'home.streak': 'dias seguidos',
@@ -345,6 +455,9 @@ const translations = {
     'home.checklist_empty': 'Nenhum produto nesta rotina. Vá para a aba "Rotina" para configurá-la.',
     'home.complete_task': 'Concluído!',
     'home.incomplete_task': 'Marcar como feito',
+    'home.create_routine': 'Criar Rotina',
+    'home.product_default': 'Produto',
+    'home.brand_default': 'Marca',
 
     // Routine
     'routine.tab_title': 'Minhas Rotinas',
@@ -400,6 +513,13 @@ const translations = {
     'settings.logout': 'Sair',
     'settings.privacy': 'Política de Privacidade',
     'settings.terms': 'Termos de Serviço',
+
+    // Tabs
+    'tabs.today': 'Hoje',
+    'tabs.routine': 'Rotina',
+    'tabs.products': 'Armário',
+    'tabs.discover': 'Explorar',
+    'tabs.settings': 'Configurações',
 
     // Paywall
     'paywall.title': 'Mude para o Viscare Premium',

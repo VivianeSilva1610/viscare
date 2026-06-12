@@ -177,7 +177,7 @@ export default function TodayScreen() {
               onPress={() => router.push('/routine')}
               className="px-4 py-2 bg-[#8F9779]/10 rounded-full flex-row items-center space-x-1"
             >
-              <Text className="font-sans text-xs font-bold text-[#8F9779]">Crea Routine</Text>
+              <Text className="font-sans text-xs font-bold text-[#8F9779]">{t('home.create_routine')}</Text>
               <ArrowRight size={14} color="#8F9779" />
             </TouchableOpacity>
           </View>
@@ -201,10 +201,10 @@ export default function TodayScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-[#8E8E93]' : 'text-[#2C2C2E]'}`}>
-                    {step.product?.custom_name || 'Prodotto'}
+                    {step.product?.custom_name || t('home.product_default')}
                   </Text>
                   <Text className="font-sans text-xs text-[#8E8E93]">
-                    {step.product?.custom_brand || 'Marca'} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
+                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
                   </Text>
                   {step.notes ? (
                     <Text className="font-sans text-xs text-[#8F9779] mt-1 italic">
@@ -234,7 +234,7 @@ export default function TodayScreen() {
               onPress={() => router.push('/routine')}
               className="px-4 py-2 bg-[#8F9779]/10 rounded-full flex-row items-center space-x-1"
             >
-              <Text className="font-sans text-xs font-bold text-[#8F9779]">Crea Routine</Text>
+              <Text className="font-sans text-xs font-bold text-[#8F9779]">{t('home.create_routine')}</Text>
               <ArrowRight size={14} color="#8F9779" />
             </TouchableOpacity>
           </View>
@@ -258,10 +258,10 @@ export default function TodayScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-[#8E8E93]' : 'text-[#2C2C2E]'}`}>
-                    {step.product?.custom_name || 'Prodotto'}
+                    {step.product?.custom_name || t('home.product_default')}
                   </Text>
                   <Text className="font-sans text-xs text-[#8E8E93]">
-                    {step.product?.custom_brand || 'Marca'} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
+                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
                   </Text>
                   {step.notes ? (
                     <Text className="font-sans text-xs text-[#8F9779] mt-1 italic">

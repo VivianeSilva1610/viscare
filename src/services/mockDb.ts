@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export interface Profile {
   id: string;
   email: string;
+  display_name: string;
   language: 'it' | 'en' | 'pt';
   subscription_plan: 'free' | 'premium';
   subscription_expires_at: string | null;
@@ -248,6 +249,7 @@ export class MockDatabase {
       profile = {
         id: userId,
         email: 'user@viscare.com',
+        display_name: '',
         language: 'it',
         subscription_plan: 'free',
         subscription_expires_at: null,
@@ -271,6 +273,7 @@ export class MockDatabase {
       updated = {
         id: userId,
         email: 'user@viscare.com',
+        display_name: '',
         language: 'it',
         subscription_plan: 'free',
         subscription_expires_at: null,
