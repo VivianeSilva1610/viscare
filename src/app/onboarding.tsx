@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation, Language } from '../context/LocalizationContext';
@@ -187,12 +187,13 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              <Text className="text-3xl font-serif text-brand-bronze font-bold text-center">
-                {t('auth.title')}
-              </Text>
-              <Text className="text-sm font-sans text-brand-sage-dark text-center mt-2 mb-8">
-                {t('auth.subtitle')}
-              </Text>
+              <View className="items-center mb-8">
+                <Image
+                  source={require('../../assets/images/icon.png')}
+                  className="w-24 h-24 rounded-3xl"
+                  resizeMode="contain"
+                />
+              </View>
 
               <View className="space-y-4">
                 {/* Botões Sociais Mockados */}
