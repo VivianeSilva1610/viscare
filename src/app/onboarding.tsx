@@ -7,6 +7,7 @@ import { DataService } from '../services/dataService';
 import { supabase } from '../services/supabase';
 import { NotificationService } from '../services/notifications';
 import { AIRecommendationService, ProductRecommendation } from '../services/aiRecommendations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles, Globe, CheckCircle2 } from 'lucide-react-native';
 
@@ -26,11 +27,16 @@ export default function Onboarding() {
   const [isSignUpMode, setIsSignUpMode] = useState<boolean>(true);
 
   useEffect(() => {
-    // Se o utilizador já estiver logado (ex: recarregou a página mas não tem skinProfile),
-    // pula a tela de Auth e vai direto para o Disclaimer/Quiz
-    if (user && step === 0) {
-      setStep(1);
-    }
+    // Se o utilizador já estiver logado como utilizador real (não guest) e não tiver skinProfile,
+    // pula a tela de Auth e vai direto para o Disclaimer/Quiz.
+    // Se for guest, queremos mostrar a tela de Auth para dar a chance de criar conta.
+    const skipAuthIfRealUser = async () => {
+      const isGuestFlag = await AsyncStorage.getItem('viscare_is_guest');
+      if (user && isGuestFlag !== 'true' && step === 0) {
+        setStep(1);
+      }
+    };
+    skipAuthIfRealUser();
   }, [user]);
 
   // STEP 1: Disclaimer

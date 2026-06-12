@@ -113,7 +113,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, pass: string, displayName: string) => {
     if (!isSupabaseConfigured) {
-      return { success: false, error: 'Supabase real não está configurado. Cadastre-se como visitante o defina suas chaves.' };
+      try {
+        setIsLoading(true);
+        const mockId = 'mock-' + email.replace(/[^a-zA-Z0-9]/g, '');
+        setUser({ id: mockId, email });
+        let userProfile = await DataService.getProfile(mockId);
+        userProfile = await DataService.updateProfile(mockId, { display_name: displayName, email });
+        setProfile(userProfile);
+        setIsGuest(false);
+        await AsyncStorage.removeItem('viscare_is_guest');
+        return { success: true };
+      } catch (e: any) {
+        return { success: false, error: e.message || 'Erro desconhecido' };
+      } finally {
+        setIsLoading(false);
+      }
     }
     try {
       setIsLoading(true);
@@ -136,7 +150,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, pass: string) => {
     if (!isSupabaseConfigured) {
-      return { success: false, error: 'Supabase real não está configurado. Faça login como visitante ou defina suas chaves.' };
+      try {
+        setIsLoading(true);
+        const mockId = 'mock-' + email.replace(/[^a-zA-Z0-9]/g, '');
+        setUser({ id: mockId, email });
+        const userProfile = await DataService.getProfile(mockId);
+        setProfile(userProfile);
+        setIsPremium(userProfile.subscription_plan === 'premium');
+        setIsGuest(false);
+        await AsyncStorage.removeItem('viscare_is_guest');
+        return { success: true };
+      } catch (e: any) {
+        return { success: false, error: e.message || 'Erro desconhecido' };
+      } finally {
+        setIsLoading(false);
+      }
     }
     try {
       setIsLoading(true);
