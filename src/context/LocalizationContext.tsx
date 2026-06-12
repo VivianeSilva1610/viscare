@@ -173,6 +173,7 @@ const translations = {
     'tabs.routine': 'Routine',
     'tabs.products': 'Armadietto',
     'tabs.discover': 'Esplora',
+    'tabs.agenda': 'Agenda',
     'tabs.settings': 'Impostazioni',
 
     // Paywall
@@ -346,6 +347,7 @@ const translations = {
     'tabs.routine': 'Routine',
     'tabs.products': 'Cabinet',
     'tabs.discover': 'Explore',
+    'tabs.agenda': 'Agenda',
     'tabs.settings': 'Settings',
 
     // Paywall
@@ -519,6 +521,7 @@ const translations = {
     'tabs.routine': 'Rotina',
     'tabs.products': 'Armário',
     'tabs.discover': 'Explorar',
+    'tabs.agenda': 'Agenda',
     'tabs.settings': 'Configurações',
 
     // Paywall

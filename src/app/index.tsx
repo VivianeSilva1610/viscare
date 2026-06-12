@@ -32,8 +32,8 @@ export default function Index() {
   }, [user, isLoading]);
 
   return (
-    <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-      <ActivityIndicator size="large" color="#8F9779" />
+    <View className="flex-1 items-center justify-center bg-brand-ivory">
+      <ActivityIndicator size="large" color="#B97C63" />
     </View>
   );
 }

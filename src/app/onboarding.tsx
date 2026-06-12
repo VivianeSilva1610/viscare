@@ -167,7 +167,7 @@ export default function Onboarding() {
 
   // RENDERS
   return (
-    <View className="flex-1 bg-[#FAF9F6]">
+    <View className="flex-1 bg-brand-ivory">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
 
         {/* STEP 0: AUTH */}
@@ -187,54 +187,68 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              <Text className="text-3xl font-serif text-[#2C2C2E] font-bold text-center">
+              <Text className="text-3xl font-serif text-brand-bronze font-bold text-center">
                 {t('auth.title')}
               </Text>
-              <Text className="text-sm font-sans text-[#6E6E73] text-center mt-2 mb-8">
+              <Text className="text-sm font-sans text-brand-sage-dark text-center mt-2 mb-8">
                 {t('auth.subtitle')}
               </Text>
 
               <View className="space-y-4">
+                {/* Botões Sociais Mockados */}
+                <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
+                  <Text className="font-sans font-semibold text-brand-charcoal">Continuar com Apple</Text>
+                </TouchableOpacity>
+                <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
+                  <Text className="font-sans font-semibold text-brand-charcoal">Continuar com Google</Text>
+                </TouchableOpacity>
+
+                <View className="flex-row items-center my-2">
+                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
+                  <Text className="text-xs font-sans text-brand-sage-dark px-3">{t('auth.or')}</Text>
+                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
+                </View>
+
                 {isSignUpMode && (
                   <View>
-                    <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.name')}</Text>
-                    <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
-                      <User size={18} color="#8E8E93" />
+                    <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.name')}</Text>
+                    <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                      <User size={18} color="#AEB09B" />
                       <TextInput
                         placeholder={t('auth.name_placeholder')}
                         value={name}
                         onChangeText={setName}
-                        className="flex-1 px-3 py-3 font-sans text-base"
+                        className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
                       />
                     </View>
                   </View>
                 )}
 
                 <View>
-                  <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.email')}</Text>
-                  <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
-                    <Mail size={18} color="#8E8E93" />
+                  <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.email')}</Text>
+                  <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                    <Mail size={18} color="#AEB09B" />
                     <TextInput
                       placeholder="example@email.com"
                       autoCapitalize="none"
                       keyboardType="email-address"
                       value={email}
                       onChangeText={setEmail}
-                      className="flex-1 px-3 py-3 font-sans text-base"
+                      className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
                     />
                   </View>
                 </View>
 
                 <View>
-                  <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('auth.password')}</Text>
-                  <View className="flex-row items-center bg-white px-4 py-1 border border-[#E5E5EA] rounded-2xl">
-                    <Lock size={18} color="#8E8E93" />
+                  <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.password')}</Text>
+                  <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                    <Lock size={18} color="#AEB09B" />
                     <TextInput
                       placeholder="••••••••"
                       secureTextEntry
                       value={password}
                       onChangeText={setPassword}
-                      className="flex-1 px-3 py-3 font-sans text-base"
+                      className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
                     />
                   </View>
                 </View>
@@ -242,17 +256,17 @@ export default function Onboarding() {
                 <TouchableOpacity
                   activeOpacity={0.9}
                   onPress={handleAuthSubmit}
-                  className="w-full py-4 bg-[#8F9779] rounded-full items-center mt-4"
+                  className="w-full py-4 bg-brand-rose-metallic rounded-full items-center mt-6 shadow-sm"
                 >
                   {loading ? <ActivityIndicator size="small" color="white" /> : (
-                    <Text className="text-white font-sans text-base font-bold">
+                    <Text className="text-white font-sans text-base font-semibold tracking-wide">
                       {isSignUpMode ? t('auth.signup') : t('auth.signin')}
                     </Text>
                   )}
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => setIsSignUpMode(!isSignUpMode)} className="py-2 items-center">
-                  <Text className="text-sm font-sans text-[#8F9779] font-medium">
+                <TouchableOpacity onPress={() => setIsSignUpMode(!isSignUpMode)} className="py-2 items-center mt-2">
+                  <Text className="text-sm font-sans text-brand-bronze font-medium">
                     {isSignUpMode ? t('auth.toggle_signin') : t('auth.toggle_signup')}
                   </Text>
                 </TouchableOpacity>

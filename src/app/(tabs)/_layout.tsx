@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { useTranslation } from '../../context/LocalizationContext';
-import { Calendar, Layers, FolderHeart, Compass, Settings } from 'lucide-react-native';
+import { Calendar, Layers, FolderHeart, Compass, Settings, CalendarHeart } from 'lucide-react-native';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -10,19 +10,19 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#8F9779', // Sage Green
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: '#B97C63', // Rose Gold Metálico
+        tabBarInactiveTintColor: '#8C8E78', // Verde Sálvia Escuro
         tabBarStyle: {
-          backgroundColor: '#FAF9F6', // Off-white
+          backgroundColor: '#F8F2EE', // Marfim Rosado (Fundo principal)
           borderTopWidth: 1,
-          borderTopColor: '#F2F0EB',
+          borderTopColor: '#E7D8D0', // Bege Rosado
           paddingBottom: 8,
           paddingTop: 8,
-          height: 64,
+          height: 68,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Inter_600SemiBold',
-          fontSize: 10,
+          fontFamily: 'Poppins_600SemiBold',
+          fontSize: 9, // Ajustado ligeiramente para 6 abas caberem confortavelmente
           marginBottom: 4,
         },
       }}
@@ -38,7 +38,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.today'),
           tabBarLabel: t('tabs.today'),
-          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Calendar size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -46,7 +46,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.routine'),
           tabBarLabel: t('tabs.routine'),
-          tabBarIcon: ({ color, size }) => <Layers size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Layers size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -54,7 +54,15 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.products'),
           tabBarLabel: t('tabs.products'),
-          tabBarIcon: ({ color, size }) => <FolderHeart size={size} color={color} />,
+          tabBarIcon: ({ color }) => <FolderHeart size={20} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="agenda"
+        options={{
+          title: t('tabs.agenda'),
+          tabBarLabel: t('tabs.agenda'),
+          tabBarIcon: ({ color }) => <CalendarHeart size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -62,7 +70,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.discover'),
           tabBarLabel: t('tabs.discover'),
-          tabBarIcon: ({ color, size }) => <Compass size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Compass size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -70,7 +78,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.settings'),
           tabBarLabel: t('tabs.settings'),
-          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Settings size={20} color={color} />,
         }}
       />
     </Tabs>

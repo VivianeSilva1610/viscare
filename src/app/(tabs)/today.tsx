@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Routine, RoutineStep } from '../../services/mockDb';
-import { CheckCircle2, Circle, Flame, Sun, Moon, ArrowRight } from 'lucide-react-native';
+import { CheckCircle2, Circle, Flame, Sun, Moon, ArrowRight, Star, CalendarHeart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+
+const { width } = Dimensions.get('window');
 
 export default function TodayScreen() {
   const { user } = useAuth();
@@ -19,9 +21,11 @@ export default function TodayScreen() {
   const [pmSteps, setPmSteps] = useState<(RoutineStep & { product?: UserProduct })[]>([]);
   const [amRoutine, setAmRoutine] = useState<Routine | null>(null);
   const [pmRoutine, setPmRoutine] = useState<Routine | null>(null);
+  const [favorites, setFavorites] = useState<UserProduct[]>([]);
+  
+  const [skinScore, setSkinScore] = useState<number>(85); // Mock score base
 
   useEffect(() => {
-    // Definir saudação baseada na hora local
     const hours = new Date().getHours();
     if (hours < 12) {
       setGreeting(t('home.greeting_morning'));
@@ -36,21 +40,22 @@ export default function TodayScreen() {
     if (!user) return;
     setLoading(true);
     try {
-      // 1. Obter Perfil para ver a Streak
       const profile = await DataService.getProfile(user.id);
       setStreak(profile.streak_count);
+      
+      // Calculate dynamic score based on streak
+      setSkinScore(Math.min(98, 75 + (profile.streak_count * 2)));
 
-      // 2. Obter Rotinas
       const routines = await DataService.getRoutines(user.id);
       const amRot = routines.find(r => r.type === 'AM') || null;
       const pmRot = routines.find(r => r.type === 'PM') || null;
       setAmRoutine(amRot);
       setPmRoutine(pmRot);
 
-      // 3. Obter produtos do gabinete
       const cabinet = await DataService.getUserProducts(user.id);
+      // Pega 2 produtos aleatórios para serem favoritos
+      setFavorites(cabinet.slice(0, 2));
 
-      // 4. Obter passos de cada rotina e anexar informações do produto
       if (amRot) {
         const steps = await DataService.getRoutineSteps(amRot.id);
         const enriched = steps.map(s => ({
@@ -79,10 +84,6 @@ export default function TodayScreen() {
     loadData();
   }, [user]);
 
-  // Recarregar dados sempre que a tela ganhar foco
-  // Em Expo Router, podemos usar hooks ou simplesmente confiar que as transições atualizam o estado.
-  // Vamos recarregar os dados na montagem e fornecer um método pull-to-refresh opcional, ou disparar a atualização reativa.
-
   const toggleStep = async (stepId: string, routineType: 'AM' | 'PM') => {
     const isAm = routineType === 'AM';
     const stepsList = isAm ? amSteps : pmSteps;
@@ -91,7 +92,6 @@ export default function TodayScreen() {
 
     if (!routineId) return;
 
-    // Atualizar estado local
     const updated = stepsList.map(s => {
       if (s.id === stepId) {
         return { ...s, is_completed: !s.is_completed };
@@ -100,14 +100,10 @@ export default function TodayScreen() {
     });
     setStepsList(updated);
 
-    // Salvar no banco
     try {
       await DataService.saveRoutineSteps(routineId, updated);
-
-      // Verificar se toda a rotina foi completada hoje
       const allDone = updated.every(s => s.is_completed);
       if (allDone && updated.length > 0 && user) {
-        // Aumentar streak
         const profile = await DataService.getProfile(user.id);
         const todayStr = new Date().toISOString().split('T')[0];
         
@@ -118,6 +114,7 @@ export default function TodayScreen() {
             last_active_date: todayStr
           });
           setStreak(newStreak);
+          setSkinScore(Math.min(98, skinScore + 2));
           
           Alert.alert(
             '🌟 Perfetto!',
@@ -137,48 +134,91 @@ export default function TodayScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-        <ActivityIndicator size="large" color="#8F9779" />
+      <View className="flex-1 items-center justify-center bg-brand-ivory">
+        <ActivityIndicator size="large" color="#B97C63" />
       </View>
     );
   }
 
+  // Define circular progress logic
+  const circumference = 2 * Math.PI * 30; // radius 30
+  const strokeDashoffset = circumference - (skinScore / 100) * circumference;
+
   return (
-    <ScrollView className="flex-1 bg-[#FAF9F6] px-6 pt-12">
-      {/* Header */}
+    <ScrollView className="flex-1 bg-brand-ivory px-6 pt-12 pb-24">
+      {/* Header Saudação */}
       <View className="flex-row justify-between items-center mt-4 mb-6">
         <View className="flex-1 pr-4">
-          <Text className="text-3xl font-serif text-[#2C2C2E] font-bold leading-tight">
+          <Text className="text-3xl font-serif text-brand-bronze font-bold leading-tight">
             {greeting}
           </Text>
-        </View>
-        {/* Streak Badge */}
-        <View className="bg-[#D97D64]/10 px-4 py-2 rounded-full flex-row items-center space-x-1">
-          <Flame size={18} color="#D97D64" fill="#D97D64" />
-          <Text className="font-sans text-xs font-bold text-[#D97D64]">
-            {streak} {t('home.streak')}
+          <Text className="text-sm font-sans text-brand-sage-dark mt-1">
+            Pronta per la tua skin routine?
           </Text>
         </View>
       </View>
 
+      {/* Hero Card: Skin Score & Streak */}
+      <View className="bg-brand-nude p-6 rounded-3xl mb-8 flex-row items-center justify-between shadow-sm border border-white/50">
+        <View className="flex-1 pr-4">
+          <Text className="font-sans text-xs uppercase tracking-widest font-semibold text-brand-bronze mb-1">
+            Skin Health
+          </Text>
+          <Text className="font-serif text-3xl font-bold text-brand-charcoal mb-2">
+            {skinScore}<Text className="text-lg">/100</Text>
+          </Text>
+          
+          <View className="bg-white/60 self-start px-3 py-1.5 rounded-full flex-row items-center space-x-1 mt-2">
+            <Flame size={14} color="#D97D64" fill="#D97D64" />
+            <Text className="font-sans text-xs font-semibold text-brand-charcoal">
+              {streak} {t('home.streak')}
+            </Text>
+          </View>
+        </View>
+
+        {/* Circular Progress (SVG Mock with View for now) */}
+        <View className="w-20 h-20 bg-white rounded-full items-center justify-center shadow-sm border-[4px] border-brand-rose-light">
+          <Text className="font-sans font-bold text-lg text-brand-bronze">{skinScore}%</Text>
+        </View>
+      </View>
+
+      {/* Próximos Cuidados (Agenda Preview) */}
+      <View className="mb-8">
+        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Próximos Cuidados</Text>
+        <TouchableOpacity 
+          onPress={() => router.push('/(tabs)/agenda')}
+          className="bg-white p-4 rounded-2xl flex-row items-center justify-between border border-brand-warm-gray shadow-sm"
+        >
+          <View className="flex-row items-center">
+            <View className="w-12 h-12 bg-brand-nude rounded-full items-center justify-center mr-4">
+              <CalendarHeart size={20} color="#B97C63" />
+            </View>
+            <View>
+              <Text className="font-sans text-sm font-bold text-brand-charcoal">Limpeza de Pele Profunda</Text>
+              <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">Sexta-feira, 14:00 • Clínica VisCare</Text>
+            </View>
+          </View>
+          <ArrowRight size={18} color="#D7A58D" />
+        </TouchableOpacity>
+      </View>
+
       {/* Routine AM Checklist */}
-      <View className="mb-6">
-        <View className="flex-row items-center space-x-2 mb-3">
-          <Sun size={20} color="#8F9779" />
-          <Text className="font-serif text-lg text-[#2C2C2E] font-bold">{t('home.routine_am')}</Text>
+      <View className="mb-8">
+        <View className="flex-row items-center space-x-2 mb-4">
+          <Sun size={22} color="#B97C63" />
+          <Text className="font-serif text-xl text-brand-charcoal font-bold">{t('home.routine_am')}</Text>
         </View>
 
         {amSteps.length === 0 ? (
-          <View className="bg-white p-5 rounded-3xl border border-[#F2F0EB] items-center">
-            <Text className="text-sm font-sans text-[#6E6E73] text-center mb-4 leading-relaxed">
+          <View className="bg-white p-6 rounded-3xl border border-brand-warm-gray items-center shadow-sm">
+            <Text className="text-sm font-sans text-brand-sage-dark text-center mb-4 leading-relaxed">
               {t('home.checklist_empty')}
             </Text>
             <TouchableOpacity
               onPress={() => router.push('/routine')}
-              className="px-4 py-2 bg-[#8F9779]/10 rounded-full flex-row items-center space-x-1"
+              className="px-5 py-2.5 bg-brand-rose-metallic rounded-full flex-row items-center space-x-2 shadow-sm"
             >
-              <Text className="font-sans text-xs font-bold text-[#8F9779]">{t('home.create_routine')}</Text>
-              <ArrowRight size={14} color="#8F9779" />
+              <Text className="font-sans text-xs font-semibold text-white uppercase tracking-wider">{t('home.create_routine')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -188,29 +228,22 @@ export default function TodayScreen() {
                 key={step.id}
                 activeOpacity={0.8}
                 onPress={() => toggleStep(step.id, 'AM')}
-                className={`flex-row items-center p-4 bg-white border rounded-3xl shadow-sm ${step.is_completed ? 'border-[#8F9779]/20 opacity-80' : 'border-[#F2F0EB]'}`}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: step.is_completed }}
+                className={`flex-row items-center p-4 bg-white border rounded-2xl shadow-sm ${step.is_completed ? 'border-brand-sage-light opacity-75' : 'border-brand-warm-gray'}`}
               >
-                <View className="mr-3">
+                <View className="mr-4">
                   {step.is_completed ? (
-                    <CheckCircle2 size={24} color="#8F9779" />
+                    <CheckCircle2 size={24} color="#AEB09B" />
                   ) : (
-                    <Circle size={24} color="#C6C6C8" />
+                    <Circle size={24} color="#E7D8D0" />
                   )}
                 </View>
                 <View className="flex-1">
-                  <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-[#8E8E93]' : 'text-[#2C2C2E]'}`}>
+                  <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-brand-sage-dark' : 'text-brand-charcoal'}`}>
                     {step.product?.custom_name || t('home.product_default')}
                   </Text>
-                  <Text className="font-sans text-xs text-[#8E8E93]">
-                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
+                  <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">
+                    {step.product?.custom_brand || t('home.brand_default')}
                   </Text>
-                  {step.notes ? (
-                    <Text className="font-sans text-xs text-[#8F9779] mt-1 italic">
-                      {step.notes}
-                    </Text>
-                  ) : null}
                 </View>
               </TouchableOpacity>
             ))}
@@ -218,24 +251,41 @@ export default function TodayScreen() {
         )}
       </View>
 
+      {/* Produtos Favoritos */}
+      {favorites.length > 0 && (
+        <View className="mb-8">
+          <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Meus Favoritos</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4">
+            {favorites.map(fav => (
+              <View key={fav.id} className="bg-white border border-brand-warm-gray rounded-2xl p-4 w-48 mr-4 shadow-sm items-center">
+                <View className="w-16 h-16 bg-brand-ivory rounded-full items-center justify-center mb-3">
+                  <Star size={24} color="#D7A58D" fill="#F1E7E2" />
+                </View>
+                <Text className="font-sans text-sm font-bold text-brand-charcoal text-center line-clamp-2">{fav.custom_name}</Text>
+                <Text className="font-sans text-xs text-brand-sage-dark mt-1 text-center">{fav.custom_brand}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Routine PM Checklist */}
-      <View className="mb-12">
-        <View className="flex-row items-center space-x-2 mb-3">
-          <Moon size={20} color="#8F9779" />
-          <Text className="font-serif text-lg text-[#2C2C2E] font-bold">{t('home.routine_pm')}</Text>
+      <View className="mb-16">
+        <View className="flex-row items-center space-x-2 mb-4">
+          <Moon size={22} color="#B97C63" />
+          <Text className="font-serif text-xl text-brand-charcoal font-bold">{t('home.routine_pm')}</Text>
         </View>
 
         {pmSteps.length === 0 ? (
-          <View className="bg-white p-5 rounded-3xl border border-[#F2F0EB] items-center">
-            <Text className="text-sm font-sans text-[#6E6E73] text-center mb-4 leading-relaxed">
+          <View className="bg-white p-6 rounded-3xl border border-brand-warm-gray items-center shadow-sm">
+            <Text className="text-sm font-sans text-brand-sage-dark text-center mb-4 leading-relaxed">
               {t('home.checklist_empty')}
             </Text>
             <TouchableOpacity
               onPress={() => router.push('/routine')}
-              className="px-4 py-2 bg-[#8F9779]/10 rounded-full flex-row items-center space-x-1"
+              className="px-5 py-2.5 bg-brand-rose-metallic rounded-full flex-row items-center space-x-2 shadow-sm"
             >
-              <Text className="font-sans text-xs font-bold text-[#8F9779]">{t('home.create_routine')}</Text>
-              <ArrowRight size={14} color="#8F9779" />
+              <Text className="font-sans text-xs font-semibold text-white uppercase tracking-wider">{t('home.create_routine')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -245,29 +295,22 @@ export default function TodayScreen() {
                 key={step.id}
                 activeOpacity={0.8}
                 onPress={() => toggleStep(step.id, 'PM')}
-                className={`flex-row items-center p-4 bg-white border rounded-3xl shadow-sm ${step.is_completed ? 'border-[#8F9779]/20 opacity-80' : 'border-[#F2F0EB]'}`}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: step.is_completed }}
+                className={`flex-row items-center p-4 bg-white border rounded-2xl shadow-sm ${step.is_completed ? 'border-brand-sage-light opacity-75' : 'border-brand-warm-gray'}`}
               >
-                <View className="mr-3">
+                <View className="mr-4">
                   {step.is_completed ? (
-                    <CheckCircle2 size={24} color="#8F9779" />
+                    <CheckCircle2 size={24} color="#AEB09B" />
                   ) : (
-                    <Circle size={24} color="#C6C6C8" />
+                    <Circle size={24} color="#E7D8D0" />
                   )}
                 </View>
                 <View className="flex-1">
-                  <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-[#8E8E93]' : 'text-[#2C2C2E]'}`}>
+                  <Text className={`font-sans text-sm font-bold ${step.is_completed ? 'line-through text-brand-sage-dark' : 'text-brand-charcoal'}`}>
                     {step.product?.custom_name || t('home.product_default')}
                   </Text>
-                  <Text className="font-sans text-xs text-[#8E8E93]">
-                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{t(`quiz.type_${step.product?.custom_category || 'cleanser'}`)}</Text>
+                  <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">
+                    {step.product?.custom_brand || t('home.brand_default')}
                   </Text>
-                  {step.notes ? (
-                    <Text className="font-sans text-xs text-[#8F9779] mt-1 italic">
-                      {step.notes}
-                    </Text>
-                  ) : null}
                 </View>
               </TouchableOpacity>
             ))}

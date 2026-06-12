@@ -3,15 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --color-brand-bg: #FAF9F6;
-  --color-brand-sage: #8F9779;
-  --color-brand-terracotta: #D97D64;
+  --color-brand-bg: #F8F2EE;
+  --color-brand-sage: #AEB09B;
+  --color-brand-terracotta: #B97C63;
   --color-brand-charcoal: #2C2C2E;
-  --color-brand-warm-gray: #F2F0EB;
+  --color-brand-warm-gray: #E7D8D0;
   
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-sans: "Inter", sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-serif: "PlayfairDisplay_400Regular", Georgia, serif;
+  --font-sans: "Poppins_400Regular", sans-serif;
+  --font-display: "PlayfairDisplay_600SemiBold", Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
 }

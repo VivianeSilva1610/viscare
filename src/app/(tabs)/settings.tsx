@@ -101,8 +101,8 @@ export default function SettingsScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-        <ActivityIndicator size="large" color="#8F9779" />
+      <View className="flex-1 items-center justify-center bg-brand-ivory">
+        <ActivityIndicator size="large" color="#B97C63" />
       </View>
     );
   }
@@ -113,23 +113,23 @@ export default function SettingsScreen() {
   const pmReminder = reminders.find(r => r.type === 'PM');
 
   return (
-    <ScrollView className="flex-1 bg-[#FAF9F6] px-6 pt-12">
+    <ScrollView className="flex-1 bg-brand-ivory px-6 pt-12">
       {/* Header */}
-      <View className="py-4 mb-6 border-b border-[#F2F0EB]">
-        <Text className="text-2xl font-serif text-[#2C2C2E] font-bold">
+      <View className="py-4 mb-6 border-b border-brand-beige">
+        <Text className="text-2xl font-serif text-brand-bronze font-bold">
           {t('settings.title')}
         </Text>
       </View>
 
       {/* Seção Premium */}
-      <View className="bg-white p-5 rounded-[32px] border border-[#F2F0EB] shadow-sm mb-6">
+      <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-6">
         <View className="flex-row items-center space-x-3 mb-4">
-          <Star size={24} color={isPremium ? '#8F9779' : '#D97D64'} fill={isPremium ? '#8F9779' : 'transparent'} />
+          <Star size={24} color={isPremium ? '#B97C63' : '#D7A58D'} fill={isPremium ? '#B97C63' : 'transparent'} />
           <View>
-            <Text className="font-serif text-base font-bold text-[#2C2C2E]">
+            <Text className="font-serif text-base font-bold text-brand-charcoal">
               {t('settings.premium_status')}
             </Text>
-            <Text className={`font-sans text-sm font-semibold ${isPremium ? 'text-[#8F9779]' : 'text-[#8E8E8E]'}`}>
+            <Text className={`font-sans text-sm font-semibold ${isPremium ? 'text-brand-rose-metallic' : 'text-[#8E8E8E]'}`}>
               {isPremium ? t('settings.premium') : t('settings.free')}
             </Text>
           </View>
@@ -139,7 +139,7 @@ export default function SettingsScreen() {
           <TouchableOpacity
             onPress={() => router.push('/paywall')}
             activeOpacity={0.9}
-            className="w-full bg-[#8F9779] py-3 rounded-full flex-row items-center justify-center space-x-1 shadow-sm"
+            className="w-full bg-brand-rose-metallic py-3 rounded-full flex-row items-center justify-center space-x-1 shadow-sm"
           >
             <Sparkles size={16} color="white" />
             <Text className="text-white font-sans text-sm font-bold">
@@ -150,10 +150,10 @@ export default function SettingsScreen() {
       </View>
 
       {/* Seção Idiomas */}
-      <View className="bg-white p-5 rounded-[32px] border border-[#F2F0EB] shadow-sm mb-6">
+      <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-6">
         <View className="flex-row items-center space-x-2 mb-3">
-          <Globe size={18} color="#8F9779" />
-          <Text className="font-serif text-sm font-bold text-[#2C2C2E]">{t('settings.language')}</Text>
+          <Globe size={18} color="#B97C63" />
+          <Text className="font-serif text-sm font-bold text-brand-charcoal">{t('settings.language')}</Text>
         </View>
 
         <View className="flex-row justify-between mt-2">
@@ -161,9 +161,9 @@ export default function SettingsScreen() {
             <TouchableOpacity
               key={lang}
               onPress={() => changeLanguage(lang)}
-              className={`w-[30%] py-2 border rounded-2xl items-center ${language === lang ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-[#FAF9F6] border-[#E5E5EA]'}`}
+              className={`w-[30%] py-2 border rounded-2xl items-center ${language === lang ? 'bg-brand-rose-light/10 border-brand-rose-metallic' : 'bg-brand-ivory border-brand-beige'}`}
             >
-              <Text className={`font-sans text-xs font-bold uppercase ${language === lang ? 'text-[#8F9779]' : 'text-[#8E8E93]'}`}>
+              <Text className={`font-sans text-xs font-bold uppercase ${language === lang ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
                 {lang === 'it' ? 'Italiano' : lang === 'pt' ? 'Português' : 'English'}
               </Text>
             </TouchableOpacity>
@@ -172,21 +172,21 @@ export default function SettingsScreen() {
       </View>
 
       {/* Seção Lembretes Notificações */}
-      <View className="bg-white p-5 rounded-[32px] border border-[#F2F0EB] shadow-sm mb-6">
+      <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-6">
         <View className="flex-row items-center space-x-2 mb-4">
-          <Bell size={18} color="#8F9779" />
-          <Text className="font-serif text-sm font-bold text-[#2C2C2E]">Lembretes Diários</Text>
+          <Bell size={18} color="#B97C63" />
+          <Text className="font-serif text-sm font-bold text-brand-charcoal">Lembretes Diários</Text>
         </View>
 
         <View className="space-y-3">
           {/* Lembrete AM */}
-          <View className="flex-row justify-between items-center py-2 border-b border-[#FAF9F6]">
+          <View className="flex-row justify-between items-center py-2 border-b border-brand-beige">
             <View>
-              <Text className="font-sans text-xs font-bold text-[#2C2C2E]">{t('home.routine_am')}</Text>
+              <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('home.routine_am')}</Text>
               <Text className="font-sans text-[10px] text-[#8E8E93]">07:00 AM</Text>
             </View>
             <Switch
-              trackColor={{ false: '#E5E5EA', true: '#8F9779' }}
+              trackColor={{ false: '#E5E5EA', true: '#B97C63' }}
               thumbColor="white"
               onValueChange={() => toggleReminder('AM', !!amReminder?.is_enabled)}
               value={!!amReminder?.is_enabled}
@@ -194,13 +194,13 @@ export default function SettingsScreen() {
           </View>
 
           {/* Lembrete SPF */}
-          <View className="flex-row justify-between items-center py-2 border-b border-[#FAF9F6]">
+          <View className="flex-row justify-between items-center py-2 border-b border-brand-beige">
             <View>
-              <Text className="font-sans text-xs font-bold text-[#2C2C2E]">Reaplicação de SPF</Text>
+              <Text className="font-sans text-xs font-bold text-brand-charcoal">Reaplicação de SPF</Text>
               <Text className="font-sans text-[10px] text-[#8E8E93]">12:00 PM</Text>
             </View>
             <Switch
-              trackColor={{ false: '#E5E5EA', true: '#8F9779' }}
+              trackColor={{ false: '#E5E5EA', true: '#B97C63' }}
               thumbColor="white"
               onValueChange={() => toggleReminder('SPF', !!spfReminder?.is_enabled)}
               value={!!spfReminder?.is_enabled}
@@ -210,11 +210,11 @@ export default function SettingsScreen() {
           {/* Lembrete PM */}
           <View className="flex-row justify-between items-center py-2">
             <View>
-              <Text className="font-sans text-xs font-bold text-[#2C2C2E]">{t('home.routine_pm')}</Text>
+              <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('home.routine_pm')}</Text>
               <Text className="font-sans text-[10px] text-[#8E8E93]">10:00 PM</Text>
             </View>
             <Switch
-              trackColor={{ false: '#E5E5EA', true: '#8F9779' }}
+              trackColor={{ false: '#E5E5EA', true: '#B97C63' }}
               thumbColor="white"
               onValueChange={() => toggleReminder('PM', !!pmReminder?.is_enabled)}
               value={!!pmReminder?.is_enabled}
@@ -224,26 +224,26 @@ export default function SettingsScreen() {
       </View>
 
       {/* Seção Conta e LGPD */}
-      <View className="bg-white p-5 rounded-[32px] border border-[#F2F0EB] shadow-sm mb-12 space-y-4">
+      <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-12 space-y-4">
         
         {/* Termos mockados */}
         <TouchableOpacity className="flex-row justify-between items-center py-1">
-          <Text className="font-sans text-xs text-[#2C2C2E] font-medium">{t('settings.privacy')}</Text>
+          <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.privacy')}</Text>
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="flex-row justify-between items-center py-1 border-t border-[#FAF9F6] pt-3">
-          <Text className="font-sans text-xs text-[#2C2C2E] font-medium">{t('settings.terms')}</Text>
+        <TouchableOpacity className="flex-row justify-between items-center py-1 border-t border-brand-beige pt-3">
+          <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.terms')}</Text>
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
 
         {/* Logout */}
         <TouchableOpacity
           onPress={handleLogout}
-          className="flex-row items-center space-x-2 py-1 border-t border-[#FAF9F6] pt-3"
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
         >
-          <LogOut size={16} color="#D97D64" />
-          <Text className="font-sans text-xs font-bold text-[#D97D64]">
+          <LogOut size={16} color="#EF4444" />
+          <Text className="font-sans text-xs font-bold text-red-500">
             {t('settings.logout')}
           </Text>
         </TouchableOpacity>
@@ -251,10 +251,10 @@ export default function SettingsScreen() {
         {/* Deletar conta LGPD */}
         <TouchableOpacity
           onPress={handleDeleteAccount}
-          className="flex-row items-center space-x-2 py-1 border-t border-[#FAF9F6] pt-3"
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
         >
-          <ShieldAlert size={16} color="#D97D64" />
-          <Text className="font-sans text-xs font-bold text-[#D97D64]">
+          <ShieldAlert size={16} color="#EF4444" />
+          <Text className="font-sans text-xs font-bold text-red-500">
             {t('settings.delete_account')}
           </Text>
         </TouchableOpacity>

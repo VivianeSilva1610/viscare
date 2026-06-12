@@ -228,8 +228,8 @@ export default function RoutineScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-        <ActivityIndicator size="large" color="#8F9779" />
+      <View className="flex-1 items-center justify-center bg-brand-ivory">
+        <ActivityIndicator size="large" color="#B97C63" />
       </View>
     );
   }
@@ -238,17 +238,17 @@ export default function RoutineScreen() {
   const availableProducts = cabinet.filter(p => !steps.some(s => s.user_product_id === p.id));
 
   return (
-    <View className="flex-1 bg-[#FAF9F6] pt-12">
+    <View className="flex-1 bg-brand-ivory pt-12">
       {/* Header */}
-      <View className="px-6 py-4 flex-row justify-between items-center border-b border-[#F2F0EB]">
-        <Text className="text-2xl font-serif text-[#2C2C2E] font-bold">
+      <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
+        <Text className="text-2xl font-serif text-brand-bronze font-bold">
           {t('routine.tab_title')}
         </Text>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={handleGenerateWithAI}
           disabled={generating}
-          className="bg-[#8F9779] px-4 py-2 rounded-full flex-row items-center space-x-1.5 shadow-sm"
+          className="bg-brand-rose-metallic px-4 py-2 rounded-full flex-row items-center space-x-1.5 shadow-sm"
         >
           {generating ? (
             <ActivityIndicator size="small" color="white" />
@@ -265,17 +265,17 @@ export default function RoutineScreen() {
       <View className="flex-row px-6 my-4">
         <TouchableOpacity
           onPress={() => setActiveTab('AM')}
-          className={`flex-1 py-3 items-center rounded-2xl mr-2 ${activeTab === 'AM' ? 'bg-[#8F9779]/15 border border-[#8F9779]/30' : 'bg-white border border-[#E5E5EA]'}`}
+          className={`flex-1 py-3 items-center rounded-2xl mr-2 ${activeTab === 'AM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
         >
-          <Text className={`font-sans text-sm font-bold ${activeTab === 'AM' ? 'text-[#8F9779]' : 'text-[#8E8E93]'}`}>
+          <Text className={`font-sans text-sm font-bold ${activeTab === 'AM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
             {t('routine.am_label')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setActiveTab('PM')}
-          className={`flex-1 py-3 items-center rounded-2xl ${activeTab === 'PM' ? 'bg-[#8F9779]/15 border border-[#8F9779]/30' : 'bg-white border border-[#E5E5EA]'}`}
+          className={`flex-1 py-3 items-center rounded-2xl ${activeTab === 'PM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
         >
-          <Text className={`font-sans text-sm font-bold ${activeTab === 'PM' ? 'text-[#8F9779]' : 'text-[#8E8E93]'}`}>
+          <Text className={`font-sans text-sm font-bold ${activeTab === 'PM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
             {t('routine.pm_label')}
           </Text>
         </TouchableOpacity>
@@ -287,27 +287,27 @@ export default function RoutineScreen() {
         {steps.length > 1 && (
           <View className={`p-4 rounded-3xl mb-4 border flex-row items-start ${
             compatStatus === 'red' 
-              ? 'bg-[#D97D64]/10 border-[#D97D64]/30' 
+              ? 'bg-red-500/10 border-red-500/30' 
               : compatStatus === 'yellow' 
-                ? 'bg-[#F5C75D]/10 border-[#F5C75D]/30' 
-                : 'bg-[#8F9779]/10 border-[#8F9779]/30'
+                ? 'bg-yellow-500/10 border-yellow-500/30' 
+                : 'bg-brand-sage-light/15 border-brand-sage-light/30'
           }`}>
             <View className="mr-3 mt-0.5">
               {compatStatus === 'red' ? (
-                <AlertCircle size={20} color="#D97D64" />
+                <AlertCircle size={20} color="#EF4444" />
               ) : compatStatus === 'yellow' ? (
-                <AlertTriangle size={20} color="#F5C75D" />
+                <AlertTriangle size={20} color="#F5A623" />
               ) : (
-                <CheckCircle size={20} color="#8F9779" />
+                <CheckCircle size={20} color="#AEB09B" />
               )}
             </View>
             <View className="flex-1">
               <Text className={`font-serif text-sm font-bold ${
-                compatStatus === 'red' ? 'text-[#D97D64]' : compatStatus === 'yellow' ? 'text-[#D09A0A]' : 'text-[#8F9779]'
+                compatStatus === 'red' ? 'text-red-500' : compatStatus === 'yellow' ? 'text-yellow-600' : 'text-brand-sage-dark'
               }`}>
                 {compatStatus === 'red' ? t('compat.danger') : compatStatus === 'yellow' ? t('compat.caution') : t('compat.safe')}
               </Text>
-              <Text className="font-sans text-xs text-[#2C2C2E] mt-1 leading-relaxed">
+              <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
                 {compatStatus === 'green' ? t('compat.safe_desc') : (
                   language === 'pt' ? `${compatConflicts.length} conflito(s) de ingrediente ativo detectados nesta rotina.` :
                   language === 'en' ? `${compatConflicts.length} active ingredient conflict(s) detected in this routine.` :
@@ -319,7 +319,7 @@ export default function RoutineScreen() {
               {compatConflicts.length > 0 && (
                 <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
                   {compatConflicts.map((c, i) => (
-                    <Text key={i} className="font-sans text-[11px] text-[#2C2C2E] leading-relaxed">
+                    <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
                       ⚠️ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
                         language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
                       }
@@ -331,19 +331,19 @@ export default function RoutineScreen() {
           </View>
         )}
 
-        <Text className="font-sans text-xs text-[#8E8E93] mb-4">
+        <Text className="font-sans text-xs text-brand-sage-dark mb-4">
           {t('routine.order_hint')}
         </Text>
 
         {/* List of steps */}
         {steps.length === 0 ? (
-          <View className="bg-white p-8 rounded-3xl border border-[#F2F0EB] items-center justify-center my-6">
-            <Text className="font-sans text-sm text-[#8E8E93] text-center leading-relaxed mb-6">
-              Non ci sono passaggi configurati per questa rotina. Aggiungi i prodotti dal tuo armadietto o genera con la nostra IA.
+          <View className="bg-white p-8 rounded-3xl border border-brand-beige items-center justify-center my-6">
+            <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed mb-6">
+              Non ci sono passaggi configurati per questa rotina. Aggiungi i produtos dal tuo armadietto o genera con la nostra IA.
             </Text>
             <TouchableOpacity
               onPress={() => setIsAddModalOpen(true)}
-              className="px-6 py-3 bg-[#8F9779] rounded-full flex-row items-center space-x-2 shadow-sm"
+              className="px-6 py-3 bg-brand-rose-metallic rounded-full flex-row items-center space-x-2 shadow-sm"
             >
               <Plus size={16} color="white" />
               <Text className="text-white font-sans text-sm font-bold">{t('routine.add_step')}</Text>
@@ -354,14 +354,14 @@ export default function RoutineScreen() {
             {steps.map((step, index) => (
               <View
                 key={step.id}
-                className="bg-white p-4 border border-[#F2F0EB] rounded-3xl flex-row items-center justify-between shadow-sm"
+                className="bg-white p-4 border border-brand-beige rounded-3xl flex-row items-center justify-between shadow-sm"
               >
                 <View className="flex-1 pr-3">
                   <View className="flex-row items-center space-x-2">
-                    <View className="w-5 h-5 bg-[#F2F0EB] rounded-full items-center justify-center">
-                      <Text className="text-[10px] font-sans font-bold text-[#8E8E93]">{index + 1}</Text>
+                    <View className="w-5 h-5 bg-brand-beige rounded-full items-center justify-center">
+                      <Text className="text-[10px] font-sans font-bold text-brand-sage-dark">{index + 1}</Text>
                     </View>
-                    <Text className="font-sans text-sm font-bold text-[#2C2C2E]">
+                    <Text className="font-sans text-sm font-bold text-brand-charcoal">
                       {step.product?.custom_name || 'Prodotto'}
                     </Text>
                   </View>
@@ -369,12 +369,12 @@ export default function RoutineScreen() {
                     {step.product?.custom_brand || 'Marca'} • <Text className="capitalize">{step.product?.custom_category}</Text>
                   </Text>
                   {step.product?.custom_active_ingredients.length ? (
-                    <Text className="font-sans text-[11px] text-[#D97D64] mt-1 ml-7">
+                    <Text className="font-sans text-[11px] text-brand-rose-light mt-1 ml-7">
                       ✨ {step.product.custom_active_ingredients.join(', ')}
                     </Text>
                   ) : null}
                   {step.notes ? (
-                    <Text className="font-sans text-xs text-[#8F9779] mt-1 ml-7 italic">
+                    <Text className="font-sans text-xs text-brand-sage-dark mt-1 ml-7 italic">
                       {step.notes}
                     </Text>
                   ) : null}
@@ -385,7 +385,7 @@ export default function RoutineScreen() {
                   <TouchableOpacity
                     onPress={() => moveUp(index)}
                     disabled={index === 0}
-                    className={`p-2 rounded-xl bg-[#F2F0EB] ${index === 0 ? 'opacity-40' : ''}`}
+                    className={`p-2 rounded-xl bg-brand-beige ${index === 0 ? 'opacity-40' : ''}`}
                     accessibilityLabel="Sposta in alto"
                   >
                     <ArrowUp size={14} color="#8E8E93" />
@@ -393,17 +393,17 @@ export default function RoutineScreen() {
                   <TouchableOpacity
                     onPress={() => moveDown(index)}
                     disabled={index === steps.length - 1}
-                    className={`p-2 rounded-xl bg-[#F2F0EB] ${index === steps.length - 1 ? 'opacity-40' : ''}`}
+                    className={`p-2 rounded-xl bg-brand-beige ${index === steps.length - 1 ? 'opacity-40' : ''}`}
                     accessibilityLabel="Sposta in basso"
                   >
                     <ArrowDown size={14} color="#8E8E93" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => removeStep(step.id)}
-                    className="p-2 rounded-xl bg-[#D97D64]/10"
+                    className="p-2 rounded-xl bg-red-500/10"
                     accessibilityLabel="Rimuovi passo"
                   >
-                    <Trash2 size={14} color="#D97D64" />
+                    <Trash2 size={14} color="#EF4444" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -411,10 +411,10 @@ export default function RoutineScreen() {
 
             <TouchableOpacity
               onPress={() => setIsAddModalOpen(true)}
-              className="w-full py-4 border-2 border-dashed border-[#8F9779]/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-2"
+              className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-2"
             >
-              <Plus size={18} color="#8F9779" />
-              <Text className="text-[#8F9779] font-sans text-sm font-bold">{t('routine.add_step')}</Text>
+              <Plus size={18} color="#B97C63" />
+              <Text className="text-brand-rose-metallic font-sans text-sm font-bold">{t('routine.add_step')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -430,12 +430,12 @@ export default function RoutineScreen() {
         <View className="flex-1 justify-end bg-black/40">
           <View className="bg-white rounded-t-[32px] p-6 max-h-[80%]">
             <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-serif text-[#2C2C2E] font-bold">
+              <Text className="text-xl font-serif text-brand-bronze font-bold">
                 {t('routine.add_step')}
               </Text>
               <TouchableOpacity
                 onPress={() => setIsAddModalOpen(false)}
-                className="p-2 bg-[#F2F0EB] rounded-full"
+                className="p-2 bg-brand-beige rounded-full"
               >
                 <X size={16} color="#8E8E93" />
               </TouchableOpacity>
@@ -443,7 +443,7 @@ export default function RoutineScreen() {
 
             {availableProducts.length === 0 ? (
               <View className="py-8 items-center">
-                <Text className="font-sans text-sm text-[#8E8E93] text-center leading-relaxed">
+                <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed">
                   Tutti i prodotti del tuo armadietto sono già in questa rotina o non hai ancora registrato prodotti.
                 </Text>
               </View>
@@ -453,17 +453,17 @@ export default function RoutineScreen() {
                   <TouchableOpacity
                     key={p.id}
                     onPress={() => addProductToRoutine(p.id)}
-                    className="flex-row items-center justify-between p-4 border border-[#F2F0EB] rounded-2xl bg-white active:bg-[#F2F0EB]/50"
+                    className="flex-row items-center justify-between p-4 border border-brand-beige rounded-2xl bg-white active:bg-brand-beige/50"
                   >
                     <View className="flex-1">
-                      <Text className="font-sans text-sm font-bold text-[#2C2C2E]">
+                      <Text className="font-sans text-sm font-bold text-brand-charcoal">
                         {p.custom_name}
                       </Text>
                       <Text className="font-sans text-xs text-[#8E8E93]">
                         {p.custom_brand} • <Text className="capitalize">{p.custom_category}</Text>
                       </Text>
                     </View>
-                    <Plus size={18} color="#8F9779" />
+                    <Plus size={18} color="#B97C63" />
                   </TouchableOpacity>
                 ))}
               </ScrollView>

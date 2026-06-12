@@ -158,33 +158,30 @@ export default function ProductsScreen() {
     } catch (e) {
       console.warn(e);
       setLoading(false);
-    }
-  };
-
-  if (loading) {
+     if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-        <ActivityIndicator size="large" color="#8F9779" />
+      <View className="flex-1 items-center justify-center bg-brand-ivory">
+        <ActivityIndicator size="large" color="#B97C63" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#FAF9F6] pt-12">
+    <View className="flex-1 bg-brand-ivory pt-12">
       {/* Header */}
-      <View className="px-6 py-4 flex-row justify-between items-center border-b border-[#F2F0EB]">
+      <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
         <View>
-          <Text className="text-2xl font-serif text-[#2C2C2E] font-bold">
+          <Text className="text-2xl font-serif text-brand-bronze font-bold">
             {t('products.title')}
           </Text>
-          <Text className="text-xs font-sans text-[#8E8E93]">
+          <Text className="text-xs font-sans text-brand-sage-dark">
             {t('products.subtitle')} ({cabinet.length}/5)
           </Text>
         </View>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => setIsAddModalOpen(true)}
-          className="bg-[#8F9779] p-3 rounded-full shadow-sm"
+          className="bg-brand-rose-metallic p-3 rounded-full shadow-sm"
         >
           <Plus size={18} color="white" />
         </TouchableOpacity>
@@ -193,10 +190,10 @@ export default function ProductsScreen() {
       {/* Grid de Produtos cadastrados */}
       {cabinet.length === 0 ? (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
-          <View className="flex-1 items-center justify-center py-12 bg-white rounded-[32px] border border-[#F2F0EB]">
+          <View className="flex-1 items-center justify-center py-12 bg-white rounded-[32px] border border-brand-beige">
             <HelpCircle size={48} color="#C6C6C8" />
-            <Text className="font-serif text-lg text-[#2C2C2E] font-bold mt-4">Nessun prodotto</Text>
-            <Text className="font-sans text-xs text-[#8E8E93] text-center px-8 mt-2 leading-relaxed">
+            <Text className="font-serif text-lg text-brand-charcoal font-bold mt-4">Nessun prodotto</Text>
+            <Text className="font-sans text-xs text-brand-sage-dark text-center px-8 mt-2 leading-relaxed">
               Il tuo armadietto è vuoto. Clicca sul tasto '+' in alto per inserire i tuoi prodotti di bellezza.
             </Text>
           </View>
@@ -207,27 +204,27 @@ export default function ProductsScreen() {
             {cabinet.map(item => (
               <View
                 key={item.id}
-                className="w-[48%] bg-white p-4 border border-[#F2F0EB] rounded-3xl mb-4 shadow-sm justify-between min-h-[160px]"
+                className="w-[48%] bg-white p-4 border border-brand-beige rounded-3xl mb-4 shadow-sm justify-between min-h-[160px]"
               >
                 <View>
-                  <Text className="font-sans text-xs font-bold text-[#8F9779] uppercase tracking-wider">
+                  <Text className="font-sans text-[10px] font-bold text-brand-rose-metallic uppercase tracking-wider">
                     {item.custom_category}
                   </Text>
-                  <Text className="font-serif text-sm font-bold text-[#2C2C2E] mt-1" numberOfLines={2}>
+                  <Text className="font-serif text-sm font-bold text-brand-charcoal mt-1" numberOfLines={2}>
                     {item.custom_name}
                   </Text>
-                  <Text className="font-sans text-[11px] text-[#8E8E93]" numberOfLines={1}>
+                  <Text className="font-sans text-[11px] text-brand-sage-dark" numberOfLines={1}>
                     {item.custom_brand}
                   </Text>
                   
                   {item.custom_active_ingredients.length > 0 && (
-                    <Text className="font-sans text-[10px] text-[#D97D64] mt-2 font-medium" numberOfLines={2}>
+                    <Text className="font-sans text-[10px] text-brand-rose-light mt-2 font-medium" numberOfLines={2}>
                       ✨ {item.custom_active_ingredients.join(', ')}
                     </Text>
                   )}
                 </View>
 
-                <View className="flex-row justify-between items-center mt-4 pt-2 border-t border-[#FAF9F6]">
+                <View className="flex-row justify-between items-center mt-4 pt-2 border-t border-brand-ivory">
                   <View className="flex-row items-center space-x-1">
                     <Calendar size={12} color="#8E8E93" />
                     <Text className="font-sans text-[10px] text-[#8E8E93]">
@@ -236,10 +233,10 @@ export default function ProductsScreen() {
                   </View>
                   <TouchableOpacity
                     onPress={() => handleDelete(item.id)}
-                    className="p-1.5 bg-[#D97D64]/10 rounded-lg"
+                    className="p-1.5 bg-red-500/10 rounded-lg"
                     accessibilityLabel="Elimina prodotto"
                   >
-                    <Trash2 size={12} color="#D97D64" />
+                    <Trash2 size={12} color="#EF4444" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -260,12 +257,12 @@ export default function ProductsScreen() {
             
             {/* Header Modal */}
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-serif text-[#2C2C2E] font-bold">
+              <Text className="text-xl font-serif text-brand-bronze font-bold">
                 Aggiungi Prodotto
               </Text>
               <TouchableOpacity
                 onPress={() => setIsAddModalOpen(false)}
-                className="p-2 bg-[#F2F0EB] rounded-full"
+                className="p-2 bg-brand-beige rounded-full"
               >
                 <X size={16} color="#8E8E93" />
               </TouchableOpacity>
@@ -275,36 +272,36 @@ export default function ProductsScreen() {
             <ScrollView className="flex-1 space-y-4" keyboardShouldPersistTaps="handled">
               
               {/* Barra de busca */}
-              <View className="bg-[#F2F0EB] flex-row items-center px-4 py-3 rounded-2xl">
+              <View className="bg-brand-beige flex-row items-center px-4 py-3 rounded-2xl">
                 <Search size={18} color="#8E8E93" className="mr-2" />
                 <TextInput
                   placeholder={t('products.search_placeholder')}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  className="flex-1 font-sans text-sm text-[#2C2C2E]"
+                  className="flex-1 font-sans text-sm text-brand-charcoal"
                 />
               </View>
 
               {/* Resultados da busca rápida */}
               {searchQuery.length > 0 && (
-                <View className="bg-[#FAF9F6] border border-[#F2F0EB] rounded-2xl p-2 max-h-[160px]">
+                <View className="bg-brand-ivory border border-brand-beige rounded-2xl p-2 max-h-[160px]">
                   <ScrollView nestedScrollEnabled={true}>
                     {filteredCatalog.length === 0 ? (
-                      <Text className="font-sans text-xs text-[#8E8E93] text-center p-4">
-                        Nessun prodotto trovato nel catalogo.
+                      <Text className="font-sans text-xs text-brand-sage-dark text-center p-4">
+                        Nessun produto trovato nel catalogo.
                       </Text>
                     ) : (
                       filteredCatalog.map(p => (
                         <TouchableOpacity
-                          key={p.id}
+                           key={p.id}
                           onPress={() => handleAddFromCatalog(p)}
-                          className="flex-row justify-between items-center p-3 border-b border-[#F2F0EB] active:bg-[#F2F0EB]"
+                          className="flex-row justify-between items-center p-3 border-b border-brand-beige active:bg-brand-beige"
                         >
                           <View>
-                            <Text className="font-sans text-xs font-bold text-[#2C2C2E]">{p.name}</Text>
-                            <Text className="font-sans text-[10px] text-[#8E8E93]">{p.brand} • <Text className="capitalize">{p.category}</Text></Text>
+                            <Text className="font-sans text-xs font-bold text-brand-charcoal">{p.name}</Text>
+                            <Text className="font-sans text-[10px] text-brand-sage-dark">{p.brand} • <Text className="capitalize">{p.category}</Text></Text>
                           </View>
-                          <Plus size={16} color="#8F9779" />
+                          <Plus size={16} color="#B97C63" />
                         </TouchableOpacity>
                       ))
                     )}
@@ -313,38 +310,38 @@ export default function ProductsScreen() {
               )}
 
               {/* Inserção Manual */}
-              <View className="border-t border-[#F2F0EB] pt-4">
-                <Text className="font-serif text-sm font-bold text-[#2C2C2E] mb-3">
+              <View className="border-t border-brand-beige pt-4">
+                <Text className="font-serif text-sm font-bold text-brand-bronze mb-3">
                   {t('products.manual_title')}
                 </Text>
 
                 <View className="space-y-3">
                   <View>
-                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                    <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                       {t('products.name')} *
                     </Text>
                     <TextInput
                       placeholder="es. Effaclar Duo"
                       value={customName}
                       onChangeText={setCustomName}
-                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                      className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                     />
                   </View>
 
                   <View>
-                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                    <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                       {t('products.brand')} *
                     </Text>
                     <TextInput
                       placeholder="es. La Roche-Posay"
                       value={customBrand}
                       onChangeText={setCustomBrand}
-                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                      className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                     />
                   </View>
 
                   <View>
-                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                    <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                       {t('products.category')}
                     </Text>
                     <View className="flex-row flex-wrap justify-between">
@@ -352,9 +349,9 @@ export default function ProductsScreen() {
                         <TouchableOpacity
                           key={cat}
                           onPress={() => setCustomCategory(cat)}
-                          className={`w-[31%] py-2 mb-2 border rounded-xl items-center ${customCategory === cat ? 'bg-[#8F9779]/10 border-[#8F9779]' : 'bg-[#FAF9F6] border-[#E5E5EA]'}`}
+                          className={`w-[31%] py-2 mb-2 border rounded-xl items-center ${customCategory === cat ? 'bg-brand-rose-light/10 border-brand-rose-metallic' : 'bg-brand-ivory border-brand-beige'}`}
                         >
-                          <Text className={`font-sans text-[10px] font-bold capitalize ${customCategory === cat ? 'text-[#8F9779]' : 'text-[#8E8E93]'}`}>
+                          <Text className={`font-sans text-[10px] font-bold capitalize ${customCategory === cat ? 'text-brand-rose-metallic' : 'text-brand-sage-dark'}`}>
                             {cat}
                           </Text>
                         </TouchableOpacity>
@@ -363,32 +360,32 @@ export default function ProductsScreen() {
                   </View>
 
                   <View>
-                    <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                    <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                       {t('products.active_ingredients')}
                     </Text>
                     <TextInput
                       placeholder="es. Retinolo, Vitamina C, Acido Ialuronico"
                       value={customActives}
                       onChangeText={setCustomActives}
-                      className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                      className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                     />
                   </View>
 
                   <View className="flex-row justify-between">
                     <View className="w-[48%]">
-                      <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                         {t('products.opened')}
                       </Text>
                       <TextInput
                         placeholder="AAAA-MM-GG"
                         value={openedAt}
                         onChangeText={setOpenedAt}
-                        className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                        className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                       />
                     </View>
 
                     <View className="w-[48%]">
-                      <Text className="text-xs font-sans font-semibold text-[#8E8E93] mb-1">
+                      <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
                         {t('products.expiration')}
                       </Text>
                       <TextInput
@@ -396,7 +393,7 @@ export default function ProductsScreen() {
                         keyboardType="number-pad"
                         value={expiration}
                         onChangeText={setExpiration}
-                        className="bg-[#FAF9F6] px-4 py-2.5 border border-[#E5E5EA] rounded-xl font-sans text-sm"
+                        className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                       />
                     </View>
                   </View>
@@ -407,7 +404,7 @@ export default function ProductsScreen() {
             <TouchableOpacity
               onPress={handleManualAdd}
               activeOpacity={0.9}
-              className="w-full py-4 bg-[#8F9779] rounded-full items-center mt-4"
+              className="w-full py-4 bg-brand-rose-metallic rounded-full items-center mt-4"
             >
               <Text className="text-white font-sans text-base font-bold">
                 {t('products.add_button')}

@@ -66,33 +66,33 @@ export default function DiscoverScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#FAF9F6]">
-        <ActivityIndicator size="large" color="#8F9779" />
+      <View className="flex-1 items-center justify-center bg-brand-ivory">
+        <ActivityIndicator size="large" color="#B97C63" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#FAF9F6] pt-12">
+    <View className="flex-1 bg-brand-ivory pt-12">
       {/* Header */}
-      <View className="px-6 py-4 border-b border-[#F2F0EB]">
-        <Text className="text-2xl font-serif text-[#2C2C2E] font-bold">
+      <View className="px-6 py-4 border-b border-brand-beige">
+        <Text className="text-2xl font-serif text-brand-bronze font-bold">
           {t('discover.title')}
         </Text>
-        <Text className="text-xs font-sans text-[#8E8E93] mt-0.5">
+        <Text className="text-xs font-sans text-brand-sage-dark mt-0.5">
           {t('discover.subtitle')}
         </Text>
       </View>
 
       {/* Busca */}
       <View className="px-6 my-4">
-        <View className="bg-[#F2F0EB] flex-row items-center px-4 py-3 rounded-2xl">
+        <View className="bg-brand-beige flex-row items-center px-4 py-3 rounded-2xl">
           <Search size={18} color="#8E8E93" className="mr-2" />
           <TextInput
             placeholder="Cerca ingredienti (es. Retinolo, Vitamina C)..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="flex-1 font-sans text-sm text-[#2C2C2E]"
+            className="flex-1 font-sans text-sm text-brand-charcoal"
           />
         </View>
       </View>
@@ -101,9 +101,9 @@ export default function DiscoverScreen() {
       <ScrollView className="flex-1 px-6">
         <View className="pb-24">
           {filteredIngredients.length === 0 ? (
-            <View className="bg-white p-8 rounded-3xl border border-[#F2F0EB] items-center justify-center my-6">
+            <View className="bg-white p-8 rounded-3xl border border-brand-beige items-center justify-center my-6">
               <HelpCircle size={40} color="#C6C6C8" />
-              <Text className="font-sans text-sm text-[#8E8E93] text-center mt-2 leading-relaxed">
+              <Text className="font-sans text-sm text-brand-sage-dark text-center mt-2 leading-relaxed">
                 Nessun ingrediente trovato. Prova con un altro termine.
               </Text>
             </View>
@@ -119,7 +119,7 @@ export default function DiscoverScreen() {
               return (
                 <View
                   key={item.id}
-                  className="bg-white border border-[#F2F0EB] rounded-3xl mb-3 shadow-sm overflow-hidden"
+                  className="bg-white border border-brand-beige rounded-3xl mb-3 shadow-sm overflow-hidden"
                 >
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -127,13 +127,13 @@ export default function DiscoverScreen() {
                     className="p-4 flex-row justify-between items-center"
                   >
                     <View className="flex-1">
-                      <Text className="font-serif text-base font-bold text-[#2C2C2E]">
+                      <Text className="font-serif text-base font-bold text-brand-charcoal">
                         {item.name}
                       </Text>
                       <View className="flex-row items-center mt-1 space-x-1">
-                        <Award size={12} color="#8F9779" />
+                        <Award size={12} color="#B97C63" />
                         <Text className="font-sans text-[10px] text-[#8E8E93]">
-                          {t('discover.evidence')} <Text className="font-bold text-[#8F9779]">{item.evidence_level}</Text>
+                          {t('discover.evidence')} <Text className="font-bold text-brand-rose-metallic">{item.evidence_level}</Text>
                         </Text>
                       </View>
                     </View>
@@ -146,27 +146,27 @@ export default function DiscoverScreen() {
 
                   {/* Corpo Expandido */}
                   {isExpanded && (
-                    <View className="px-4 pb-4 pt-2 border-t border-[#FAF9F6] space-y-3">
+                    <View className="px-4 pb-4 pt-2 border-t border-brand-ivory space-y-3">
                       <View>
-                        <Text className="font-sans text-xs text-[#8E8E93] font-semibold uppercase">Descrizione</Text>
-                        <Text className="font-sans text-xs text-[#2C2C2E] mt-1 leading-relaxed">
+                        <Text className="font-sans text-xs text-brand-sage-dark font-semibold uppercase">Descrizione</Text>
+                        <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
                           {description}
                         </Text>
                       </View>
 
                       <View>
-                        <Text className="font-sans text-xs text-[#8E8E93] font-semibold uppercase">{t('discover.benefits')}</Text>
-                        <Text className="font-sans text-xs text-[#2C2C2E] mt-1 leading-relaxed font-medium">
+                        <Text className="font-sans text-xs text-brand-sage-dark font-semibold uppercase">{t('discover.benefits')}</Text>
+                        <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed font-medium">
                           {benefits}
                         </Text>
                       </View>
 
                       {/* Exibir conflitos conhecidos */}
                       {conflicts.length > 0 && (
-                        <View className="bg-[#D97D64]/10 p-3 rounded-2xl border border-[#D97D64]/20">
+                        <View className="bg-brand-rose-metallic/10 p-3 rounded-2xl border border-brand-rose-metallic/20">
                           <View className="flex-row items-center space-x-1 mb-1">
-                            <AlertTriangle size={12} color="#D97D64" />
-                            <Text className="font-sans text-[10px] font-bold text-[#D97D64] uppercase">
+                            <AlertTriangle size={12} color="#B97C63" />
+                            <Text className="font-sans text-[10px] font-bold text-brand-rose-metallic uppercase">
                               {t('discover.conflicts')}
                             </Text>
                           </View>
@@ -174,7 +174,7 @@ export default function DiscoverScreen() {
                             {conflicts.map((c, i) => {
                               const otherIngredient = c.ingredient_a === item.name ? c.ingredient_b : c.ingredient_a;
                               return (
-                                <Text key={i} className="font-sans text-[10px] text-[#2C2C2E] leading-relaxed">
+                                <Text key={i} className="font-sans text-[10px] text-brand-charcoal leading-relaxed">
                                   ⚠️ <Text className="font-bold">{otherIngredient}</Text>
                                 </Text>
                               );
