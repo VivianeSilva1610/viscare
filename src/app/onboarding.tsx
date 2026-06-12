@@ -106,10 +106,10 @@ export default function Onboarding() {
         goals: goals.map(g => t(`quiz.goal_${g}`)),
         concerns: concerns.map(c => t(`quiz.concern_${c}`))
       });
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/today');
     } catch (e) {
       console.warn('Erro ao salvar quiz de pele', e);
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/today');
     }
   };
 

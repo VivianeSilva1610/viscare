@@ -18,7 +18,7 @@ export default function Index() {
         try {
           const skinProfile = await DataService.getSkinProfile(user.id);
           if (skinProfile) {
-            router.replace('/(tabs)');
+            router.replace('/(tabs)/today');
           } else {
             router.replace('/onboarding');
           }
