@@ -139,9 +139,20 @@ export const MOCK_INGREDIENTS: Ingredient[] = [
     benefits_en: 'Sebum regulation, anti-redness, skin barrier support',
     benefits_pt: 'Regulação do sebo, anti-vermelhidão, suporte à barreira cutânea',
     evidence_level: 'High',
-    description_it: 'Vitamina B3 che riduce l\'infiammazione, regola la produzione di sebo e migliora la texture della pelle.',
-    description_en: 'Vitamin B3 that reduces inflammation, regulates sebum production, and improves skin texture.',
-    description_pt: 'Vitamina B3 que reduz a inflamação, regula a produção de sebo e melhora a textura da pele.'
+    description_it: 'Vitamina B3 che migliora l\'elasticità, riduce le discromie e rinforza la barriera cutanea.',
+    description_en: 'Vitamin B3 that improves elasticity, reduces discolorations, and strengthens the skin barrier.',
+    description_pt: 'Vitamina B3 que melhora a elasticidade, reduz descolorações e fortalece a barreira cutânea.'
+  },
+  {
+    id: 'ing-6',
+    name: 'PDRN (Polidesossiribonucleotide)',
+    benefits_it: 'Rigenerazione cellulare, guarigione delle ferite, antietà',
+    benefits_en: 'Cellular regeneration, wound healing, anti-aging',
+    benefits_pt: 'Regeneração celular, cicatrização, antienvelhecimento',
+    evidence_level: 'Moderate',
+    description_it: 'Derivato dal DNA del salmone, stimola la riparazione dei tessuti e migliora l\'elasticità e l\'idratazione della pelle.',
+    description_en: 'Derived from salmon DNA, it stimulates tissue repair and improves skin elasticity and hydration.',
+    description_pt: 'Derivado do DNA de salmão, estimula a reparação de tecidos e melhora a elasticidade e hidratação da pele.'
   }
 ];
 
