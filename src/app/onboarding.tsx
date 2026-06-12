@@ -258,18 +258,6 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              <View className="flex-row items-center my-6">
-                <View className="flex-1 h-[1px] bg-[#E5E5EA]" />
-                <Text className="text-xs font-sans text-[#6E6E73] px-3">{t('auth.or')}</Text>
-                <View className="flex-1 h-[1px] bg-[#E5E5EA]" />
-              </View>
-
-              <TouchableOpacity
-                onPress={handleGuestAccess}
-                className="w-full py-4 bg-transparent border border-[#8F9779] rounded-full items-center"
-              >
-                <Text className="text-[#8F9779] font-sans text-base font-bold">{t('auth.guest')}</Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
