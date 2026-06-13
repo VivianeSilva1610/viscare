@@ -103,8 +103,8 @@ export default function PaywallScreen() {
             }`}
           >
             <View>
-              <Text className="font-sans text-sm font-bold text-brand-charcoal">Abbonamento Mensile</Text>
-              <Text className="font-sans text-xs text-brand-sage-dark mt-1">7 giorni di prova gratuita, poi annulli quando vuoi</Text>
+              <Text className="font-sans text-sm font-bold text-brand-charcoal">{t('paywall.monthly_plan')}</Text>
+              <Text className="font-sans text-xs text-brand-sage-dark mt-1">{t('paywall.monthly_desc')}</Text>
             </View>
             <Text className="font-serif text-sm font-bold text-brand-charcoal">
               {t('paywall.monthly')}
@@ -121,12 +121,12 @@ export default function PaywallScreen() {
           >
             <View>
               <View className="flex-row items-center space-x-1.5">
-                <Text className="font-sans text-sm font-bold text-brand-charcoal">Abbonamento Annuale</Text>
+                <Text className="font-sans text-sm font-bold text-brand-charcoal">{t('paywall.yearly_plan')}</Text>
                 <View className="bg-brand-rose-metallic px-2 py-0.5 rounded-full">
-                  <Text className="text-[8px] font-sans font-bold text-white uppercase">Salva 37%</Text>
+                  <Text className="text-[8px] font-sans font-bold text-white uppercase">{t('paywall.save_percent')}</Text>
                 </View>
               </View>
-              <Text className="font-sans text-xs text-brand-sage-dark mt-1">7 giorni di prova gratuita, pagamento annuale unico</Text>
+              <Text className="font-sans text-xs text-brand-sage-dark mt-1">{t('paywall.yearly_desc')}</Text>
             </View>
             <Text className="font-serif text-sm font-bold text-brand-charcoal">
               {t('paywall.yearly')}

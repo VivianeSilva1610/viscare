@@ -208,10 +208,10 @@ export default function Onboarding() {
               <View className="space-y-4">
                 {/* Botões Sociais Mockados */}
                 <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
-                  <Text className="font-sans font-semibold text-brand-charcoal">Continuar com Apple</Text>
+                  <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_apple')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
-                  <Text className="font-sans font-semibold text-brand-charcoal">Continuar com Google</Text>
+                  <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_google')}</Text>
                 </TouchableOpacity>
 
                 <View className="flex-row items-center my-2">

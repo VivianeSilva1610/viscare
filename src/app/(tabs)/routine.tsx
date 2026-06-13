@@ -333,7 +333,7 @@ export default function RoutineScreen() {
         {steps.length === 0 ? (
           <View className="bg-white p-8 rounded-3xl border border-brand-beige items-center justify-center my-6">
             <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed mb-6">
-              Non ci sono passaggi configurati per questa rotina. Aggiungi i produtos dal tuo armadietto o genera con la nostra IA.
+              {t('routine.empty_desc')}
             </Text>
             <TouchableOpacity
               onPress={() => setIsAddModalOpen(true)}
@@ -356,11 +356,11 @@ export default function RoutineScreen() {
                       <Text className="text-[10px] font-sans font-bold text-brand-sage-dark">{index + 1}</Text>
                     </View>
                     <Text className="font-sans text-sm font-bold text-brand-charcoal">
-                      {step.product?.custom_name || 'Prodotto'}
+                      {step.product?.custom_name || t('home.product_default')}
                     </Text>
                   </View>
                   <Text className="font-sans text-xs text-[#8E8E93] mt-0.5 ml-7">
-                    {step.product?.custom_brand || 'Marca'} • <Text className="capitalize">{step.product?.custom_category}</Text>
+                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{step.product?.custom_category}</Text>
                   </Text>
                   {step.product?.custom_active_ingredients.length ? (
                     <Text className="font-sans text-[11px] text-brand-rose-light mt-1 ml-7">
@@ -438,7 +438,7 @@ export default function RoutineScreen() {
             {availableProducts.length === 0 ? (
               <View className="py-8 items-center">
                 <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed">
-                  Tutti i prodotti del tuo armadietto sono già in questa rotina o non hai ancora registrato prodotti.
+                  {t('routine.available_empty_desc')}
                 </Text>
               </View>
             ) : (

@@ -175,7 +175,7 @@ export default function SettingsScreen() {
       <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-6">
         <View className="flex-row items-center space-x-2 mb-4">
           <Bell size={18} color="#B97C63" />
-          <Text className="font-serif text-sm font-bold text-brand-charcoal">Lembretes Diários</Text>
+          <Text className="font-serif text-sm font-bold text-brand-charcoal">{t('settings.daily_reminders')}</Text>
         </View>
 
         <View className="space-y-3">
@@ -196,7 +196,7 @@ export default function SettingsScreen() {
           {/* Lembrete SPF */}
           <View className="flex-row justify-between items-center py-2 border-b border-brand-beige">
             <View>
-              <Text className="font-sans text-xs font-bold text-brand-charcoal">Reaplicação de SPF</Text>
+              <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('settings.spf_reapply')}</Text>
               <Text className="font-sans text-[10px] text-[#8E8E93]">12:00 PM</Text>
             </View>
             <Switch

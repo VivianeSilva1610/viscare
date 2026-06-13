@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from '../../context/LocalizationContext';
-import { CalendarHeart, Clock, MapPin, CheckCircle2, Circle } from 'lucide-react-native';
+import { CalendarHeart, Clock, MapPin, CheckCircle2 } from 'lucide-react-native';
 
 interface Appointment {
   id: string;
@@ -13,38 +13,46 @@ interface Appointment {
 }
 
 export default function AgendaScreen() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<number>(14);
 
   // Mock de consultas estéticas
   const appointments: Appointment[] = [
     {
       id: 'app-1',
-      title: 'Limpeza de Pele Profunda',
-      dateStr: 'Sexta-feira, 14 Junho',
+      title: t('agenda.treatment_deep_cleansing'),
+      dateStr: t('agenda.day_14_jun'),
       time: '14:00 - 15:30',
-      location: 'Clínica VisCare Premium',
+      location: t('agenda.clinic_name'),
       status: 'upcoming',
     },
     {
       id: 'app-2',
-      title: 'Sessão de Peeling Químico',
-      dateStr: 'Quinta-feira, 27 Junho',
+      title: t('agenda.treatment_peeling'),
+      dateStr: t('agenda.day_27_jun'),
       time: '10:00 - 11:00',
-      location: 'Clínica VisCare Premium',
+      location: t('agenda.clinic_name'),
       status: 'upcoming',
     }
   ];
 
   // Calendário horizontal mock
+  const weekdays = {
+    it: ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'],
+    en: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+    pt: ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM']
+  };
+
+  const currentWeekdays = weekdays[language] || weekdays['it'];
+
   const days = [
-    { day: 'SEG', date: 10 },
-    { day: 'TER', date: 11 },
-    { day: 'QUA', date: 12 },
-    { day: 'QUI', date: 13 },
-    { day: 'SEX', date: 14 },
-    { day: 'SÁB', date: 15 },
-    { day: 'DOM', date: 16 },
+    { day: currentWeekdays[0], date: 10 },
+    { day: currentWeekdays[1], date: 11 },
+    { day: currentWeekdays[2], date: 12 },
+    { day: currentWeekdays[3], date: 13 },
+    { day: currentWeekdays[4], date: 14 },
+    { day: currentWeekdays[5], date: 15 },
+    { day: currentWeekdays[6], date: 16 },
   ];
 
   return (
@@ -52,10 +60,10 @@ export default function AgendaScreen() {
       {/* Header */}
       <View className="mb-8">
         <Text className="text-3xl font-serif text-brand-bronze font-bold leading-tight">
-          Minha Agenda
+          {t('agenda.title')}
         </Text>
         <Text className="text-sm font-sans text-brand-sage-dark mt-1">
-          Seus próximos tratamentos estéticos.
+          {t('agenda.subtitle')}
         </Text>
       </View>
 
@@ -86,7 +94,7 @@ export default function AgendaScreen() {
 
       {/* Consultas Agendadas */}
       <View className="mb-8">
-        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Próximos Tratamentos</Text>
+        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">{t('agenda.upcoming_treatments')}</Text>
         
         <View className="space-y-4">
           {appointments.map(app => (
@@ -112,10 +120,10 @@ export default function AgendaScreen() {
 
               <View className="mt-4 pt-4 border-t border-brand-warm-gray flex-row justify-between items-center">
                 <Text className="font-sans text-xs font-semibold text-brand-blue-tech uppercase tracking-widest">
-                  Lembrete Ativo
+                  {t('agenda.active_reminder')}
                 </Text>
                 <TouchableOpacity className="px-4 py-2 bg-brand-rose-light/10 rounded-full">
-                  <Text className="font-sans text-xs font-bold text-brand-rose-metallic">Reagendar</Text>
+                  <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{t('agenda.reschedule')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -125,11 +133,11 @@ export default function AgendaScreen() {
 
       {/* Histórico / Outros (Placeholder) */}
       <View className="mb-8">
-        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Histórico</Text>
+        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">{t('agenda.history')}</Text>
         <View className="bg-white p-5 rounded-3xl border border-brand-warm-gray shadow-sm flex-row items-center justify-between opacity-70">
           <View>
-            <Text className="font-sans text-sm font-bold text-brand-charcoal line-through">Avaliação Facial</Text>
-            <Text className="font-sans text-xs text-brand-sage-dark mt-1">Sábado, 01 Junho</Text>
+            <Text className="font-sans text-sm font-bold text-brand-charcoal line-through">{t('agenda.treatment_evaluation')}</Text>
+            <Text className="font-sans text-xs text-brand-sage-dark mt-1">{t('agenda.day_01_jun')}</Text>
           </View>
           <CheckCircle2 size={24} color="#AEB09B" />
         </View>

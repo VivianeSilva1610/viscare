@@ -180,7 +180,7 @@ export default function TodayScreen() {
 
       {/* Próximos Cuidados (Agenda Preview) */}
       <View className="mb-8">
-        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Próximos Cuidados</Text>
+        <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">{t('home.upcoming_care')}</Text>
         <TouchableOpacity 
           onPress={() => router.push('/(tabs)/agenda')}
           className="bg-white p-4 rounded-2xl flex-row items-center justify-between border border-brand-warm-gray shadow-sm"
@@ -190,8 +190,8 @@ export default function TodayScreen() {
               <CalendarHeart size={20} color="#B97C63" />
             </View>
             <View>
-              <Text className="font-sans text-sm font-bold text-brand-charcoal">Limpeza de Pele Profunda</Text>
-              <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">Sexta-feira, 14:00 • Clínica VisCare</Text>
+              <Text className="font-sans text-sm font-bold text-brand-charcoal">{t('agenda.treatment_deep_cleansing')}</Text>
+              <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">{t('agenda.day_14_jun')} • 14:00 • {t('agenda.clinic_name')}</Text>
             </View>
           </View>
           <ArrowRight size={18} color="#D7A58D" />
@@ -250,7 +250,7 @@ export default function TodayScreen() {
       {/* Produtos Favoritos */}
       {favorites.length > 0 && (
         <View className="mb-8">
-          <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">Meus Favoritos</Text>
+          <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">{t('home.favorites')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible pb-4">
             {favorites.map(fav => (
               <View key={fav.id} className="bg-white border border-brand-warm-gray rounded-2xl p-4 w-48 mr-4 shadow-sm items-center">

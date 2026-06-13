@@ -29,6 +29,8 @@ const translations = {
     'auth.or': 'oppure continua con',
     'auth.google': 'Google',
     'auth.apple': 'Apple',
+    'auth.continue_apple': 'Continua con Apple',
+    'auth.continue_google': 'Continua con Google',
     'auth.guest': 'Continua come Ospite',
     'auth.error_fill': 'Inserisci email e password.',
     'auth.error_name': 'Inserisci il tuo nome per continuare.',
@@ -108,6 +110,8 @@ const translations = {
     'home.streak': 'giorni consecutivi',
     'home.routine_am': 'Routine Mattutina',
     'home.routine_pm': 'Routine Serale',
+    'home.upcoming_care': 'Prossimi Trattamenti',
+    'home.favorites': 'I Miei Preferiti',
     'home.checklist_empty': 'Nessun prodotto in questa routine. Vai alla scheda "Routine" per configurarla.',
     'home.complete_task': 'Completato!',
     'home.incomplete_task': 'Segna come fatto',
@@ -125,6 +129,8 @@ const translations = {
     'routine.pm_label': 'Sera (PM)',
     'routine.delete_step': 'Rimuovi',
     'routine.add_step': 'Aggiungi Prodotto',
+    'routine.empty_desc': 'Non ci sono passaggi configurati per questa routine. Aggiungi i prodotti dal tuo armadietto o genera con la nostra IA.',
+    'routine.available_empty_desc': 'Tutti i prodotti del tuo armadietto sono già in questa routine o non hai ancora registrato prodotti.',
 
     // Products
     'products.title': 'Il Mio Armadietto',
@@ -159,6 +165,8 @@ const translations = {
 
     // Settings / Profile
     'settings.title': 'Profilo & Impostazioni',
+    'settings.daily_reminders': 'Promemoria Giornalieri',
+    'settings.spf_reapply': 'Riapplicazione SPF',
     'settings.language': 'Lingua',
     'settings.premium_status': 'Piano Attuale:',
     'settings.free': 'Gratuito',
@@ -181,6 +189,11 @@ const translations = {
 
     // Paywall
     'paywall.title': 'Passa a Viscare Premium',
+    'paywall.monthly_plan': 'Abbonamento Mensile',
+    'paywall.monthly_desc': '7 giorni di prova gratuita, poi annulli quando vuoi',
+    'paywall.yearly_plan': 'Abbonamento Annuale',
+    'paywall.yearly_desc': '7 giorni di prova gratuita, pagamento annuale unico',
+    'paywall.save_percent': 'Salva 37%',
     'paywall.subtitle': 'Sblocca tutto il potenziale per la cura della tua pelle',
     'paywall.feat_unlimited': 'Routine e Prodotti illimitati (Free limit: 1 routine, 5 prodotti)',
     'paywall.feat_ai': 'Intelligenza Artificiale avanzata per routine personalizzate',
@@ -228,7 +241,22 @@ const translations = {
     'accessibility.move_down': 'Sposta in basso',
     'accessibility.remove_step': 'Rimuovi passo',
     'accessibility.delete_product': 'Elimina prodotto',
-    'accessibility.close_paywall': 'Chiudi paywall'
+    'accessibility.close_paywall': 'Chiudi paywall',
+
+    // Agenda
+    'agenda.title': 'Mia Agenda',
+    'agenda.subtitle': 'I tuoi prossimi trattamenti estetici.',
+    'agenda.upcoming_treatments': 'Prossimi Trattamenti',
+    'agenda.active_reminder': 'Promemoria Attivo',
+    'agenda.reschedule': 'Riprogramma',
+    'agenda.history': 'Cronologia',
+    'agenda.treatment_deep_cleansing': 'Pulizia Viso Profonda',
+    'agenda.treatment_peeling': 'Sessione di Peeling Chimico',
+    'agenda.treatment_evaluation': 'Valutazione Facciale',
+    'agenda.clinic_name': 'Clinica VisCare Premium',
+    'agenda.day_14_jun': 'Venerdì, 14 Giugno',
+    'agenda.day_27_jun': 'Giovedì, 27 Giugno',
+    'agenda.day_01_jun': 'Sabato, 01 Giugno'
   },
   en: {
     // Onboarding - Auth (STEP 0)
@@ -245,6 +273,8 @@ const translations = {
     'auth.or': 'or continue with',
     'auth.google': 'Google',
     'auth.apple': 'Apple',
+    'auth.continue_apple': 'Continue with Apple',
+    'auth.continue_google': 'Continue with Google',
     'auth.guest': 'Continue as Guest',
     'auth.error_fill': 'Please enter email and password.',
     'auth.error_name': 'Please enter your name to continue.',
@@ -324,6 +354,8 @@ const translations = {
     'home.streak': 'day streak',
     'home.routine_am': 'Morning Routine',
     'home.routine_pm': 'Evening Routine',
+    'home.upcoming_care': 'Upcoming Care',
+    'home.favorites': 'My Favorites',
     'home.checklist_empty': 'No products in this routine. Go to "Routine" tab to set it up.',
     'home.complete_task': 'Completed!',
     'home.incomplete_task': 'Mark as done',
@@ -341,6 +373,8 @@ const translations = {
     'routine.pm_label': 'Night (PM)',
     'routine.delete_step': 'Remove',
     'routine.add_step': 'Add Product',
+    'routine.empty_desc': 'There are no steps configured for this routine. Add products from your cabinet or generate with our AI.',
+    'routine.available_empty_desc': 'All products in your cabinet are already in this routine or you have not registered products yet.',
 
     // Products
     'products.title': 'My Cabinet',
@@ -375,6 +409,8 @@ const translations = {
 
     // Settings / Profile
     'settings.title': 'Profile & Settings',
+    'settings.daily_reminders': 'Daily Reminders',
+    'settings.spf_reapply': 'SPF Reapplication',
     'settings.language': 'Language',
     'settings.premium_status': 'Current Plan:',
     'settings.free': 'Free',
@@ -397,6 +433,11 @@ const translations = {
 
     // Paywall
     'paywall.title': 'Upgrade to Viscare Premium',
+    'paywall.monthly_plan': 'Monthly Subscription',
+    'paywall.monthly_desc': '7-day free trial, cancel anytime',
+    'paywall.yearly_plan': 'Annual Subscription',
+    'paywall.yearly_desc': '7-day free trial, single annual payment',
+    'paywall.save_percent': 'Save 37%',
     'paywall.subtitle': 'Unlock the full potential of your skin care',
     'paywall.feat_unlimited': 'Unlimited routines & products (Free: 1 routine, 5 products)',
     'paywall.feat_ai': 'Advanced AI for personalized routine generation',
@@ -444,7 +485,22 @@ const translations = {
     'accessibility.move_down': 'Move down',
     'accessibility.remove_step': 'Remove step',
     'accessibility.delete_product': 'Delete product',
-    'accessibility.close_paywall': 'Close paywall'
+    'accessibility.close_paywall': 'Close paywall',
+
+    // Agenda
+    'agenda.title': 'My Schedule',
+    'agenda.subtitle': 'Your upcoming aesthetic treatments.',
+    'agenda.upcoming_treatments': 'Upcoming Treatments',
+    'agenda.active_reminder': 'Active Reminder',
+    'agenda.reschedule': 'Reschedule',
+    'agenda.history': 'History',
+    'agenda.treatment_deep_cleansing': 'Deep Facial Cleansing',
+    'agenda.treatment_peeling': 'Chemical Peeling Session',
+    'agenda.treatment_evaluation': 'Facial Evaluation',
+    'agenda.clinic_name': 'VisCare Premium Clinic',
+    'agenda.day_14_jun': 'Friday, June 14',
+    'agenda.day_27_jun': 'Thursday, June 27',
+    'agenda.day_01_jun': 'Saturday, June 1'
   },
   pt: {
     // Onboarding - Auth (STEP 0)
@@ -461,6 +517,8 @@ const translations = {
     'auth.or': 'ou continue com',
     'auth.google': 'Google',
     'auth.apple': 'Apple',
+    'auth.continue_apple': 'Continuar com Apple',
+    'auth.continue_google': 'Continuar com Google',
     'auth.guest': 'Continuar como Convidada',
     'auth.error_fill': 'Preencha o e-mail e a senha.',
     'auth.error_name': 'Insira seu nome para continuar.',
@@ -540,6 +598,8 @@ const translations = {
     'home.streak': 'dias seguidos',
     'home.routine_am': 'Rotina da Manhã',
     'home.routine_pm': 'Rotina da Noite',
+    'home.upcoming_care': 'Próximos Cuidados',
+    'home.favorites': 'Meus Favoritos',
     'home.checklist_empty': 'Nenhum produto nesta rotina. Vá para a aba "Rotina" para configurá-la.',
     'home.complete_task': 'Concluído!',
     'home.incomplete_task': 'Marcar como feito',
@@ -557,6 +617,8 @@ const translations = {
     'routine.pm_label': 'Noite (PM)',
     'routine.delete_step': 'Remover',
     'routine.add_step': 'Adicionar Produto',
+    'routine.empty_desc': 'Não há passos configurados para esta rotina. Adicione produtos do seu armário ou gere com a nossa IA.',
+    'routine.available_empty_desc': 'Todos os produtos do seu armário já estão nesta rotina ou você ainda não cadastrou produtos.',
 
     // Products
     'products.title': 'Meu Armário',
@@ -591,6 +653,8 @@ const translations = {
 
     // Settings / Profile
     'settings.title': 'Perfil & Configurações',
+    'settings.daily_reminders': 'Lembretes Diários',
+    'settings.spf_reapply': 'Reaplicação de SPF',
     'settings.language': 'Idioma',
     'settings.premium_status': 'Plano Atual:',
     'settings.free': 'Gratuito',
@@ -613,6 +677,11 @@ const translations = {
 
     // Paywall
     'paywall.title': 'Mude para o Viscare Premium',
+    'paywall.monthly_plan': 'Assinatura Mensal',
+    'paywall.monthly_desc': '7 dias de teste grátis, cancele quando quiser',
+    'paywall.yearly_plan': 'Assinatura Anual',
+    'paywall.yearly_desc': '7 dias de teste grátis, pagamento anual único',
+    'paywall.save_percent': 'Economize 37%',
     'paywall.subtitle': 'Desbloqueie todo o potencial dos seus cuidados com a pele',
     'paywall.feat_unlimited': 'Rotinas e produtos ilimitados (Gratuito: 1 rotina, 5 produtos)',
     'paywall.feat_ai': 'Inteligência Artificial avançada para gerar rotinas personalizadas',
@@ -660,7 +729,22 @@ const translations = {
     'accessibility.move_down': 'Mover para baixo',
     'accessibility.remove_step': 'Remover passo',
     'accessibility.delete_product': 'Excluir produto',
-    'accessibility.close_paywall': 'Fechar paywall'
+    'accessibility.close_paywall': 'Fechar paywall',
+
+    // Agenda
+    'agenda.title': 'Minha Agenda',
+    'agenda.subtitle': 'Seus próximos tratamentos estéticos.',
+    'agenda.upcoming_treatments': 'Próximos Tratamentos',
+    'agenda.active_reminder': 'Lembrete Ativo',
+    'agenda.reschedule': 'Reagendar',
+    'agenda.history': 'Histórico',
+    'agenda.treatment_deep_cleansing': 'Limpeza de Pele Profunda',
+    'agenda.treatment_peeling': 'Sessão de Peeling Químico',
+    'agenda.treatment_evaluation': 'Avaliação Facial',
+    'agenda.clinic_name': 'Clínica VisCare Premium',
+    'agenda.day_14_jun': 'Sexta-feira, 14 de Junho',
+    'agenda.day_27_jun': 'Quinta-feira, 27 de Junho',
+    'agenda.day_01_jun': 'Sábado, 01 de Junho'
   }
 };
 
