@@ -158,7 +158,10 @@ export default function ProductsScreen() {
     } catch (e) {
       console.warn(e);
       setLoading(false);
-     if (loading) {
+    }
+  };
+
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-brand-ivory">
         <ActivityIndicator size="large" color="#B97C63" />
