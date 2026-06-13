@@ -35,6 +35,7 @@ const translations = {
     'auth.error_fill': 'Inserisci email e password.',
     'auth.error_name': 'Inserisci il tuo nome per continuare.',
     'auth.select_language': 'Seleziona la tua lingua',
+    'auth.remember_me': 'Ricordami',
 
     // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
@@ -108,6 +109,8 @@ const translations = {
     'home.greeting_afternoon': 'Buon pomeriggio',
     'home.greeting_evening': 'Buonasera',
     'home.streak': 'giorni consecutivi',
+    'home.subtitle': 'Pronta per la tua skin routine?',
+    'home.skin_health': 'Salute della Pelle',
     'home.routine_am': 'Routine Mattutina',
     'home.routine_pm': 'Routine Serale',
     'home.upcoming_care': 'Prossimi Trattamenti',
@@ -256,7 +259,17 @@ const translations = {
     'agenda.clinic_name': 'Clinica VisCare Premium',
     'agenda.day_14_jun': 'Venerdì, 14 Giugno',
     'agenda.day_27_jun': 'Giovedì, 27 Giugno',
-    'agenda.day_01_jun': 'Sabato, 01 Giugno'
+    'agenda.day_01_jun': 'Sabato, 01 Giugno',
+    'agenda.add_treatment': 'Aggiungi Trattamento',
+    'agenda.delete_treatment': 'Elimina',
+    'agenda.no_treatments': 'Nessun trattamento programmato',
+    'agenda.schedule_cta': 'Programma Trattamento',
+    'agenda.modal_title_add': 'Nuovo Appuntamento',
+    'agenda.modal_title_edit': 'Riprogramma Trattamento',
+    'agenda.placeholder_title': 'Nome del Trattamento',
+    'agenda.placeholder_location': 'Clinica',
+    'agenda.placeholder_time': 'Orario (es: 14:00 - 15:30)',
+    'agenda.save': 'Salva'
   },
   en: {
     // Onboarding - Auth (STEP 0)
@@ -279,6 +292,7 @@ const translations = {
     'auth.error_fill': 'Please enter email and password.',
     'auth.error_name': 'Please enter your name to continue.',
     'auth.select_language': 'Select your language',
+    'auth.remember_me': 'Remember me',
 
     // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
@@ -352,6 +366,8 @@ const translations = {
     'home.greeting_afternoon': 'Good afternoon',
     'home.greeting_evening': 'Good evening',
     'home.streak': 'day streak',
+    'home.subtitle': 'Ready for your skin routine?',
+    'home.skin_health': 'Skin Health',
     'home.routine_am': 'Morning Routine',
     'home.routine_pm': 'Evening Routine',
     'home.upcoming_care': 'Upcoming Care',
@@ -500,7 +516,17 @@ const translations = {
     'agenda.clinic_name': 'VisCare Premium Clinic',
     'agenda.day_14_jun': 'Friday, June 14',
     'agenda.day_27_jun': 'Thursday, June 27',
-    'agenda.day_01_jun': 'Saturday, June 1'
+    'agenda.day_01_jun': 'Saturday, June 1',
+    'agenda.add_treatment': 'Add Treatment',
+    'agenda.delete_treatment': 'Delete',
+    'agenda.no_treatments': 'No treatments scheduled',
+    'agenda.schedule_cta': 'Schedule Treatment',
+    'agenda.modal_title_add': 'New Appointment',
+    'agenda.modal_title_edit': 'Reschedule Treatment',
+    'agenda.placeholder_title': 'Treatment Name',
+    'agenda.placeholder_location': 'Clinic',
+    'agenda.placeholder_time': 'Time (e.g. 14:00 - 15:30)',
+    'agenda.save': 'Save'
   },
   pt: {
     // Onboarding - Auth (STEP 0)
@@ -523,6 +549,7 @@ const translations = {
     'auth.error_fill': 'Preencha o e-mail e a senha.',
     'auth.error_name': 'Insira seu nome para continuar.',
     'auth.select_language': 'Selecione seu idioma',
+    'auth.remember_me': 'Lembrar de mim',
 
     // Onboarding - Disclaimer (STEP 1)
     'welcome.title': 'Viscare',
@@ -596,6 +623,8 @@ const translations = {
     'home.greeting_afternoon': 'Boa tarde',
     'home.greeting_evening': 'Boa noite',
     'home.streak': 'dias seguidos',
+    'home.subtitle': 'Pronta para sua rotina de pele?',
+    'home.skin_health': 'Saúde da Pele',
     'home.routine_am': 'Rotina da Manhã',
     'home.routine_pm': 'Rotina da Noite',
     'home.upcoming_care': 'Próximos Cuidados',
@@ -744,7 +773,17 @@ const translations = {
     'agenda.clinic_name': 'Clínica VisCare Premium',
     'agenda.day_14_jun': 'Sexta-feira, 14 de Junho',
     'agenda.day_27_jun': 'Quinta-feira, 27 de Junho',
-    'agenda.day_01_jun': 'Sábado, 01 de Junho'
+    'agenda.day_01_jun': 'Sábado, 01 de Junho',
+    'agenda.add_treatment': 'Adicionar Tratamento',
+    'agenda.delete_treatment': 'Excluir',
+    'agenda.no_treatments': 'Nenhum tratamento agendado',
+    'agenda.schedule_cta': 'Agendar Tratamento',
+    'agenda.modal_title_add': 'Novo Agendamento',
+    'agenda.modal_title_edit': 'Reagendar Tratamento',
+    'agenda.placeholder_title': 'Nome do Tratamento',
+    'agenda.placeholder_location': 'Clínica',
+    'agenda.placeholder_time': 'Horário (ex: 14:00 - 15:30)',
+    'agenda.save': 'Salvar'
   }
 };
 

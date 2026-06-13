@@ -12,8 +12,8 @@ interface AuthContextProps {
   isPremium: boolean;
   isLoading: boolean;
   loginAsGuest: (displayName?: string) => Promise<void>;
-  signUp: (email: string, pass: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, pass: string, displayName: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, pass: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   purchasePremium: (plan: 'monthly' | 'yearly') => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -39,11 +39,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session?.user) {
-            setUser({ id: session.user.id, email: session.user.email || '' });
-            const userProfile = await DataService.getProfile(session.user.id);
-            setProfile(userProfile);
-            setIsPremium(userProfile.subscription_plan === 'premium');
-            setIsGuest(false);
+            const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
+            if (rememberMe === 'true') {
+              setUser({ id: session.user.id, email: session.user.email || '' });
+              const userProfile = await DataService.getProfile(session.user.id);
+              setProfile(userProfile);
+              setIsPremium(userProfile.subscription_plan === 'premium');
+              setIsGuest(false);
+            } else {
+              await supabase.auth.signOut();
+            }
           } else if (guestFlag === 'true') {
             await setupGuestUser();
           }
@@ -51,6 +56,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Sem Supabase, verifique se Guest está ativo
           if (guestFlag === 'true') {
             await setupGuestUser();
+          } else {
+            // Verificar se Remember Me está ativo para Mock Auth
+            const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
+            if (rememberMe === 'true') {
+              const savedUserId = await AsyncStorage.getItem('viscare_saved_user_id');
+              const savedEmail = await AsyncStorage.getItem('viscare_saved_email');
+              if (savedUserId && savedEmail) {
+                setUser({ id: savedUserId, email: savedEmail });
+                const userProfile = await DataService.getProfile(savedUserId);
+                setProfile(userProfile);
+                setIsPremium(userProfile.subscription_plan === 'premium');
+                setIsGuest(false);
+              }
+            }
           }
         }
       } catch (e) {
@@ -65,11 +84,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured) {
       const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
-          setUser({ id: session.user.id, email: session.user.email || '' });
-          const userProfile = await DataService.getProfile(session.user.id);
-          setProfile(userProfile);
-          setIsPremium(userProfile.subscription_plan === 'premium');
-          setIsGuest(false);
+          const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
+          if (rememberMe === 'true') {
+            setUser({ id: session.user.id, email: session.user.email || '' });
+            const userProfile = await DataService.getProfile(session.user.id);
+            setProfile(userProfile);
+            setIsPremium(userProfile.subscription_plan === 'premium');
+            setIsGuest(false);
+          }
         } else {
           // Apenas limpa se não for Guest
           const guestFlag = await AsyncStorage.getItem('viscare_is_guest');
@@ -79,8 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsPremium(false);
           }
         }
-      });
-      authListener = data.subscription;
+      });authListener = data.subscription;
     }
 
     initAuth();
@@ -111,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   };
 
-  const signUp = async (email: string, pass: string, displayName: string) => {
+  const signUp = async (email: string, pass: string, displayName: string, rememberMe: boolean = false) => {
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
@@ -122,6 +143,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
+        
+        if (rememberMe) {
+          await AsyncStorage.setItem('viscare_remember_me', 'true');
+          await AsyncStorage.setItem('viscare_saved_user_id', mockId);
+          await AsyncStorage.setItem('viscare_saved_email', email);
+        } else {
+          await AsyncStorage.setItem('viscare_remember_me', 'false');
+          await AsyncStorage.removeItem('viscare_saved_user_id');
+          await AsyncStorage.removeItem('viscare_saved_email');
+        }
+        
         return { success: true };
       } catch (e: any) {
         return { success: false, error: e.message || 'Erro desconhecido' };
@@ -139,6 +171,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
+        
+        if (rememberMe) {
+          await AsyncStorage.setItem('viscare_remember_me', 'true');
+        } else {
+          await AsyncStorage.setItem('viscare_remember_me', 'false');
+        }
       }
       return { success: true };
     } catch (e: any) {
@@ -148,7 +186,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signIn = async (email: string, pass: string) => {
+  const signIn = async (email: string, pass: string, rememberMe: boolean = false) => {
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
@@ -159,6 +197,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(userProfile.subscription_plan === 'premium');
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
+        
+        if (rememberMe) {
+          await AsyncStorage.setItem('viscare_remember_me', 'true');
+          await AsyncStorage.setItem('viscare_saved_user_id', mockId);
+          await AsyncStorage.setItem('viscare_saved_email', email);
+        } else {
+          await AsyncStorage.setItem('viscare_remember_me', 'false');
+          await AsyncStorage.removeItem('viscare_saved_user_id');
+          await AsyncStorage.removeItem('viscare_saved_email');
+        }
+        
         return { success: true };
       } catch (e: any) {
         return { success: false, error: e.message || 'Erro desconhecido' };
@@ -168,7 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      const { data, error } = await supabase.signInWithPassword({ email, password: pass });
       if (error) throw error;
       if (data.user) {
         const userProfile = await DataService.getProfile(data.user.id);
@@ -176,6 +225,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(userProfile.subscription_plan === 'premium');
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
+        
+        if (rememberMe) {
+          await AsyncStorage.setItem('viscare_remember_me', 'true');
+        } else {
+          await AsyncStorage.setItem('viscare_remember_me', 'false');
+        }
       }
       return { success: true };
     } catch (e: any) {
@@ -196,7 +251,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsPremium(false);
       setIsGuest(false);
       await AsyncStorage.removeItem('viscare_is_guest');
-      await MockDatabase.clearAll(); // Opcional: limpa o storage local do mock
+      await AsyncStorage.removeItem('viscare_remember_me');
+      await AsyncStorage.removeItem('viscare_saved_user_id');
+      await AsyncStorage.removeItem('viscare_saved_email');
+      // NOT clearing database so multiple user accounts can co-exist
     } catch (e) {
       console.warn('Erro ao fazer logout', e);
     } finally {

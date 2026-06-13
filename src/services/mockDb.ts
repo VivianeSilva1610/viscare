@@ -86,6 +86,16 @@ export interface Reminder {
   is_enabled: boolean;
 }
 
+export interface Appointment {
+  id: string;
+  user_id: string;
+  title: string;
+  dateStr: string;
+  time: string;
+  location: string;
+  status: 'upcoming' | 'completed';
+}
+
 // DADOS SEED PARA O MODO MOCK
 export const MOCK_INGREDIENTS: Ingredient[] = [
   {
@@ -396,5 +406,66 @@ export class MockDatabase {
       await this.saveJson(`reminders_${userId}`, reminders);
     }
     return reminders;
+  }
+
+  // APPOINTMENTS (AGENDA)
+  static async getAppointments(userId: string): Promise<Appointment[]> {
+    let appointments = await this.getJson<Appointment[]>(`appointments_${userId}`, []);
+    if (appointments.length === 0) {
+      appointments = [
+        {
+          id: `app-1-${userId}`,
+          user_id: userId,
+          title: 'agenda.treatment_deep_cleansing',
+          dateStr: 'agenda.day_14_jun',
+          time: '14:00 - 15:30',
+          location: 'agenda.clinic_name',
+          status: 'upcoming'
+        },
+        {
+          id: `app-2-${userId}`,
+          user_id: userId,
+          title: 'agenda.treatment_peeling',
+          dateStr: 'agenda.day_27_jun',
+          time: '10:00 - 11:00',
+          location: 'agenda.clinic_name',
+          status: 'upcoming'
+        }
+      ];
+      await this.saveJson(`appointments_${userId}`, appointments);
+    }
+    return appointments;
+  }
+
+  static async saveAppointments(userId: string, appointments: Appointment[]): Promise<void> {
+    await this.saveJson(`appointments_${userId}`, appointments);
+  }
+
+  static async addAppointment(userId: string, appointment: Omit<Appointment, 'id' | 'user_id'>): Promise<Appointment> {
+    const appointments = await this.getAppointments(userId);
+    const newApp: Appointment = {
+      id: `app-${Math.random().toString(36).substr(2, 9)}`,
+      user_id: userId,
+      ...appointment
+    };
+    appointments.push(newApp);
+    await this.saveAppointments(userId, appointments);
+    return newApp;
+  }
+
+  static async deleteAppointment(userId: string, appointmentId: string): Promise<void> {
+    let appointments = await this.getAppointments(userId);
+    appointments = appointments.filter(a => a.id !== appointmentId);
+    await this.saveAppointments(userId, appointments);
+  }
+
+  static async updateAppointment(userId: string, appointmentId: string, updates: Partial<Appointment>): Promise<Appointment[]> {
+    const appointments = await this.getAppointments(userId);
+    const idx = appointments.findIndex(a => a.id === appointmentId);
+    if (idx !== -1) {
+      appointments[idx] = { ...appointments[idx], ...updates };
+      await this.saveAppointments(userId, appointments);
+    }
+    return appointments;
   }
 }

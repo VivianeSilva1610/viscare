@@ -10,6 +10,7 @@ import {
   RoutineStep, 
   CompatibilityRule, 
   Reminder,
+  Appointment,
   MOCK_INGREDIENTS,
   MOCK_PRODUCTS,
   MOCK_COMPATIBILITY_RULES
@@ -408,5 +409,57 @@ export class DataService {
     // Caso contrário, limpa os mocks locais
     await MockDatabase.clearAll();
     return true;
+  }
+
+  // 18. APPOINTMENTS (AGENDA)
+  static async getAppointments(userId: string): Promise<Appointment[]> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('user_id', realUid);
+      if (!error && data) return data as Appointment[];
+    }
+    return MockDatabase.getAppointments(userId);
+  }
+
+  static async addAppointment(userId: string, appointment: Omit<Appointment, 'id' | 'user_id'>): Promise<Appointment> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert({ user_id: realUid, ...appointment })
+        .select()
+        .single();
+      if (!error && data) return data as Appointment;
+    }
+    return MockDatabase.addAppointment(userId, appointment);
+  }
+
+  static async deleteAppointment(userId: string, appointmentId: string): Promise<void> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      await supabase
+        .from('appointments')
+        .delete()
+        .eq('id', appointmentId)
+        .eq('user_id', realUid);
+      return;
+    }
+    await MockDatabase.deleteAppointment(userId, appointmentId);
+  }
+
+  static async updateAppointment(userId: string, appointmentId: string, updates: Partial<Appointment>): Promise<Appointment[]> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      await supabase
+        .from('appointments')
+        .update(updates)
+        .eq('id', appointmentId)
+        .eq('user_id', realUid);
+      return this.getAppointments(userId);
+    }
+    return MockDatabase.updateAppointment(userId, appointmentId, updates);
   }
 }

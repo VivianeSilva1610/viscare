@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dim
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
-import { UserProduct, Routine, RoutineStep } from '../../services/mockDb';
+import { UserProduct, Routine, RoutineStep, Appointment } from '../../services/mockDb';
 import { CheckCircle2, Circle, Flame, Sun, Moon, ArrowRight, Star, CalendarHeart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -24,6 +24,7 @@ export default function TodayScreen() {
   const [favorites, setFavorites] = useState<UserProduct[]>([]);
   
   const [skinScore, setSkinScore] = useState<number>(85); // Mock score base
+  const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     const hours = new Date().getHours();
@@ -73,6 +74,11 @@ export default function TodayScreen() {
         })).sort((a, b) => a.position - b.position);
         setPmSteps(enriched);
       }
+
+      // Carregar agendamentos
+      const appointments = await DataService.getAppointments(user.id);
+      const upcoming = appointments.find(a => a.status === 'upcoming') || null;
+      setNextAppointment(upcoming);
     } catch (e) {
       console.warn('Erro ao carregar dados do dia', e);
     } finally {
@@ -149,7 +155,7 @@ export default function TodayScreen() {
             {greeting}
           </Text>
           <Text className="text-sm font-sans text-brand-sage-dark mt-1">
-            Pronta per la tua skin routine?
+            {t('home.subtitle')}
           </Text>
         </View>
       </View>
@@ -158,7 +164,7 @@ export default function TodayScreen() {
       <View className="bg-brand-nude p-6 rounded-3xl mb-8 flex-row items-center justify-between shadow-sm border border-white/50">
         <View className="flex-1 pr-4">
           <Text className="font-sans text-xs uppercase tracking-widest font-semibold text-brand-bronze mb-1">
-            Skin Health
+            {t('home.skin_health')}
           </Text>
           <Text className="font-serif text-3xl font-bold text-brand-charcoal mb-2">
             {skinScore}<Text className="text-lg">/100</Text>
@@ -181,21 +187,47 @@ export default function TodayScreen() {
       {/* Próximos Cuidados (Agenda Preview) */}
       <View className="mb-8">
         <Text className="font-serif text-xl text-brand-charcoal font-bold mb-4">{t('home.upcoming_care')}</Text>
-        <TouchableOpacity 
-          onPress={() => router.push('/(tabs)/agenda')}
-          className="bg-white p-4 rounded-2xl flex-row items-center justify-between border border-brand-warm-gray shadow-sm"
-        >
-          <View className="flex-row items-center">
-            <View className="w-12 h-12 bg-brand-nude rounded-full items-center justify-center mr-4">
-              <CalendarHeart size={20} color="#B97C63" />
+        {nextAppointment ? (
+          <TouchableOpacity 
+            onPress={() => router.push('/(tabs)/agenda')}
+            className="bg-white p-4 rounded-2xl flex-row items-center justify-between border border-brand-warm-gray shadow-sm"
+          >
+            <View className="flex-row items-center flex-1">
+              <View className="w-12 h-12 bg-brand-nude rounded-full items-center justify-center mr-4">
+                <CalendarHeart size={20} color="#B97C63" />
+              </View>
+              <View className="flex-1 pr-2">
+                <Text className="font-sans text-sm font-bold text-brand-charcoal">
+                  {nextAppointment.title.startsWith('agenda.') ? t(nextAppointment.title) : nextAppointment.title}
+                </Text>
+                <Text className="font-sans text-xs text-brand-sage-dark mt-0.5" numberOfLines={1}>
+                  {nextAppointment.dateStr.startsWith('agenda.') ? t(nextAppointment.dateStr) : nextAppointment.dateStr} • {nextAppointment.time} • {nextAppointment.location.startsWith('agenda.') ? t(nextAppointment.location) : nextAppointment.location}
+                </Text>
+              </View>
             </View>
-            <View>
-              <Text className="font-sans text-sm font-bold text-brand-charcoal">{t('agenda.treatment_deep_cleansing')}</Text>
-              <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">{t('agenda.day_14_jun')} • 14:00 • {t('agenda.clinic_name')}</Text>
+            <ArrowRight size={18} color="#D7A58D" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            onPress={() => router.push('/(tabs)/agenda')}
+            className="bg-white p-4 rounded-2xl flex-row items-center justify-between border border-dashed border-brand-warm-gray shadow-sm"
+          >
+            <View className="flex-row items-center flex-1">
+              <View className="w-12 h-12 bg-brand-ivory rounded-full items-center justify-center mr-4">
+                <CalendarHeart size={20} color="#AEB09B" />
+              </View>
+              <View className="flex-1 pr-2">
+                <Text className="font-sans text-sm font-bold text-brand-charcoal">
+                  {t('agenda.no_treatments')}
+                </Text>
+                <Text className="font-sans text-xs text-brand-sage-dark mt-0.5" numberOfLines={1}>
+                  {t('agenda.schedule_cta')}
+                </Text>
+              </View>
             </View>
-          </View>
-          <ArrowRight size={18} color="#D7A58D" />
-        </TouchableOpacity>
+            <ArrowRight size={18} color="#AEB09B" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Routine AM Checklist */}

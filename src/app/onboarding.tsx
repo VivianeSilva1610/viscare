@@ -25,6 +25,7 @@ export default function Onboarding() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isSignUpMode, setIsSignUpMode] = useState<boolean>(true);
+  const [rememberMe, setRememberMe] = useState<boolean>(true);
 
   useEffect(() => {
     // Se o utilizador já estiver logado como utilizador real (não guest) e não tiver skinProfile,
@@ -74,9 +75,9 @@ export default function Onboarding() {
     setLoading(true);
     let res;
     if (isSignUpMode) {
-      res = await signUp(email, password, name.trim());
+      res = await signUp(email, password, name.trim(), rememberMe);
     } else {
-      res = await signIn(email, password);
+      res = await signIn(email, password, rememberMe);
     }
 
     if (res.success) {
@@ -263,6 +264,29 @@ export default function Onboarding() {
                     />
                   </View>
                 </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setRememberMe(!rememberMe)}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, paddingHorizontal: 4 }}
+                >
+                  <View style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: rememberMe ? '#B97C63' : '#AEB09B',
+                    backgroundColor: rememberMe ? '#B97C63' : '#FFFFFF',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 10
+                  }}>
+                    {rememberMe && <Check size={14} color="white" />}
+                  </View>
+                  <Text className="text-sm font-sans text-brand-charcoal font-medium">
+                    {t('auth.remember_me')}
+                  </Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   activeOpacity={0.9}
