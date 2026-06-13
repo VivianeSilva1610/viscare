@@ -61,7 +61,7 @@ export default function SettingsScreen() {
       t('settings.delete_account'),
       t('settings.delete_warning'),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('settings.delete_confirm'),
           style: 'destructive',
@@ -73,7 +73,7 @@ export default function SettingsScreen() {
                 await signOut();
                 router.replace('/onboarding');
               } else {
-                Alert.alert('Erro', 'Impossibile eliminare l\'account. Riprova più tardi.');
+                Alert.alert(t('common.error'), t('alert.cannot_delete_account'));
               }
             } catch (e) {
               console.warn(e);

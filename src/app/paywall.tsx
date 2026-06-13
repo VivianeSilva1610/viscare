@@ -19,12 +19,8 @@ export default function PaywallScreen() {
       await purchasePremium(selectedPlan);
       
       Alert.alert(
-        '✨ Benvenuto in Premium!',
-        language === 'it' 
-          ? 'Grazie per esserti abbonato a Viscare Premium. Tutte le funzionalità sono ora sbloccate!'
-          : language === 'pt' 
-            ? 'Obrigado por assinar o Viscare Premium. Todos os recursos foram desbloqueados!'
-            : 'Thank you for subscribing to Viscare Premium. All features are now unlocked!',
+        t('paywall.purchase_success_title'),
+        t('paywall.purchase_success_msg'),
         [
           { 
             text: 'OK', 
@@ -33,7 +29,7 @@ export default function PaywallScreen() {
         ]
       );
     } catch (e) {
-      Alert.alert('Erro', 'Impossibile completare l\'acquisto.');
+      Alert.alert(t('common.error'), t('alert.purchase_error'));
     } finally {
       setLoading(false);
     }
@@ -42,11 +38,7 @@ export default function PaywallScreen() {
   const handleRestore = () => {
     Alert.alert(
       t('paywall.restore'),
-      language === 'it' 
-        ? 'Nessun acquisto precedente trovato per questo account.' 
-        : language === 'pt' 
-          ? 'Nenhuma compra anterior encontrada para esta conta.' 
-          : 'No previous purchases found for this account.'
+      t('paywall.restore_no_purchase')
     );
   };
 
@@ -57,7 +49,7 @@ export default function PaywallScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           className="p-2 bg-brand-beige rounded-full"
-          accessibilityLabel="Chiudi paywall"
+          accessibilityLabel={t('accessibility.close_paywall')}
         >
           <X size={18} color="#8E8E93" />
         </TouchableOpacity>

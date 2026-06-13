@@ -65,12 +65,12 @@ export default function ProductsScreen() {
 
   const handleDelete = async (id: string) => {
     Alert.alert(
-      'Elimina Prodotto',
-      'Sei sicuro di voler rimuovere questo prodotto? Verrà rimosso anche dalle tue routine.',
+      t('alert.delete_product_title'),
+      t('alert.delete_product_msg'),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         { 
-          text: 'Elimina', 
+          text: t('common.delete'), 
           style: 'destructive',
           onPress: async () => {
             setLoading(true);
@@ -86,10 +86,10 @@ export default function ProductsScreen() {
   const checkLimitBeforeAction = (): boolean => {
     if (!isPremium && cabinet.length >= 5) {
       Alert.alert(
-        'Limite Raggiunto',
+        t('alert.limit_title'),
         t('products.limit_warning'),
         [
-          { text: 'Annulla', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           { text: t('settings.upgrade'), onPress: () => router.push('/paywall') }
         ]
       );
@@ -125,7 +125,7 @@ export default function ProductsScreen() {
   // Adicionar produto manualmente
   const handleManualAdd = async () => {
     if (!customName || !customBrand) {
-      Alert.alert('Erro', 'Nome e Marchio sono campi obbligatori.');
+      Alert.alert(t('common.error'), t('alert.fields_required'));
       return;
     }
 
@@ -195,9 +195,9 @@ export default function ProductsScreen() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
           <View className="flex-1 items-center justify-center py-12 bg-white rounded-[32px] border border-brand-beige">
             <HelpCircle size={48} color="#C6C6C8" />
-            <Text className="font-serif text-lg text-brand-charcoal font-bold mt-4">Nessun prodotto</Text>
+            <Text className="font-serif text-lg text-brand-charcoal font-bold mt-4">{t('products.empty_title')}</Text>
             <Text className="font-sans text-xs text-brand-sage-dark text-center px-8 mt-2 leading-relaxed">
-              Il tuo armadietto è vuoto. Clicca sul tasto '+' in alto per inserire i tuoi prodotti di bellezza.
+              {t('products.empty_msg')}
             </Text>
           </View>
         </ScrollView>
@@ -237,7 +237,7 @@ export default function ProductsScreen() {
                   <TouchableOpacity
                     onPress={() => handleDelete(item.id)}
                     className="p-1.5 bg-red-500/10 rounded-lg"
-                    accessibilityLabel="Elimina prodotto"
+                    accessibilityLabel={t('accessibility.delete_product')}
                   >
                     <Trash2 size={12} color="#EF4444" />
                   </TouchableOpacity>
@@ -261,7 +261,7 @@ export default function ProductsScreen() {
             {/* Header Modal */}
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-xl font-serif text-brand-bronze font-bold">
-                Aggiungi Prodotto
+                {t('products.add_modal_title')}
               </Text>
               <TouchableOpacity
                 onPress={() => setIsAddModalOpen(false)}
@@ -291,7 +291,7 @@ export default function ProductsScreen() {
                   <ScrollView nestedScrollEnabled={true}>
                     {filteredCatalog.length === 0 ? (
                       <Text className="font-sans text-xs text-brand-sage-dark text-center p-4">
-                        Nessun produto trovato nel catalogo.
+                        {t('products.no_catalog_results')}
                       </Text>
                     ) : (
                       filteredCatalog.map(p => (

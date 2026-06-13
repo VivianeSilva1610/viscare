@@ -117,12 +117,8 @@ export default function TodayScreen() {
           setSkinScore(Math.min(98, skinScore + 2));
           
           Alert.alert(
-            '🌟 Perfetto!',
-            language === 'it' 
-              ? `Hai completato la tua routine! Nuova serie: ${newStreak} giorni.` 
-              : language === 'pt' 
-                ? `Você completou sua rotina! Nova sequência: ${newStreak} dias.` 
-                : `You completed your routine! New streak: ${newStreak} days.`,
+            t('alert.streak_title'),
+            t('alert.streak_msg').replace('{n}', newStreak.toString()),
             [{ text: 'OK' }]
           );
         }

@@ -78,6 +78,7 @@ const translations = {
     'ai_rec.adding': 'Aggiungendo al tuo armadietto...',
     'ai_rec.added': 'Aggiunto all\'armadietto!',
     'ai_rec.why': 'Perché questo prodotto?',
+    'ai_rec.add_all': "Aggiungi Tutti all'Armadietto",
     'ai_rec.loading': 'Analizzando il tuo profilo...',
 
     // Onboarding - Notifications (STEP 4)
@@ -92,6 +93,7 @@ const translations = {
     'welcome_screen.profile_summary': 'Il tuo profilo',
     'welcome_screen.skin_type': 'Tipo di pelle',
     'welcome_screen.goals': 'Obiettivi',
+    'welcome_screen.goals_count': '{n} scelti',
     'welcome_screen.products_added': 'prodotti aggiunti al tuo armadietto',
     'welcome_screen.cta': 'Entra nel mio Viscare',
     'welcome_screen.motivation': '✨ Ogni passo conta. La tua pelle ti ringrazierà!',
@@ -146,6 +148,7 @@ const translations = {
     'compat.caution': 'Attenzione',
     'compat.danger': 'Conflitto Rilevato',
     'compat.rules_title': 'Spiegazioni sulla Compatibilità',
+    'compat.conflict_count': '{n} conflitto(i) di principi attivi rilevati in questa routine.',
 
     // Discover
     'discover.title': 'Esplora Ingredienti',
@@ -186,7 +189,46 @@ const translations = {
     'paywall.yearly': 'R$ 149,00 / Anno (Risparmi 37%)',
     'paywall.trial': 'Inizia Prova Gratuita di 7 Giorni',
     'paywall.restore': 'Ripristina Acquisti',
-    'paywall.close': 'Chiudi'
+    'paywall.close': 'Chiudi',
+    'paywall.purchase_success_title': '✨ Benvenuta in Premium!',
+    'paywall.purchase_success_msg': 'Grazie per esserti abbonato a Viscare Premium. Tutte le funzionalità sono ora sbloccate!',
+    'paywall.restore_no_purchase': 'Nessun acquisto precedente trovato per questo account.',
+
+    // Alerts e mensagens comuns
+    'common.cancel': 'Annulla',
+    'common.ok': 'OK',
+    'common.delete': 'Elimina',
+    'common.error': 'Errore',
+    'common.warning': 'Attenzione',
+    'common.info': 'Informazione',
+    'common.connection_error': 'Errore di connessione. Riprova.',
+
+    'alert.disclaimer_required': 'Devi accettare il disclaimer per continuare.',
+    'alert.invalid_age': 'Età non valida. Inserisci un numero tra 1 e 120.',
+    'alert.fields_required': 'Nome e Marchio sono campi obbligatori.',
+    'alert.delete_product_title': 'Elimina Prodotto',
+    'alert.delete_product_msg': 'Sei sicuro di voler rimuovere questo prodotto? Verrà rimosso anche dalle tue routine.',
+    'alert.limit_title': 'Limite Raggiunto',
+    'alert.product_exists': 'Questo prodotto è già presente nella rotina.',
+    'alert.cannot_delete_account': 'Impossibile eliminare l\'account. Riprova più tardi.',
+    'alert.purchase_error': 'Impossibile completare l\'acquisto. Riprova.',
+    'alert.streak_title': '🌟 Perfetto!',
+    'alert.streak_msg': 'Hai completato la tua routine! Nuova serie: {n} giorni.',
+    'alert.routine_error': 'Impossibile generare la routine. Riprova.',
+    'alert.routine_success': 'Routine ottimizzata con successo secondo le regole dermatologiche!',
+    'alert.auth_error': 'Errore di autenticazione. Verifica le credenziali.',
+
+    'products.no_catalog_results': 'Nessun prodotto trovato nel catalogo.',
+    'products.add_modal_title': 'Aggiungi Prodotto',
+    'products.empty_title': 'Nessun prodotto',
+    'products.empty_msg': 'Il tuo armadietto è vuoto. Clicca sul "+" per aggiungere i tuoi prodotti.',
+
+    // Accessibility
+    'accessibility.move_up': 'Sposta in alto',
+    'accessibility.move_down': 'Sposta in basso',
+    'accessibility.remove_step': 'Rimuovi passo',
+    'accessibility.delete_product': 'Elimina prodotto',
+    'accessibility.close_paywall': 'Chiudi paywall'
   },
   en: {
     // Onboarding - Auth (STEP 0)
@@ -252,6 +294,7 @@ const translations = {
     'ai_rec.adding': 'Adding to your cabinet...',
     'ai_rec.added': 'Added to cabinet!',
     'ai_rec.why': 'Why this product?',
+    'ai_rec.add_all': 'Add All to Cabinet',
     'ai_rec.loading': 'Analyzing your profile...',
 
     // Onboarding - Notifications (STEP 4)
@@ -266,6 +309,7 @@ const translations = {
     'welcome_screen.profile_summary': 'Your profile',
     'welcome_screen.skin_type': 'Skin type',
     'welcome_screen.goals': 'Goals',
+    'welcome_screen.goals_count': '{n} selected',
     'welcome_screen.products_added': 'products added to your cabinet',
     'welcome_screen.cta': 'Enter my Viscare',
     'welcome_screen.motivation': '✨ Every step counts. Your skin will thank you!',
@@ -320,6 +364,7 @@ const translations = {
     'compat.caution': 'Caution',
     'compat.danger': 'Conflict Detected',
     'compat.rules_title': 'Compatibility Explanations',
+    'compat.conflict_count': '{n} active ingredient conflict(s) detected in this routine.',
 
     // Discover
     'discover.title': 'Explore Ingredients',
@@ -360,7 +405,46 @@ const translations = {
     'paywall.yearly': 'R$ 149.00 / Year (Save 37%)',
     'paywall.trial': 'Start 7-Day Free Trial',
     'paywall.restore': 'Restore Purchases',
-    'paywall.close': 'Close'
+    'paywall.close': 'Close',
+    'paywall.purchase_success_title': '✨ Welcome to Premium!',
+    'paywall.purchase_success_msg': 'Thank you for subscribing to Viscare Premium. All features are now unlocked!',
+    'paywall.restore_no_purchase': 'No previous purchases found for this account.',
+
+    // Alerts and common messages
+    'common.cancel': 'Cancel',
+    'common.ok': 'OK',
+    'common.delete': 'Delete',
+    'common.error': 'Error',
+    'common.warning': 'Warning',
+    'common.info': 'Info',
+    'common.connection_error': 'Connection error. Please try again.',
+
+    'alert.disclaimer_required': 'You must accept the disclaimer to continue.',
+    'alert.invalid_age': 'Invalid age. Please enter a number between 1 and 120.',
+    'alert.fields_required': 'Name and Brand are required fields.',
+    'alert.delete_product_title': 'Delete Product',
+    'alert.delete_product_msg': 'Are you sure you want to remove this product? It will also be removed from your routines.',
+    'alert.limit_title': 'Limit Reached',
+    'alert.product_exists': 'This product is already in the routine.',
+    'alert.cannot_delete_account': 'Unable to delete account. Please try again later.',
+    'alert.purchase_error': 'Unable to complete purchase. Please try again.',
+    'alert.streak_title': '🌟 Amazing!',
+    'alert.streak_msg': 'You completed your routine! New streak: {n} days.',
+    'alert.routine_error': 'Unable to generate routine. Please try again.',
+    'alert.routine_success': 'Routine successfully optimized according to dermatological rules!',
+    'alert.auth_error': 'Authentication error. Please check your credentials.',
+
+    'products.no_catalog_results': 'No products found in catalog.',
+    'products.add_modal_title': 'Add Product',
+    'products.empty_title': 'No products',
+    'products.empty_msg': 'Your cabinet is empty. Tap the "+" button to add your products.',
+
+    // Accessibility
+    'accessibility.move_up': 'Move up',
+    'accessibility.move_down': 'Move down',
+    'accessibility.remove_step': 'Remove step',
+    'accessibility.delete_product': 'Delete product',
+    'accessibility.close_paywall': 'Close paywall'
   },
   pt: {
     // Onboarding - Auth (STEP 0)
@@ -426,6 +510,7 @@ const translations = {
     'ai_rec.adding': 'Adicionando ao seu armário...',
     'ai_rec.added': 'Adicionado ao armário!',
     'ai_rec.why': 'Por que este produto?',
+    'ai_rec.add_all': 'Adicionar Todos ao Armário',
     'ai_rec.loading': 'Analisando seu perfil...',
 
     // Onboarding - Notifications (STEP 4)
@@ -440,6 +525,7 @@ const translations = {
     'welcome_screen.profile_summary': 'Seu perfil',
     'welcome_screen.skin_type': 'Tipo de pele',
     'welcome_screen.goals': 'Objetivos',
+    'welcome_screen.goals_count': '{n} selecionados',
     'welcome_screen.products_added': 'produtos adicionados ao seu armário',
     'welcome_screen.cta': 'Entrar no meu Viscare',
     'welcome_screen.motivation': '✨ Cada passo conta. Sua pele vai agradecer!',
@@ -494,6 +580,7 @@ const translations = {
     'compat.caution': 'Atenção',
     'compat.danger': 'Conflito Detectado',
     'compat.rules_title': 'Explicações sobre Compatibilidade',
+    'compat.conflict_count': '{n} conflito(s) de ingrediente ativo detectados nesta rotina.',
 
     // Discover
     'discover.title': 'Explorar Ingredientes',
@@ -534,7 +621,46 @@ const translations = {
     'paywall.yearly': 'R$ 149,00 / Ano (Economize 37%)',
     'paywall.trial': 'Iniciar Teste Grátis de 7 Dias',
     'paywall.restore': 'Restaurar Compras',
-    'paywall.close': 'Fechar'
+    'paywall.close': 'Fechar',
+    'paywall.purchase_success_title': '✨ Bem-vinda ao Premium!',
+    'paywall.purchase_success_msg': 'Obrigada por assinar o Viscare Premium. Todos os recursos foram desbloqueados!',
+    'paywall.restore_no_purchase': 'Nenhuma compra anterior encontrada para esta conta.',
+
+    // Alerts e mensagens comuns
+    'common.cancel': 'Cancelar',
+    'common.ok': 'OK',
+    'common.delete': 'Excluir',
+    'common.error': 'Erro',
+    'common.warning': 'Atenção',
+    'common.info': 'Info',
+    'common.connection_error': 'Erro de conexão. Tente novamente.',
+
+    'alert.disclaimer_required': 'Você precisa aceitar o aviso para continuar.',
+    'alert.invalid_age': 'Idade inválida. Insira um número entre 1 e 120.',
+    'alert.fields_required': 'Nome e Marca são campos obrigatórios.',
+    'alert.delete_product_title': 'Excluir Produto',
+    'alert.delete_product_msg': 'Tem certeza que deseja remover este produto? Ele também será removido das suas rotinas.',
+    'alert.limit_title': 'Limite Atingido',
+    'alert.product_exists': 'Este produto já está presente na rotina.',
+    'alert.cannot_delete_account': 'Não foi possível excluir a conta. Tente novamente mais tarde.',
+    'alert.purchase_error': 'Não foi possível concluir a compra. Tente novamente.',
+    'alert.streak_title': '🌟 Perfeito!',
+    'alert.streak_msg': 'Você completou sua rotina! Nova sequência: {n} dias.',
+    'alert.routine_error': 'Não foi possível gerar a rotina. Tente novamente.',
+    'alert.routine_success': 'Rotina otimizada com sucesso segundo as regras dermatológicas!',
+    'alert.auth_error': 'Erro de autenticação. Verifique suas credenciais.',
+
+    'products.no_catalog_results': 'Nenhum produto encontrado no catálogo.',
+    'products.add_modal_title': 'Adicionar Produto',
+    'products.empty_title': 'Nenhum produto',
+    'products.empty_msg': 'Seu armário está vazio. Toque no "+" para adicionar seus produtos.',
+
+    // Accessibility
+    'accessibility.move_up': 'Mover para cima',
+    'accessibility.move_down': 'Mover para baixo',
+    'accessibility.remove_step': 'Remover passo',
+    'accessibility.delete_product': 'Excluir produto',
+    'accessibility.close_paywall': 'Fechar paywall'
   }
 };
 

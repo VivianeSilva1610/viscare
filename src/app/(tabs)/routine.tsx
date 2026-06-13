@@ -153,7 +153,7 @@ export default function RoutineScreen() {
 
     // Evitar duplicidade na mesma rotina
     if (steps.some(s => s.user_product_id === userProductId)) {
-      Alert.alert('Info', 'Questo prodotto è già presente nella rotina.');
+      Alert.alert(t('common.info'), t('alert.product_exists'));
       return;
     }
 
@@ -182,7 +182,7 @@ export default function RoutineScreen() {
   // Gerar rotina com IA
   const handleGenerateWithAI = async () => {
     if (cabinet.length === 0) {
-      Alert.alert('Info', t('routine.empty_cabinet_warning'));
+      Alert.alert(t('common.info'), t('routine.empty_cabinet_warning'));
       return;
     }
 
@@ -208,19 +208,15 @@ export default function RoutineScreen() {
           await runCompatibilityCheck(fullSteps);
           
           Alert.alert(
-            'Sparkles',
-            language === 'it' 
-              ? 'Routine ottimizzata con successo secondo le regole dermatologiche!' 
-              : language === 'pt' 
-                ? 'Rotina otimizada com sucesso segundo as regras dermatológicas!' 
-                : 'Routine successfully optimized according to dermatological rules!'
+            t('common.info'),
+            t('alert.routine_success')
           );
         }
       } else {
-        Alert.alert('Erro', res.error || 'Erro ao gerar rotina');
+        Alert.alert(t('common.error'), res.error || t('alert.routine_error'));
       }
     } catch (e) {
-      Alert.alert('Erro', 'Erro de conexão.');
+      Alert.alert(t('common.error'), t('common.connection_error'));
     } finally {
       setGenerating(false);
     }
@@ -309,9 +305,7 @@ export default function RoutineScreen() {
               </Text>
               <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
                 {compatStatus === 'green' ? t('compat.safe_desc') : (
-                  language === 'pt' ? `${compatConflicts.length} conflito(s) de ingrediente ativo detectados nesta rotina.` :
-                  language === 'en' ? `${compatConflicts.length} active ingredient conflict(s) detected in this routine.` :
-                  `${compatConflicts.length} conflitto(i) di principi attivi rilevati in questa rotina.`
+                  t('compat.conflict_count').replace('{n}', compatConflicts.length.toString())
                 )}
               </Text>
               
@@ -386,7 +380,7 @@ export default function RoutineScreen() {
                     onPress={() => moveUp(index)}
                     disabled={index === 0}
                     className={`p-2 rounded-xl bg-brand-beige ${index === 0 ? 'opacity-40' : ''}`}
-                    accessibilityLabel="Sposta in alto"
+                    accessibilityLabel={t('accessibility.move_up')}
                   >
                     <ArrowUp size={14} color="#8E8E93" />
                   </TouchableOpacity>
@@ -394,14 +388,14 @@ export default function RoutineScreen() {
                     onPress={() => moveDown(index)}
                     disabled={index === steps.length - 1}
                     className={`p-2 rounded-xl bg-brand-beige ${index === steps.length - 1 ? 'opacity-40' : ''}`}
-                    accessibilityLabel="Sposta in basso"
+                    accessibilityLabel={t('accessibility.move_down')}
                   >
                     <ArrowDown size={14} color="#8E8E93" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => removeStep(step.id)}
                     className="p-2 rounded-xl bg-red-500/10"
-                    accessibilityLabel="Rimuovi passo"
+                    accessibilityLabel={t('accessibility.remove_step')}
                   >
                     <Trash2 size={14} color="#EF4444" />
                   </TouchableOpacity>

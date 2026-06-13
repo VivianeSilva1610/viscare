@@ -63,11 +63,11 @@ export default function Onboarding() {
   // === STEP 0: AUTH LOGIC ===
   const handleAuthSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('Erro', t('auth.error_fill'));
+      Alert.alert(t('common.error'), t('auth.error_fill'));
       return;
     }
     if (isSignUpMode && !name.trim()) {
-      Alert.alert('Erro', t('auth.error_name'));
+      Alert.alert(t('common.error'), t('auth.error_name'));
       return;
     }
 
@@ -83,7 +83,7 @@ export default function Onboarding() {
       // Avança para o Disclaimer
       nextStep();
     } else {
-      Alert.alert('Erro', res.error || 'Erro na autenticação');
+      Alert.alert(t('common.error'), res.error || t('alert.auth_error'));
     }
     setLoading(false);
   };
@@ -98,7 +98,7 @@ export default function Onboarding() {
   // === STEP 1: DISCLAIMER LOGIC ===
   const handleDisclaimerNext = () => {
     if (!disclaimerAccepted) {
-      Alert.alert('Attenzione', 'Devi accettare per continuare.');
+      Alert.alert(t('common.warning'), t('alert.disclaimer_required'));
       return;
     }
     nextStep();
@@ -111,7 +111,7 @@ export default function Onboarding() {
   const handleQuizSubmit = async () => {
     const parsedAge = parseInt(age, 10);
     if (!age || isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
-      Alert.alert('Erro', 'Età non valida');
+      Alert.alert(t('common.error'), t('alert.invalid_age'));
       return;
     }
 
@@ -462,7 +462,7 @@ export default function Onboarding() {
                   <Text className="text-white font-sans font-bold">{t('ai_rec.adding')}</Text>
                 </View>
               ) : (
-                <Text className="text-white font-sans font-bold">Aggiungi Tutti all'Armadietto</Text>
+                <Text className="text-white font-sans font-bold">{t('ai_rec.add_all')}</Text>
               )}
             </TouchableOpacity>
 
@@ -531,12 +531,12 @@ export default function Onboarding() {
               <View className="flex-row justify-between border-b border-[#F2F0EB] pb-3 mb-3">
                 <Text className="font-sans text-[#6E6E73]">{t('welcome_screen.goals')}</Text>
                 <Text className="font-sans font-bold text-[#2C2C2E] text-right w-1/2" numberOfLines={1}>
-                  {goals.length} scelti
+                  {t('welcome_screen.goals_count').replace('{n}', goals.length.toString())}
                 </Text>
               </View>
 
               <View className="flex-row justify-between">
-                <Text className="font-sans text-[#6E6E73]">Armadietto</Text>
+                <Text className="font-sans text-[#6E6E73]">{t('tabs.products')}</Text>
                 <Text className="font-sans font-bold text-[#2C2C2E]">
                   {recommendations.length} {t('welcome_screen.products_added')}
                 </Text>
