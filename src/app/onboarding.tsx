@@ -167,32 +167,42 @@ export default function Onboarding() {
 
   // RENDERS
   return (
-    <View className="flex-1 bg-brand-ivory">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-12">
+    <View style={{ flex: 1, backgroundColor: '#F8F2EE' }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 48 }}>
 
         {/* STEP 0: AUTH */}
         {step === 0 && (
-          <View className="flex-1 justify-between py-6 mt-8">
+          <View style={{ flex: 1, justifyContent: 'space-between', paddingVertical: 24, marginTop: 16 }}>
             <View>
               {/* Language Selector */}
-              <View className="flex-row justify-end mb-6 space-x-4">
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 24, gap: 16 }}>
                 <TouchableOpacity onPress={() => setLanguage('pt')}>
-                  <Text className={`text-lg ${language === 'pt' ? 'opacity-100' : 'opacity-40'}`}>🇵🇹</Text>
+                  <Text style={{ fontSize: 22, opacity: language === 'pt' ? 1 : 0.35 }}>🇵🇹</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setLanguage('it')}>
-                  <Text className={`text-lg ${language === 'it' ? 'opacity-100' : 'opacity-40'}`}>🇮🇹</Text>
+                  <Text style={{ fontSize: 22, opacity: language === 'it' ? 1 : 0.35 }}>🇮🇹</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setLanguage('en')}>
-                  <Text className={`text-lg ${language === 'en' ? 'opacity-100' : 'opacity-40'}`}>🇬🇧</Text>
+                  <Text style={{ fontSize: 22, opacity: language === 'en' ? 1 : 0.35 }}>🇬🇧</Text>
                 </TouchableOpacity>
               </View>
 
-              <View style={{ alignItems: 'center', marginBottom: 32 }}>
-                <Image
-                  source={require('../../assets/images/icon.png')}
-                  style={{ width: 100, height: 100, borderRadius: 24 }}
-                  resizeMode="contain"
-                />
+              {/* Logo / Icon — substitui o texto de boas-vindas */}
+              <View style={{ alignItems: 'center', marginBottom: 40 }}>
+                <View style={{
+                  shadowColor: '#B97C63',
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.20,
+                  shadowRadius: 20,
+                  elevation: 10,
+                  borderRadius: 32,
+                }}>
+                  <Image
+                    source={require('../../assets/images/icon.png')}
+                    style={{ width: 140, height: 140, borderRadius: 32 }}
+                    resizeMode="cover"
+                  />
+                </View>
               </View>
 
               <View className="space-y-4">
