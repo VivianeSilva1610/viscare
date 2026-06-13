@@ -187,19 +187,19 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              {/* Logo / Icon — substitui o texto de boas-vindas */}
+              {/* Logo oficial Viscare — substitui o texto de boas-vindas */}
               <View style={{ alignItems: 'center', marginBottom: 40 }}>
                 <View style={{
                   shadowColor: '#B97C63',
                   shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.20,
-                  shadowRadius: 20,
-                  elevation: 10,
-                  borderRadius: 32,
+                  shadowOpacity: 0.25,
+                  shadowRadius: 24,
+                  elevation: 12,
+                  borderRadius: 36,
                 }}>
                   <Image
-                    source={require('../../assets/images/icon.png')}
-                    style={{ width: 140, height: 140, borderRadius: 32 }}
+                    source={require('../../assets/images/logo.png')}
+                    style={{ width: 160, height: 160, borderRadius: 36 }}
                     resizeMode="cover"
                   />
                 </View>
