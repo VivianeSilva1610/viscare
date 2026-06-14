@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image, Modal, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation, Language } from '../context/LocalizationContext';
@@ -108,6 +108,28 @@ export default function Onboarding() {
     await loginAsGuest(name.trim() || undefined);
     setLoading(false);
     nextStep();
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      // Registrar remember_me como true para login social
+      await AsyncStorage.setItem('viscare_remember_me', 'true');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: Platform.OS === 'web' 
+            ? 'https://viscaree.vercel.app/onboarding' 
+            : 'viscare://onboarding',
+        }
+      });
+      if (error) throw error;
+    } catch (e: any) {
+      console.warn('Erro ao fazer login com Google', e);
+      Alert.alert(t('common.error'), e.message || 'Erro ao conectar com o Google.');
+      setLoading(false);
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -311,7 +333,11 @@ export default function Onboarding() {
                 <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
                   <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_apple')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
+                <TouchableOpacity 
+                  onPress={handleGoogleSignIn}
+                  disabled={loading}
+                  className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm"
+                >
                   <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_google')}</Text>
                 </TouchableOpacity>
 
