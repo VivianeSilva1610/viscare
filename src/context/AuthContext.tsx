@@ -17,6 +17,8 @@ interface AuthContextProps {
   signOut: () => Promise<void>;
   purchasePremium: (plan: 'monthly' | 'yearly') => Promise<void>;
   refreshProfile: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -303,6 +305,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetPassword = async (email: string) => {
+    if (!isSupabaseConfigured) {
+      try {
+        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
+        if (savedPass === null) {
+          const savedLang = await AsyncStorage.getItem('viscare_language');
+          return {
+            success: false,
+            error: savedLang === 'pt' ? 'E-mail não encontrado.' : 
+                   savedLang === 'it' ? 'E-mail non trovata.' : 
+                   'Email not found.'
+          };
+        }
+        return { success: true };
+      } catch (e: any) {
+        return { success: false, error: e.message || 'Erro' };
+      }
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://viscaree.vercel.app/onboarding?reset=true',
+      });
+      if (error) throw error;
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Erro' };
+    }
+  };
+
+  const updatePassword = async (email: string, newPass: string) => {
+    if (!isSupabaseConfigured) {
+      try {
+        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        await AsyncStorage.setItem('viscare_mock_password_' + mockId, newPass);
+        return { success: true };
+      } catch (e: any) {
+        return { success: false, error: e.message || 'Erro' };
+      }
+    }
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPass });
+      if (error) throw error;
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Erro' };
+    }
+  };
+
   const purchasePremium = async (plan: 'monthly' | 'yearly') => {
     if (user?.id) {
       const expiresAt = new Date();
@@ -329,7 +380,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signIn,
       signOut,
       purchasePremium,
-      refreshProfile
+      refreshProfile,
+      resetPassword,
+      updatePassword
     }}>
       {children}
     </AuthContext.Provider>

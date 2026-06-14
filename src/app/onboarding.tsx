@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image, Modal } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation, Language } from '../context/LocalizationContext';
 import { DataService } from '../services/dataService';
@@ -9,12 +9,13 @@ import { NotificationService } from '../services/notifications';
 import { AIRecommendationService, ProductRecommendation } from '../services/aiRecommendations';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles, Globe, CheckCircle2 } from 'lucide-react-native';
+import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles, Globe, CheckCircle2, X } from 'lucide-react-native';
 
 export default function Onboarding() {
   const { t, language, setLanguage } = useTranslation();
-  const { signUp, signIn, loginAsGuest, user, profile } = useAuth();
+  const { signUp, signIn, loginAsGuest, user, profile, resetPassword, updatePassword } = useAuth();
   const router = useRouter();
+  const params = useLocalSearchParams();
 
   // Estados de navegação do onboarding
   const [step, setStep] = useState<number>(0);
@@ -26,6 +27,19 @@ export default function Onboarding() {
   const [password, setPassword] = useState<string>('');
   const [isSignUpMode, setIsSignUpMode] = useState<boolean>(true);
   const [rememberMe, setRememberMe] = useState<boolean>(true);
+
+  // Estados de recuperação de senha
+  const [forgotModalVisible, setForgotModalVisible] = useState<boolean>(false);
+  const [resetModalVisible, setResetModalVisible] = useState<boolean>(false);
+  const [resetEmail, setResetEmail] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+
+  useEffect(() => {
+    if (params?.reset === 'true') {
+      setResetModalVisible(true);
+    }
+  }, [params]);
 
   useEffect(() => {
     // Se o utilizador já estiver logado como utilizador real (não guest) e não tiver skinProfile,
@@ -94,6 +108,92 @@ export default function Onboarding() {
     await loginAsGuest(name.trim() || undefined);
     setLoading(false);
     nextStep();
+  };
+
+  const handleForgotPassword = async () => {
+    if (!resetEmail.trim()) {
+      Alert.alert(t('common.error'), t('auth.error_fill'));
+      return;
+    }
+    setLoading(true);
+    const res = await resetPassword(resetEmail.trim());
+    setLoading(false);
+    if (res.success) {
+      // Se não houver Supabase configurado (modo mock)
+      const isReal = res.error === undefined && res.success;
+      const savedLang = await AsyncStorage.getItem('viscare_language');
+      
+      // Como o resetPassword simula no mock, verificamos a existência da resposta
+      // No mock, se res.success é true, permitimos redefinir na hora
+      const hasSupabase = savedLang === null ? false : true; // mock check
+      
+      // Vamos verificar de forma limpa pelo mockId de salvamento
+      const mockId = 'mock-' + resetEmail.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+      const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
+      
+      if (savedPass !== null) {
+        Alert.alert(
+          t('auth.reset_success_title'),
+          t('auth.reset_success_msg_mock'),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setForgotModalVisible(false);
+                setResetModalVisible(true);
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          t('auth.reset_success_title'),
+          t('auth.reset_success_msg_real'),
+          [
+            {
+              text: 'OK',
+              onPress: () => setForgotModalVisible(false)
+            }
+          ]
+        );
+      }
+    } else {
+      Alert.alert(t('common.error'), res.error || 'Erro ao recuperar senha.');
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      Alert.alert(t('common.error'), t('auth.error_fill'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      Alert.alert(t('common.error'), t('auth.passwords_must_match'));
+      return;
+    }
+    setLoading(true);
+    const res = await updatePassword(resetEmail.trim(), newPassword);
+    setLoading(false);
+    if (res.success) {
+      Alert.alert(
+        t('auth.reset_success_title'),
+        t('auth.reset_success_done'),
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setResetModalVisible(false);
+              setNewPassword('');
+              setConfirmPassword('');
+              setResetEmail('');
+              setIsSignUpMode(false);
+            }
+          }
+        ]
+      );
+    } else {
+      Alert.alert(t('common.error'), res.error || 'Erro ao redefinir senha.');
+    }
   };
 
   // === STEP 1: DISCLAIMER LOGIC ===
@@ -287,6 +387,17 @@ export default function Onboarding() {
                     {t('auth.remember_me')}
                   </Text>
                 </TouchableOpacity>
+
+                {!isSignUpMode && (
+                  <TouchableOpacity
+                    onPress={() => { setResetEmail(email); setForgotModalVisible(true); }}
+                    style={{ alignSelf: 'flex-end', marginTop: 8, paddingHorizontal: 4 }}
+                  >
+                    <Text className="text-xs font-sans text-brand-bronze font-medium underline">
+                      {t('auth.forgot_password')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   activeOpacity={0.9}
@@ -579,6 +690,136 @@ export default function Onboarding() {
         )}
 
       </ScrollView>
+
+      {/* MODAL ESQUECEU A SENHA */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={forgotModalVisible}
+        onRequestClose={() => setForgotModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/60 px-6">
+          <View className="bg-white w-full rounded-3xl p-6 shadow-xl border border-brand-warm-gray max-w-sm">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-serif text-brand-charcoal font-bold">
+                {t('auth.reset_password_title')}
+              </Text>
+              <TouchableOpacity onPress={() => setForgotModalVisible(false)}>
+                <X size={20} color="#8C8E78" />
+              </TouchableOpacity>
+            </View>
+
+            <Text className="text-sm font-sans text-brand-sage-dark mb-4">
+              {t('auth.reset_password_desc')}
+            </Text>
+
+            <View className="mb-6">
+              <Text className="text-xs font-sans font-semibold text-brand-charcoal mb-1 uppercase tracking-wider">
+                {t('auth.email')}
+              </Text>
+              <TextInput
+                value={resetEmail}
+                onChangeText={setResetEmail}
+                placeholder="example@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                className="bg-brand-ivory px-4 py-3 border border-brand-warm-gray rounded-2xl font-sans text-base text-brand-charcoal"
+              />
+            </View>
+
+            <View className="flex-row space-x-3">
+              <TouchableOpacity
+                onPress={() => setForgotModalVisible(false)}
+                className="flex-1 py-3 bg-brand-warm-gray rounded-full items-center mr-2"
+              >
+                <Text className="font-sans text-xs font-bold text-brand-charcoal uppercase tracking-wider">
+                  {t('common.cancel')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleForgotPassword}
+                className="flex-1 py-3 bg-brand-rose-metallic rounded-full items-center"
+              >
+                {loading ? <ActivityIndicator size="small" color="white" /> : (
+                  <Text className="font-sans text-xs font-bold text-white uppercase tracking-wider">
+                    {t('auth.send_link')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL REDEFINIR SENHA */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={resetModalVisible}
+        onRequestClose={() => setResetModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/60 px-6">
+          <View className="bg-white w-full rounded-3xl p-6 shadow-xl border border-brand-warm-gray max-w-sm">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-serif text-brand-charcoal font-bold">
+                {t('auth.reset_password_title')}
+              </Text>
+              <TouchableOpacity onPress={() => setResetModalVisible(false)}>
+                <X size={20} color="#8C8E78" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ gap: 16 }}>
+              <View>
+                <Text className="text-xs font-sans font-semibold text-brand-charcoal mb-1 uppercase tracking-wider">
+                  {t('auth.new_password')}
+                </Text>
+                <TextInput
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  placeholder="••••••••"
+                  secureTextEntry
+                  className="bg-brand-ivory px-4 py-3 border border-brand-warm-gray rounded-2xl font-sans text-base text-brand-charcoal"
+                />
+              </View>
+
+              <View>
+                <Text className="text-xs font-sans font-semibold text-brand-charcoal mb-1 uppercase tracking-wider">
+                  {t('auth.confirm_new_password')}
+                </Text>
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="••••••••"
+                  secureTextEntry
+                  className="bg-brand-ivory px-4 py-3 border border-brand-warm-gray rounded-2xl font-sans text-base text-brand-charcoal"
+                />
+              </View>
+            </View>
+
+            <View className="flex-row space-x-3 mt-6">
+              <TouchableOpacity
+                onPress={() => setResetModalVisible(false)}
+                className="flex-1 py-3 bg-brand-warm-gray rounded-full items-center mr-2"
+              >
+                <Text className="font-sans text-xs font-bold text-brand-charcoal uppercase tracking-wider">
+                  {t('common.cancel')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleUpdatePassword}
+                className="flex-1 py-3 bg-brand-rose-metallic rounded-full items-center"
+              >
+                {loading ? <ActivityIndicator size="small" color="white" /> : (
+                  <Text className="font-sans text-xs font-bold text-white uppercase tracking-wider">
+                    {t('agenda.save')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
