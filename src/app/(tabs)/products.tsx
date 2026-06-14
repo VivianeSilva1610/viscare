@@ -30,7 +30,10 @@ export default function ProductsScreen() {
   const [expiration, setExpiration] = useState<string>('12');
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const userProds = await DataService.getUserProducts(user.id);

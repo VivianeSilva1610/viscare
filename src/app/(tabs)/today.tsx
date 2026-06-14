@@ -58,7 +58,10 @@ export default function TodayScreen() {
   }, [language]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const profile = await DataService.getProfile(user.id);

@@ -26,7 +26,10 @@ export default function AgendaScreen() {
   const [formLocation, setFormLocation] = useState<string>('');
 
   const loadAppointments = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const data = await DataService.getAppointments(user.id);

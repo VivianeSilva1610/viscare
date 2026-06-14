@@ -25,7 +25,10 @@ export default function RoutineScreen() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       // Carregar gabinete do usuário

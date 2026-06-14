@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, PlayfairDisplay_400Regular, PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
@@ -12,7 +12,10 @@ import '../global.css';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutContent() {
-  const { isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
   const [fontsLoaded, fontError] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_600SemiBold,
@@ -27,6 +30,16 @@ function RootLayoutContent() {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
+
+  // Protetor de Rotas: Redireciona usuários não autenticados que acessarem as abas diretamente
+  useEffect(() => {
+    if (isAuthLoading || !fontsLoaded) return;
+
+    const inAuthGroup = segments[0] === '(tabs)';
+    if (!user && inAuthGroup) {
+      router.replace('/onboarding');
+    }
+  }, [user, isAuthLoading, segments, fontsLoaded]);
 
   if (!fontsLoaded && !fontError) {
     return (
