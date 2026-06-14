@@ -3,6 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { DataService } from '../services/dataService';
 import { Profile, MockDatabase } from '../services/mockDb';
+import {
+  purchasePlan,
+  restoreRevenueCatPurchases,
+  initializeRevenueCat,
+  checkPremiumStatus,
+  PlanType
+} from '../services/paymentService';
 
 
 interface AuthContextProps {
@@ -15,7 +22,8 @@ interface AuthContextProps {
   signUp: (email: string, pass: string, displayName: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, pass: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
-  purchasePremium: (plan: 'monthly' | 'yearly') => Promise<void>;
+  purchasePremium: (plan: PlanType) => Promise<void>;
+  restorePurchases: () => Promise<boolean>;
   refreshProfile: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   updatePassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
@@ -354,18 +362,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const purchasePremium = async (plan: 'monthly' | 'yearly') => {
-    if (user?.id) {
+  const purchasePremium = async (plan: PlanType) => {
+    if (!user?.id) throw new Error('Usuário não autenticado.');
+
+    // Chamar o serviço de pagamento real (RevenueCat → lojas nativas, ou modo simulado)
+    const result = await purchasePlan(plan, user.id);
+
+    if (!result.success) {
+      const errMsg = result.error || 'Erro desconhecido';
+      if (errMsg === 'CANCELLED') throw new Error('CANCELLED');
+      throw new Error(errMsg);
+    }
+
+    // Atualizar perfil local com o status premium
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (plan === 'monthly' ? 30 : 365));
+    const updatedProfile = await DataService.updateProfile(user.id, {
+      subscription_plan: 'premium',
+      subscription_expires_at: expiresAt.toISOString(),
+    });
+    setProfile(updatedProfile);
+    setIsPremium(true);
+  };
+
+  const restorePurchases = async (): Promise<boolean> => {
+    // Tentar restaurar via RevenueCat
+    const result = await restoreRevenueCatPurchases();
+    if (result.isPremium && user?.id) {
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + (plan === 'monthly' ? 30 : 365));
-      
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1); // Assume 1 ano ao restaurar
       const updatedProfile = await DataService.updateProfile(user.id, {
         subscription_plan: 'premium',
         subscription_expires_at: expiresAt.toISOString(),
       });
       setProfile(updatedProfile);
       setIsPremium(true);
+      return true;
     }
+    return false;
   };
 
   return (
@@ -380,6 +414,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signIn,
       signOut,
       purchasePremium,
+      restorePurchases,
       refreshProfile,
       resetPassword,
       updatePassword

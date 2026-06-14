@@ -462,4 +462,72 @@ export class DataService {
     }
     return MockDatabase.updateAppointment(userId, appointmentId, updates);
   }
+
+  // 19. ATUALIZAR PRODUTO DO USUÁRIO (ex: favorito)
+  static async updateUserProduct(userId: string, productId: string, updates: Partial<UserProduct>): Promise<UserProduct[]> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { error } = await supabase
+        .from('user_products')
+        .update(updates)
+        .eq('id', productId)
+        .eq('user_id', realUid);
+      if (!error) {
+        return this.getUserProducts(userId);
+      }
+    }
+    return MockDatabase.updateUserProduct(userId, productId, updates);
+  }
+
+  // 20. LEITURA FACIAL (FACIAL SCANS)
+  static async getFacialScans(userId: string): Promise<any[]> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { data, error } = await supabase
+        .from('facial_scans')
+        .select('*')
+        .eq('user_id', realUid)
+        .order('created_at', { ascending: false });
+      if (!error && data) return data;
+    }
+    return MockDatabase.getFacialScans(userId);
+  }
+
+  static async addFacialScan(userId: string, scanResult: any): Promise<void> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { error } = await supabase
+        .from('facial_scans')
+        .insert({ user_id: realUid, ...scanResult });
+      if (!error) return;
+    }
+    await MockDatabase.addFacialScan(userId, scanResult);
+  }
+
+  static async incrementScanCount(userId: string): Promise<boolean> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const profile = await this.getProfile(userId);
+      const now = new Date();
+      const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      let lastScanMonthStr = '';
+      if (profile.last_scan_date) {
+        const lastScanDate = new Date(profile.last_scan_date);
+        lastScanMonthStr = `${lastScanDate.getFullYear()}-${String(lastScanDate.getMonth() + 1).padStart(2, '0')}`;
+      }
+      let count = profile.scans_count_this_month ?? 0;
+      if (lastScanMonthStr && lastScanMonthStr !== currentMonthStr) {
+        count = 0;
+      }
+      if (count >= 2) {
+        return false;
+      }
+      await this.updateProfile(userId, {
+        scans_count_this_month: count + 1,
+        last_scan_date: now.toISOString()
+      });
+      return true;
+    }
+    return MockDatabase.incrementScanCount(userId);
+  }
 }

@@ -9,6 +9,8 @@ export interface Profile {
   subscription_expires_at: string | null;
   streak_count: number;
   last_active_date: string | null;
+  scans_count_this_month?: number;
+  last_scan_date?: string | null;
 }
 
 export interface SkinProfile {
@@ -38,6 +40,7 @@ export interface UserProduct {
   custom_active_ingredients: string[];
   opened_at: string | null;
   expiration_months: number | null;
+  is_favorite?: boolean;
 }
 
 export interface Ingredient {
@@ -275,10 +278,26 @@ export class MockDatabase {
         subscription_plan: 'free',
         subscription_expires_at: null,
         streak_count: 0,
-        last_active_date: null
+        last_active_date: null,
+        scans_count_this_month: 0,
+        last_scan_date: null
       };
       profiles.push(profile);
       await this.saveJson('profiles', profiles);
+    } else {
+      // Garantir campos para perfis existentes
+      let updated = false;
+      if (profile.scans_count_this_month === undefined) {
+        profile.scans_count_this_month = 0;
+        updated = true;
+      }
+      if (profile.last_scan_date === undefined) {
+        profile.last_scan_date = null;
+        updated = true;
+      }
+      if (updated) {
+        await this.saveJson('profiles', profiles);
+      }
     }
     return profile;
   }
@@ -300,6 +319,8 @@ export class MockDatabase {
         subscription_expires_at: null,
         streak_count: 0,
         last_active_date: null,
+        scans_count_this_month: 0,
+        last_scan_date: null,
         ...updates
       };
       profiles.push(updated);
@@ -337,11 +358,22 @@ export class MockDatabase {
     const newProduct: UserProduct = {
       id: `up-${Math.random().toString(36).substr(2, 9)}`,
       user_id: userId,
+      is_favorite: false,
       ...product
     };
     products.push(newProduct);
     await this.saveJson(`user_products_${userId}`, products);
     return newProduct;
+  }
+
+  static async updateUserProduct(userId: string, productId: string, updates: Partial<UserProduct>): Promise<UserProduct[]> {
+    const products = await this.getUserProducts(userId);
+    const idx = products.findIndex(p => p.id === productId);
+    if (idx !== -1) {
+      products[idx] = { ...products[idx], ...updates };
+      await this.saveJson(`user_products_${userId}`, products);
+    }
+    return products;
   }
 
   static async deleteUserProduct(userId: string, productId: string): Promise<void> {
@@ -467,5 +499,48 @@ export class MockDatabase {
       await this.saveAppointments(userId, appointments);
     }
     return appointments;
+  }
+
+  // FACIAL SCANS
+  static async getFacialScans(userId: string): Promise<any[]> {
+    return this.getJson<any[]>(`facial_scans_${userId}`, []);
+  }
+
+  static async addFacialScan(userId: string, scanResult: any): Promise<void> {
+    const scans = await this.getFacialScans(userId);
+    const newScan = {
+      id: `scan-${Math.random().toString(36).substr(2, 9)}`,
+      date: new Date().toISOString(),
+      ...scanResult
+    };
+    scans.push(newScan);
+    await this.saveJson(`facial_scans_${userId}`, scans);
+  }
+
+  static async incrementScanCount(userId: string): Promise<boolean> {
+    const profile = await this.getProfile(userId);
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    let lastScanMonthStr = '';
+    if (profile.last_scan_date) {
+      const lastScanDate = new Date(profile.last_scan_date);
+      lastScanMonthStr = `${lastScanDate.getFullYear()}-${String(lastScanDate.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    let count = profile.scans_count_this_month ?? 0;
+    if (lastScanMonthStr && lastScanMonthStr !== currentMonthStr) {
+      count = 0; // Novo mês, reseta
+    }
+
+    if (count >= 2) {
+      return false; // Excedeu o limite de 2 mensais
+    }
+
+    await this.updateProfile(userId, {
+      scans_count_this_month: count + 1,
+      last_scan_date: now.toISOString()
+    });
+    return true;
   }
 }
