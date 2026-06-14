@@ -414,7 +414,16 @@ export async function purchasePlan(
     return { success: false, isPremium: false, error: 'REDIRECTED' };
   }
 
-  // 3. Modo simulado (sem chaves configuradas — apenas para testes de UI)
-  console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
-  return mockPurchase(plan);
+  // 3. Modo simulado (apenas em desenvolvimento se não houver chaves de API configuradas)
+  const isDev = __DEV__ || process.env.NODE_ENV === 'development';
+  if (isDev) {
+    console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
+    return mockPurchase(plan);
+  }
+
+  return { 
+    success: false, 
+    isPremium: false, 
+    error: 'Serviço de pagamento temporariamente indisponível. As chaves de API não foram configuradas na hospedagem.' 
+  };
 }
