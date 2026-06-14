@@ -329,10 +329,7 @@ export default function Onboarding() {
               </View>
 
               <View className="space-y-4">
-                {/* Botões Sociais Mockados */}
-                <TouchableOpacity className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm">
-                  <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_apple')}</Text>
-                </TouchableOpacity>
+                {/* Botões Sociais */}
                 <TouchableOpacity 
                   onPress={handleGoogleSignIn}
                   disabled={loading}
