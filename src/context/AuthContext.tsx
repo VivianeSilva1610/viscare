@@ -136,7 +136,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
-        const mockId = 'mock-' + email.replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        
+        // Verificar se e-mail já está cadastrado
+        const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
+        if (savedPass !== null) {
+          throw new Error(
+            language === 'pt' ? 'Este e-mail já está cadastrado.' : 
+            language === 'it' ? 'Questo indirizzo email è già registrato.' : 
+            'This email is already registered.'
+          );
+        }
+
+        // Salvar a senha do usuário
+        await AsyncStorage.setItem('viscare_mock_password_' + mockId, pass);
+
         setUser({ id: mockId, email });
         let userProfile = await DataService.getProfile(mockId);
         userProfile = await DataService.updateProfile(mockId, { display_name: displayName, email });
@@ -190,7 +204,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
-        const mockId = 'mock-' + email.replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        
+        // Verificar se o e-mail está cadastrado e validar a senha
+        const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
+        if (savedPass === null) {
+          throw new Error(
+            language === 'pt' ? 'Usuário não cadastrado.' : 
+            language === 'it' ? 'Utente non registrato.' : 
+            'User not registered.'
+          );
+        }
+        
+        if (savedPass !== pass) {
+          throw new Error(
+            language === 'pt' ? 'Senha incorreta. Verifique suas credenciais.' : 
+            language === 'it' ? 'Password errata. Verifica le tue credenziali.' : 
+            'Incorrect password. Please check your credentials.'
+          );
+        }
+
         setUser({ id: mockId, email });
         const userProfile = await DataService.getProfile(mockId);
         setProfile(userProfile);
