@@ -13,9 +13,10 @@ import {
 import {
   getPricingInfo, PricingInfo, PlanType
 } from '../services/paymentService';
+import { DataService } from '../services/dataService';
 
 export default function PaywallScreen() {
-  const { purchasePremium, restorePurchases, isPremium } = useAuth();
+  const { purchasePremium, restorePurchases, isPremium, user, refreshProfile } = useAuth();
   const { t, language } = useTranslation();
   const router = useRouter();
 
@@ -29,6 +30,42 @@ export default function PaywallScreen() {
     const info = getPricingInfo();
     setPricing(info);
   }, []);
+
+  // Verificar se retornou de um pagamento bem-sucedido na Web
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        const plan = (params.get('plan') as PlanType) || 'yearly';
+        handleWebPurchaseSuccess(plan);
+      } else if (params.get('canceled') === 'true') {
+        Alert.alert(t('common.error'), 'Pagamento cancelado pelo usuário.');
+      }
+    }
+  }, [user]);
+
+  const handleWebPurchaseSuccess = async (plan: PlanType) => {
+    if (!user?.id) return;
+    setLoading(true);
+    try {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + (plan === 'monthly' ? 30 : 365));
+      await DataService.updateProfile(user.id, {
+        subscription_plan: 'premium',
+        subscription_expires_at: expiresAt.toISOString(),
+      });
+      await refreshProfile();
+      Alert.alert(
+        t('paywall.purchase_success_title'),
+        t('paywall.purchase_success_msg'),
+        [{ text: 'OK', onPress: () => router.replace('/(tabs)/today') }]
+      );
+    } catch (e) {
+      Alert.alert(t('common.error'), 'Erro ao ativar sua assinatura.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Se já for premium, fecha
   useEffect(() => {
@@ -47,7 +84,7 @@ export default function PaywallScreen() {
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (e: any) {
-      if (e?.message !== 'CANCELLED') {
+      if (e?.message !== 'CANCELLED' && e?.message !== 'REDIRECTED') {
         Alert.alert(t('common.error'), t('alert.purchase_error'));
       }
     } finally {

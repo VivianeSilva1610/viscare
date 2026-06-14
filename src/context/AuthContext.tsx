@@ -371,6 +371,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!result.success) {
       const errMsg = result.error || 'Erro desconhecido';
       if (errMsg === 'CANCELLED') throw new Error('CANCELLED');
+      if (errMsg === 'REDIRECTED') throw new Error('REDIRECTED');
       throw new Error(errMsg);
     }
 

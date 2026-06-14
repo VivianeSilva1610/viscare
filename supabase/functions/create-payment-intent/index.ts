@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
 
     const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-06-20' });
 
-    const { userId, plan, currency } = await req.json();
+    const { userId, plan, currency, useCheckout } = await req.json();
 
     if (!userId || !plan) {
       return new Response(
@@ -74,8 +74,41 @@ Deno.serve(async (req: Request) => {
     const planPrices = PRICES_BRL_CENTS[plan] || PRICES_BRL_CENTS.monthly;
     const amountCents = planPrices[validCurrency] || planPrices.BRL;
 
-    // Cria o PaymentIntent no Stripe
-    // O Stripe Adaptive Pricing ajusta automaticamente para a moeda local do cliente
+    if (useCheckout) {
+      // Cria uma Checkout Session para redirecionamento web seguro
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: validCurrency.toLowerCase(),
+              product_data: {
+                name: plan === 'monthly' ? 'VisCare Premium — Mensal' : 'VisCare Premium — Anual',
+                description: plan === 'monthly' 
+                  ? 'Assinatura Mensal com acesso ilimitado a todas as rotinas e scanner IA.'
+                  : 'Assinatura Anual com acesso ilimitado a todas as rotinas e scanner IA (Desconto de 37%).',
+              },
+              unit_amount: amountCents,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `https://viscare.vercel.app/paywall?success=true&plan=${plan}`,
+        cancel_url: `https://viscare.vercel.app/paywall?canceled=true`,
+        metadata: {
+          userId,
+          plan,
+        },
+      });
+
+      return new Response(
+        JSON.stringify({ url: session.url }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Cria o PaymentIntent no Stripe (para fallback móvel/nativos se necessário)
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: validCurrency.toLowerCase(),
@@ -85,7 +118,6 @@ Deno.serve(async (req: Request) => {
         app: 'viscare',
       },
       automatic_payment_methods: { enabled: true },
-      // Adaptive Pricing: habilitar no painel Stripe → Settings → Adaptive Pricing
     });
 
     return new Response(

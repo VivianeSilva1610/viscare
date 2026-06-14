@@ -345,6 +345,40 @@ export async function createStripePaymentIntent(
   }
 }
 
+/**
+ * Cria uma Stripe Checkout Session para redirecionamento web seguro.
+ */
+export async function createStripeCheckoutSession(
+  userId: string,
+  plan: PlanType,
+  currency: string
+): Promise<{ url: string | null; error?: string }> {
+  if (!SUPABASE_URL) {
+    return { url: null, error: 'Supabase não configurado.' };
+  }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-payment-intent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ userId, plan, currency, useCheckout: true }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { url: null, error: err.error || `Erro HTTP ${response.status}` };
+    }
+
+    const data = await response.json();
+    return { url: data.url };
+  } catch (e: any) {
+    return { url: null, error: e.message };
+  }
+}
+
 // ─── Modo Simulado (quando não há chaves de API) ──────────────────────────────
 /**
  * Em modo simulado, a compra é "aprovada" localmente.
@@ -366,16 +400,18 @@ export async function purchasePlan(
     return purchaseWithRevenueCat(plan);
   }
 
-  // 2. Web com Stripe configurado → Payment Sheet via Edge Function
+  // 2. Web com Stripe configurado → Stripe Checkout Session redirect
   if (Platform.OS === 'web' && isStripeConfigured) {
     const currency = detectLocalCurrency();
-    const { clientSecret, error } = await createStripePaymentIntent(userId, plan, currency);
-    if (!clientSecret) {
+    const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
+    if (!url) {
       return { success: false, isPremium: false, error: error || 'Não foi possível iniciar o pagamento.' };
     }
-    // O clientSecret é usado pelo @stripe/stripe-react-native para abrir a Payment Sheet
-    // Retornamos sucesso pendente (o UI vai chamar o confirmPayment)
-    return { success: true, isPremium: false, error: clientSecret }; // error field = clientSecret aqui
+    // Redireciona o navegador do usuário para o checkout seguro do Stripe
+    if (typeof window !== 'undefined') {
+      window.location.href = url;
+    }
+    return { success: false, isPremium: false, error: 'REDIRECTED' };
   }
 
   // 3. Modo simulado (sem chaves configuradas — apenas para testes de UI)
