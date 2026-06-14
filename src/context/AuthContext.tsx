@@ -94,6 +94,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isSupabaseConfigured) {
       const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
+          if (event === 'PASSWORD_RECOVERY') {
+            await AsyncStorage.setItem('viscare_remember_me', 'true');
+            if (session.user.email) {
+              await AsyncStorage.setItem('viscare_reset_email', session.user.email);
+            }
+          }
           const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
           if (rememberMe === 'true') {
             setUser({ id: session.user.id, email: session.user.email || '' });
@@ -111,7 +117,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsPremium(false);
           }
         }
-      });authListener = data.subscription;
+      });
+      authListener = data.subscription;
     }
 
     initAuth();

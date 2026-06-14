@@ -6,6 +6,7 @@ import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@exp
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { LocalizationProvider } from '../context/LocalizationContext';
 import { ActivityIndicator, View } from 'react-native';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 import '../global.css';
 
 // Impedir que o Splash Screen seja ocultado automaticamente antes de carregar as fontes
@@ -31,7 +32,6 @@ function RootLayoutContent() {
     }
   }, [fontsLoaded, fontError]);
 
-  // Protetor de Rotas: Redireciona usuários não autenticados que acessarem as abas diretamente
   useEffect(() => {
     if (isAuthLoading || !fontsLoaded) return;
 
@@ -40,6 +40,21 @@ function RootLayoutContent() {
       router.replace('/onboarding');
     }
   }, [user, isAuthLoading, segments, fontsLoaded]);
+
+  // Ouvir o evento de redefinição de senha do Supabase
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        router.replace('/onboarding?reset=true');
+      }
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, [router]);
 
   if (!fontsLoaded && !fontError) {
     return (
