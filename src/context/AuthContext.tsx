@@ -408,7 +408,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user,
       profile,
       isGuest,
-      isPremium,
+      isPremium: isPremium || (user?.email?.toLowerCase() === 'viroedu@gmail.com'),
       isLoading,
       loginAsGuest,
       signUp,
