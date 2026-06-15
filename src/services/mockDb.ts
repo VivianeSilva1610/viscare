@@ -533,7 +533,8 @@ export class MockDatabase {
       count = 0; // Novo mês, reseta
     }
 
-    if (count >= 2) {
+    const isUnlimitedUser = profile.email?.toLowerCase() === 'viroedu@gmail.com';
+    if (count >= 2 && !isUnlimitedUser) {
       return false; // Excedeu o limite de 2 mensais
     }
 

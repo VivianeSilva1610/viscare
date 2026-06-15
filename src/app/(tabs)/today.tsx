@@ -411,7 +411,8 @@ export default function TodayScreen() {
       count = 0;
     }
 
-    if (count >= 2) {
+    const isUnlimitedUser = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+    if (count >= 2 && !isUnlimitedUser) {
       Alert.alert(t('common.warning'), t('scan.limit_reached'));
       return;
     }
@@ -606,7 +607,9 @@ export default function TodayScreen() {
             
             {isPremium ? (
               <Text className="font-sans text-xs text-brand-sage-dark mt-2 font-medium">
-                {t('scan.remaining').replace('{n}', (Math.max(0, 2 - scansCountThisMonth)).toString())}
+                {user?.email?.toLowerCase() === 'viroedu@gmail.com'
+                  ? (language === 'pt' ? 'Acesso Ilimitado' : language === 'it' ? 'Accesso Illimitato' : 'Unlimited Access')
+                  : t('scan.remaining').replace('{n}', (Math.max(0, 2 - scansCountThisMonth)).toString())}
               </Text>
             ) : (
               <Text className="font-sans text-xs text-brand-sage-dark mt-2 font-medium">
