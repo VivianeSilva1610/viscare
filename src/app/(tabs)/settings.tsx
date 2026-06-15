@@ -303,6 +303,17 @@ export default function SettingsScreen() {
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
 
+        {/* Refazer Quiz de Pele */}
+        <TouchableOpacity
+          onPress={() => router.push('/onboarding')}
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
+        >
+          <Sparkles size={16} color="#B97C63" />
+          <Text className="font-sans text-xs font-bold text-brand-charcoal">
+            {language === 'pt' ? 'Refazer Questionário de Pele' : language === 'it' ? 'Rifare il Questionario Pelle' : 'Retake Skin Quiz'}
+          </Text>
+        </TouchableOpacity>
+
         {/* Trocar Senha */}
         <TouchableOpacity
           onPress={() => setIsPasswordModalOpen(true)}

@@ -28,10 +28,25 @@ export class AIRecommendationService {
 
     const recommendations: ProductRecommendation[] = [];
     const addedProductIds = new Set<string>();
+    
+    const idToNameMap: Record<string, string> = {
+      'p-1': 'Gentle Cleanser',
+      'p-2': 'Hydrating Cleanser',
+      'p-3': 'BHA Blackhead Power Liquid',
+      'p-4': 'Glycolic Acid 7% Toning Solution',
+      'p-5': 'Retinol 0.2% in Squalane',
+      'p-6': 'Hyaluronic Acid 2% + B5',
+      'p-7': 'Vitamin C 15% Super Serum',
+      'p-8': 'Natural Moisturizing Factors + HA',
+      'p-9': 'Ultra Facial Cream',
+      'p-10': 'Anthelios UVMune 400 SPF 50+',
+      'p-11': 'Watery Essence SPF 50+',
+    };
 
     const addProduct = (productId: string, reason: { it: string; en: string; pt: string }) => {
       if (addedProductIds.has(productId)) return;
-      const product = catalog.find(p => p.id === productId);
+      const mappedName = idToNameMap[productId] || productId;
+      const product = catalog.find(p => p.id === productId || p.name === mappedName);
       if (product) {
         addedProductIds.add(productId);
         recommendations.push({ product, reason });
