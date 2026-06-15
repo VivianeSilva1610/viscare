@@ -32,6 +32,13 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow VisCare to access your photos to analyze your skin.",
+          "cameraPermission": "Allow VisCare to use your camera to take a photo of your skin."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#F5EDE8",
