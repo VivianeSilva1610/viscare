@@ -49,6 +49,24 @@ export default function SettingsScreen() {
         // Simplesmente reagenda. O app gerencia no disparador as que estiverem desabilitadas se necessário, 
         // ou desabilitamos o schedule total se o usuário desligou tudo.
         await NotificationService.scheduleDailyReminders(language);
+        
+        // Re-agendar os lembretes de tratamentos ativos do usuário
+        try {
+          const appointments = await DataService.getAppointments(user.id);
+          const upcoming = appointments.filter(a => a.status === 'upcoming');
+          for (const app of upcoming) {
+            await NotificationService.scheduleAppointmentReminder(
+              app.id,
+              app.title,
+              app.dateStr,
+              app.time,
+              app.location,
+              language
+            );
+          }
+        } catch (err) {
+          console.warn('Erro ao re-agendar tratamentos após ativar notificações:', err);
+        }
       }
     } catch (e) {
       console.warn(e);
@@ -90,6 +108,26 @@ export default function SettingsScreen() {
     await setLanguage(lang);
     // Reconfigurar notificações com o novo idioma
     await NotificationService.scheduleDailyReminders(lang);
+
+    // Re-agendar lembretes no novo idioma
+    if (user) {
+      try {
+        const appointments = await DataService.getAppointments(user.id);
+        const upcoming = appointments.filter(a => a.status === 'upcoming');
+        for (const app of upcoming) {
+          await NotificationService.scheduleAppointmentReminder(
+            app.id,
+            app.title,
+            app.dateStr,
+            app.time,
+            app.location,
+            lang
+          );
+        }
+      } catch (err) {
+        console.warn('Erro ao re-agendar lembretes no novo idioma:', err);
+      }
+    }
   };
 
   const handleLogout = async () => {

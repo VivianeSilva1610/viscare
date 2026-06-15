@@ -117,4 +117,150 @@ export class NotificationService {
     if (Platform.OS === 'web') return;
     await Notifications.cancelAllScheduledNotificationsAsync();
   }
+
+  // Agendar lembrete para um tratamento específico (Agenda)
+  static async scheduleAppointmentReminder(
+    appointmentId: string,
+    title: string,
+    dateStr: string,
+    time: string,
+    location: string,
+    language: 'it' | 'en' | 'pt' = 'it'
+  ): Promise<string | null> {
+    if (Platform.OS === 'web') return null;
+
+    try {
+      const hasPermission = await this.requestPermissions();
+      if (!hasPermission) return null;
+
+      // Cancelar qualquer notificação anterior para este agendamento
+      await Notifications.cancelScheduledNotificationAsync(appointmentId);
+
+      const parsedDate = this.parseAppointmentDateTime(dateStr, time);
+      if (!parsedDate || parsedDate.getTime() <= Date.now()) {
+        console.log('[NotificationService] Data do agendamento inválida ou no passado:', dateStr, time);
+        return null;
+      }
+
+      const messages = {
+        it: {
+          title: '📅 Lembrete de Tratamento',
+          body: `Ricordati del tuo trattamento "${title}" alle ore ${time} presso ${location}.`
+        },
+        en: {
+          title: '📅 Treatment Reminder',
+          body: `Remember your "${title}" treatment at ${time} at ${location}.`
+        },
+        pt: {
+          title: '📅 Lembrete de Tratamento',
+          body: `Lembre-se do seu tratamento "${title}" às ${time} em ${location}.`
+        }
+      };
+
+      const text = messages[language] || messages['pt'];
+
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        identifier: appointmentId,
+        content: {
+          title: text.title,
+          body: text.body,
+          sound: true,
+        },
+        trigger: parsedDate,
+      });
+
+      console.log(`[NotificationService] Lembrete agendado com sucesso para ${parsedDate.toISOString()}. ID: ${notificationId}`);
+      return notificationId;
+    } catch (e) {
+      console.warn('Erro ao agendar lembrete de agendamento', e);
+      return null;
+    }
+  }
+
+  // Cancelar lembrete de um agendamento específico
+  static async cancelAppointmentReminder(appointmentId: string): Promise<void> {
+    if (Platform.OS === 'web') return;
+    try {
+      await Notifications.cancelScheduledNotificationAsync(appointmentId);
+      console.log(`[NotificationService] Lembrete cancelado para o agendamento ID: ${appointmentId}`);
+    } catch (e) {
+      console.warn('Erro ao cancelar lembrete de agendamento', e);
+    }
+  }
+
+  // Função auxiliar de parsing de data/hora
+  private static parseAppointmentDateTime(dateStr: string, timeStr: string): Date | null {
+    let parsedDate: Date | null = null;
+    
+    // Mapear traduções de mocks para formatos parseáveis
+    let cleanDateStr = dateStr;
+    if (dateStr.startsWith('agenda.day_14_jun')) {
+      cleanDateStr = '14 de Junho';
+    } else if (dateStr.startsWith('agenda.day_27_jun')) {
+      cleanDateStr = '27 de Junho';
+    } else if (dateStr.startsWith('agenda.day_01_jun')) {
+      cleanDateStr = '01 de Junho';
+    }
+
+    // Regex para DD/MM/AAAA ou DD/MM/AA
+    const matchDMY = cleanDateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (matchDMY) {
+      const day = parseInt(matchDMY[1], 10);
+      const month = parseInt(matchDMY[2], 10) - 1;
+      let year = parseInt(matchDMY[3], 10);
+      if (year < 100) year += 2000;
+      parsedDate = new Date(year, month, day);
+    }
+
+    // Regex para AAAA-MM-DD
+    const matchYMD = cleanDateStr.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if (matchYMD && !parsedDate) {
+      const year = parseInt(matchYMD[1], 10);
+      const month = parseInt(matchYMD[2], 10) - 1;
+      const day = parseInt(matchYMD[3], 10);
+      parsedDate = new Date(year, month, day);
+    }
+
+    if (!parsedDate) {
+      const monthsPt = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const monthsIt = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+      const monthsEn = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+      
+      const dayMatch = cleanDateStr.match(/\b(\d{1,2})\b/);
+      if (dayMatch) {
+        const day = parseInt(dayMatch[1], 10);
+        const lowerDateStr = cleanDateStr.toLowerCase();
+        let month = new Date().getMonth();
+        
+        for (let m = 0; m < 12; m++) {
+          if (lowerDateStr.includes(monthsPt[m]) || lowerDateStr.includes(monthsIt[m]) || lowerDateStr.includes(monthsEn[m])) {
+            month = m;
+            break;
+          }
+        }
+        
+        let year = new Date().getFullYear();
+        let testDate = new Date(year, month, day);
+        if (testDate.getTime() <= Date.now()) {
+          year += 1;
+        }
+        parsedDate = new Date(year, month, day);
+      }
+    }
+
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      return null;
+    }
+
+    const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (timeMatch) {
+      const hours = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+      parsedDate.setHours(hours, minutes, 0, 0);
+    } else {
+      parsedDate.setHours(9, 0, 0, 0);
+    }
+
+    return parsedDate;
+  }
 }

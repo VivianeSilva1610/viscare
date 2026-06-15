@@ -8,6 +8,7 @@ import { CheckCircle2, Circle, Flame, Sun, Moon, ArrowRight, Star, CalendarHeart
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
+import { NotificationService } from '../../services/notifications';
 
 const { width } = Dimensions.get('window');
 
@@ -214,14 +215,38 @@ export default function TodayScreen() {
           time: appTime,
           location: appLocation
         });
+        
+        // Se o agendamento atualizado for 'upcoming', reagendar/atualizar o lembrete
+        if (appEditing.status === 'upcoming') {
+          await NotificationService.scheduleAppointmentReminder(
+            appEditing.id,
+            appTitle,
+            appDate,
+            appTime,
+            appLocation,
+            language
+          );
+        }
       } else {
-        await DataService.addAppointment(user.id, {
+        const added = await DataService.addAppointment(user.id, {
           title: appTitle,
           dateStr: appDate,
           time: appTime,
           location: appLocation,
           status: 'upcoming'
         });
+        
+        // Agendar lembrete para o novo tratamento
+        if (added && added.id) {
+          await NotificationService.scheduleAppointmentReminder(
+            added.id,
+            appTitle,
+            appDate,
+            appTime,
+            appLocation,
+            language
+          );
+        }
       }
       setAppModalVisible(false);
       resetAppForm();
@@ -245,6 +270,8 @@ export default function TodayScreen() {
           onPress: async () => {
             try {
               await DataService.deleteAppointment(user.id, id);
+              // Cancelar lembrete correspondente
+              await NotificationService.cancelAppointmentReminder(id);
               await loadData();
             } catch (e) {
               console.warn('Erro ao deletar agendamento', e);
@@ -260,6 +287,21 @@ export default function TodayScreen() {
     const nextStatus = app.status === 'upcoming' ? 'completed' : 'upcoming';
     try {
       await DataService.updateAppointment(user.id, app.id, { status: nextStatus });
+      
+      // Se concluído, cancelar lembrete. Se reaberto, agendar novamente.
+      if (nextStatus === 'completed') {
+        await NotificationService.cancelAppointmentReminder(app.id);
+      } else {
+        await NotificationService.scheduleAppointmentReminder(
+          app.id,
+          app.title,
+          app.dateStr,
+          app.time,
+          app.location,
+          language
+        );
+      }
+      
       await loadData();
     } catch (e) {
       console.warn('Erro ao atualizar status do agendamento', e);

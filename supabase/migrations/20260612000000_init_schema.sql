@@ -1,4 +1,5 @@
 -- Clean up any broken tables from previous runs
+DROP TABLE IF EXISTS public.appointments CASCADE;
 DROP TABLE IF EXISTS public.routine_steps CASCADE;
 DROP TABLE IF EXISTS public.routines CASCADE;
 DROP TABLE IF EXISTS public.reminders CASCADE;
@@ -152,6 +153,25 @@ CREATE TABLE public.reminders (
 ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own reminders" ON public.reminders FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert/update their own reminders" ON public.reminders FOR ALL USING (auth.uid() = user_id);
+
+-- 9b. APPOINTMENTS TABLE
+CREATE TABLE public.appointments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    dateStr TEXT NOT NULL,
+    time TEXT NOT NULL,
+    location TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'completed')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view their own appointments" ON public.appointments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own appointments" ON public.appointments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own appointments" ON public.appointments FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own appointments" ON public.appointments FOR DELETE USING (auth.uid() = user_id);
+
 
 -- 10. TRIGGER
 CREATE OR REPLACE FUNCTION public.handle_new_user()
