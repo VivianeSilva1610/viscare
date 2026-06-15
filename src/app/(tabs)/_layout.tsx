@@ -2,9 +2,11 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { useTranslation } from '../../context/LocalizationContext';
 import { Calendar, Layers, FolderHeart, Compass, Settings, CalendarHeart } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -16,9 +18,9 @@ export default function TabsLayout() {
           backgroundColor: '#F8F2EE', // Marfim Rosado (Fundo principal)
           borderTopWidth: 1,
           borderTopColor: '#E7D8D0', // Bege Rosado
-          paddingBottom: 8,
           paddingTop: 8,
-          height: 68,
+          paddingBottom: insets.bottom > 0 ? insets.bottom + 4 : 8,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : 8),
         },
         tabBarLabelStyle: {
           fontFamily: 'Poppins_600SemiBold',
