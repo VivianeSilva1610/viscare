@@ -18,6 +18,15 @@ export class NotificationService {
   static async requestPermissions(): Promise<boolean> {
     if (Platform.OS === 'web') return false;
     try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F71',
+        });
+      }
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       
@@ -36,80 +45,86 @@ export class NotificationService {
   // Agendar os 3 lembretes diários padrão
   static async scheduleDailyReminders(language: 'it' | 'en' | 'pt' = 'it'): Promise<void> {
     if (Platform.OS === 'web') return;
-    
-    // Primeiro, cancelar todos os agendamentos anteriores para evitar duplicidade
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    try {
+      // Primeiro, cancelar todos os agendamentos anteriores para evitar duplicidade
+      await Notifications.cancelAllScheduledNotificationsAsync();
 
-    const messages = {
-      it: {
-        am_title: '☀️ Routine Mattutina',
-        am_body: 'È ora di coccolare la tua pelle! Inizia con la tua routine AM.',
-        spf_title: '🧴 Riapplicazione SPF',
-        spf_body: 'Mantieni protetta la tua pelle. Ricordati di riapplicare lo schermo solare!',
-        pm_title: '🌙 Routine Serale',
-        pm_body: 'Concludi la giornata rilassandoti e completando la tua routine PM.'
-      },
-      en: {
-        am_title: '☀️ Morning Routine',
-        am_body: 'Time to pamper your skin! Start your AM routine.',
-        spf_title: '🧴 SPF Reapplication',
-        spf_body: 'Keep your skin protected. Remember to reapply your sunscreen!',
-        pm_title: '🌙 Evening Routine',
-        pm_body: 'Unwind and finish your day by completing your PM routine.'
-      },
-      pt: {
-        am_title: '☀️ Rotina Matinal',
-        am_body: 'Hora de cuidar da sua pele! Comece sua rotina da manhã.',
-        spf_title: '🧴 Reaplique o Protetor Solar',
-        spf_body: 'Mantenha sua pele protegida. Lembre-se de reaplicar o protetor solar!',
-        pm_title: '🌙 Rotina Noturna',
-        pm_body: 'Termine o dia relaxando e completando sua rotina da noite.'
-      }
-    };
+      const messages = {
+        it: {
+          am_title: '☀️ Routine Mattutina',
+          am_body: 'È ora di coccolare la tua pelle! Inizia con la tua routine AM.',
+          spf_title: '🧴 Riapplicazione SPF',
+          spf_body: 'Mantieni protetta la tua pelle. Ricordati di riapplicare lo schermo solare!',
+          pm_title: '🌙 Routine Serale',
+          pm_body: 'Concludi la giornata rilassandoti e completando la tua routine PM.'
+        },
+        en: {
+          am_title: '☀️ Morning Routine',
+          am_body: 'Time to pamper your skin! Start your AM routine.',
+          spf_title: '🧴 SPF Reapplication',
+          spf_body: 'Keep your skin protected. Remember to reapply your sunscreen!',
+          pm_title: '🌙 Evening Routine',
+          pm_body: 'Unwind and finish your day by completing your PM routine.'
+        },
+        pt: {
+          am_title: '☀️ Rotina Matinal',
+          am_body: 'Hora de cuidar da sua pele! Comece sua rotina da manhã.',
+          spf_title: '🧴 Reaplique o Protetor Solar',
+          spf_body: 'Mantenha sua pele protegida. Lembre-se de reaplicar o protetor solar!',
+          pm_title: '🌙 Rotina Noturna',
+          pm_body: 'Termine o dia relaxando e completando sua rotina da noite.'
+        }
+      };
 
-    const text = messages[language] || messages['it'];
+      const text = messages[language] || messages['it'];
 
-    // Lembrete AM (07:00)
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: text.am_title,
-        body: text.am_body,
-        sound: true,
-      },
-      trigger: {
-        hour: 7,
-        minute: 0,
-        repeats: true,
-      } as Notifications.NotificationTriggerInput,
-    });
+      // Lembrete AM (07:00)
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: text.am_title,
+          body: text.am_body,
+          sound: true,
+          channelId: 'default',
+        } as any,
+        trigger: {
+          hour: 7,
+          minute: 0,
+          repeats: true,
+        } as Notifications.NotificationTriggerInput,
+      });
 
-    // Lembrete SPF (12:00)
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: text.spf_title,
-        body: text.spf_body,
-        sound: true,
-      },
-      trigger: {
-        hour: 12,
-        minute: 0,
-        repeats: true,
-      } as Notifications.NotificationTriggerInput,
-    });
+      // Lembrete SPF (12:00)
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: text.spf_title,
+          body: text.spf_body,
+          sound: true,
+          channelId: 'default',
+        } as any,
+        trigger: {
+          hour: 12,
+          minute: 0,
+          repeats: true,
+        } as Notifications.NotificationTriggerInput,
+      });
 
-    // Lembrete PM (22:00)
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: text.pm_title,
-        body: text.pm_body,
-        sound: true,
-      },
-      trigger: {
-        hour: 22,
-        minute: 0,
-        repeats: true,
-      } as Notifications.NotificationTriggerInput,
-    });
+      // Lembrete PM (22:00)
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: text.pm_title,
+          body: text.pm_body,
+          sound: true,
+          channelId: 'default',
+        } as any,
+        trigger: {
+          hour: 22,
+          minute: 0,
+          repeats: true,
+        } as Notifications.NotificationTriggerInput,
+      });
+    } catch (e) {
+      console.warn('Erro ao agendar lembretes diários', e);
+    }
   }
 
   // Cancelar todas as notificações
