@@ -427,7 +427,7 @@ function generateAIResult(query: string, lang: string): Ingredient {
   return {
     id: `ai-ing-${Date.now()}`,
     name,
-    evidence_level: 'High (AI Verified)',
+    evidence_level: 'High' as any,
     benefits_it,
     benefits_en,
     benefits_pt,

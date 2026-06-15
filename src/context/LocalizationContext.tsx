@@ -509,26 +509,6 @@ const translations = {
     'tabs.agenda': 'Agenda',
     'tabs.settings': 'Settings',
 
-    // Paywall
-    'paywall.title': 'Upgrade to Viscare Premium',
-    'paywall.monthly_plan': 'Monthly Subscription',
-    'paywall.monthly_desc': '7-day free trial, cancel anytime',
-    'paywall.yearly_plan': 'Annual Subscription',
-    'paywall.yearly_desc': '7-day free trial, single annual payment',
-    'paywall.save_percent': 'Save 37%',
-    'paywall.subtitle': 'Unlock the full potential of your skin care',
-    'paywall.feat_unlimited': 'Unlimited routines & products (Free: 1 routine, 5 products)',
-    'paywall.feat_ai': 'Advanced AI for personalized routine generation',
-    'paywall.feat_journal': 'Skin diary and photo progress tracking',
-    'paywall.monthly': 'R$ 19.90 / Month',
-    'paywall.yearly': 'R$ 149.00 / Year (Save 37%)',
-    'paywall.trial': 'Start 7-Day Free Trial',
-    'paywall.restore': 'Restore Purchases',
-    'paywall.close': 'Close',
-    'paywall.purchase_success_title': '✨ Welcome to Premium!',
-    'paywall.purchase_success_msg': 'Thank you for subscribing to Viscare Premium. All features are now unlocked!',
-    'paywall.restore_no_purchase': 'No previous purchases found for this account.',
-
     // Alerts and common messages
     'common.cancel': 'Cancel',
     'common.ok': 'OK',
@@ -834,26 +814,6 @@ const translations = {
     'tabs.discover': 'Explorar',
     'tabs.agenda': 'Agenda',
     'tabs.settings': 'Configurações',
-
-    // Paywall
-    'paywall.title': 'Mude para o Viscare Premium',
-    'paywall.monthly_plan': 'Assinatura Mensal',
-    'paywall.monthly_desc': '7 dias de teste grátis, cancele quando quiser',
-    'paywall.yearly_plan': 'Assinatura Anual',
-    'paywall.yearly_desc': '7 dias de teste grátis, pagamento anual único',
-    'paywall.save_percent': 'Economize 37%',
-    'paywall.subtitle': 'Desbloqueie todo o potencial dos seus cuidados com a pele',
-    'paywall.feat_unlimited': 'Rotinas e produtos ilimitados (Gratuito: 1 rotina, 5 produtos)',
-    'paywall.feat_ai': 'Inteligência Artificial avançada para gerar rotinas personalizadas',
-    'paywall.feat_journal': 'Diário de pele e rastreamento de progresso com fotos',
-    'paywall.monthly': 'R$ 19,90 / Mês',
-    'paywall.yearly': 'R$ 149,00 / Ano (Economize 37%)',
-    'paywall.trial': 'Iniciar Teste Grátis de 7 Dias',
-    'paywall.restore': 'Restaurar Compras',
-    'paywall.close': 'Fechar',
-    'paywall.purchase_success_title': '✨ Bem-vinda ao Premium!',
-    'paywall.purchase_success_msg': 'Obrigada por assinar o Viscare Premium. Todos os recursos foram desbloqueados!',
-    'paywall.restore_no_purchase': 'Nenhuma compra anterior encontrada para esta conta.',
 
     // Alerts e mensagens comuns
     'common.cancel': 'Cancelar',

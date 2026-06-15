@@ -155,6 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
+        const language = (await AsyncStorage.getItem('viscare_language')) || 'pt';
         const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         
         // Verificar se e-mail já está cadastrado
@@ -219,6 +220,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
+        const language = (await AsyncStorage.getItem('viscare_language')) || 'pt';
         const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         
         // Verificar se o e-mail está cadastrado e validar a senha

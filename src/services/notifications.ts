@@ -166,7 +166,7 @@ export class NotificationService {
           body: text.body,
           sound: true,
         },
-        trigger: parsedDate,
+        trigger: parsedDate as any,
       });
 
       console.log(`[NotificationService] Lembrete agendado com sucesso para ${parsedDate.toISOString()}. ID: ${notificationId}`);
