@@ -266,8 +266,11 @@ export async function purchaseWithRevenueCat(plan: PlanType): Promise<PurchaseRe
     const offerings = await Purchases.getOfferings();
     const offering = offerings.current;
 
-    if (!offering) {
-      return { success: false, isPremium: false, error: 'Nenhuma oferta disponível. Configure os produtos no painel RevenueCat.' };
+    // Se não houver ofertas configuradas no Google Play Console ainda,
+    // usa modo simulado para permitir testes de funcionalidades premium
+    if (!offering || offering.availablePackages.length === 0) {
+      console.warn('[PaymentService] Nenhuma oferta no RevenueCat — usando modo simulado para testes.');
+      return mockPurchase(plan);
     }
 
     const pkg = plan === 'monthly'
@@ -275,7 +278,7 @@ export async function purchaseWithRevenueCat(plan: PlanType): Promise<PurchaseRe
       : (offering.annual || offering.availablePackages[1] || offering.availablePackages[0]);
 
     if (!pkg) {
-      return { success: false, isPremium: false, error: 'Plano não encontrado.' };
+      return mockPurchase(plan);
     }
 
     const { customerInfo } = await Purchases.purchasePackage(pkg);
@@ -286,6 +289,11 @@ export async function purchaseWithRevenueCat(plan: PlanType): Promise<PurchaseRe
     // Código 1 = usuário cancelou (não é um erro real)
     if (e.code === 1) {
       return { success: false, isPremium: false, error: 'CANCELLED' };
+    }
+    // Se o erro for por falta de produtos configurados, usa modo simulado
+    if (e.message?.includes('not found') || e.message?.includes('not configured') || e.code === 'PRODUCT_NOT_AVAILABLE_FOR_PURCHASE') {
+      console.warn('[PaymentService] Produto não disponível — usando modo simulado para testes.');
+      return mockPurchase(plan);
     }
     return { success: false, isPremium: false, error: e.message || 'Erro desconhecido.' };
   }

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Product } from '../../services/mockDb';
-import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle } from 'lucide-react-native';
+import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle, Edit2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 export default function ProductsScreen() {
@@ -22,6 +22,7 @@ export default function ProductsScreen() {
   const [filteredCatalog, setFilteredCatalog] = useState<Product[]>([]);
   
   // Estados para inserção manual
+  const [productEditing, setProductEditing] = useState<UserProduct | null>(null);
   const [customName, setCustomName] = useState<string>('');
   const [customBrand, setCustomBrand] = useState<string>('');
   const [customCategory, setCustomCategory] = useState<'cleanser' | 'toner' | 'treatment' | 'moisturizer' | 'spf'>('cleanser');
@@ -50,7 +51,7 @@ export default function ProductsScreen() {
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user?.id]);
 
   // Filtrar catálogo global com base na query do usuário
   useEffect(() => {
@@ -101,6 +102,27 @@ export default function ProductsScreen() {
     return true;
   };
 
+  const resetForm = () => {
+    setProductEditing(null);
+    setCustomName('');
+    setCustomBrand('');
+    setCustomCategory('cleanser');
+    setCustomActives('');
+    setOpenedAt(new Date().toISOString().split('T')[0]);
+    setExpiration('12');
+  };
+
+  const openEditProduct = (item: UserProduct) => {
+    setProductEditing(item);
+    setCustomName(item.custom_name);
+    setCustomBrand(item.custom_brand);
+    setCustomCategory(item.custom_category as any);
+    setCustomActives(item.custom_active_ingredients.join(', '));
+    setOpenedAt(item.opened_at || '');
+    setExpiration(item.expiration_months ? item.expiration_months.toString() : '');
+    setIsAddModalOpen(true);
+  };
+
   // Adicionar produto a partir do catálogo global
   const handleAddFromCatalog = async (prod: Product) => {
     if (!checkLimitBeforeAction()) return;
@@ -125,14 +147,14 @@ export default function ProductsScreen() {
     }
   };
 
-  // Adicionar produto manualmente
+  // Adicionar ou Atualizar produto manualmente
   const handleManualAdd = async () => {
     if (!customName || !customBrand) {
       Alert.alert(t('common.error'), t('alert.fields_required'));
       return;
     }
 
-    if (!checkLimitBeforeAction()) return;
+    if (!productEditing && !checkLimitBeforeAction()) return;
 
     setLoading(true);
     // Converter ativos string em array
@@ -142,20 +164,28 @@ export default function ProductsScreen() {
       .filter(s => s.length > 0);
 
     try {
-      await DataService.addUserProduct(user?.id || 'guest-user-id', {
-        product_id: null,
-        custom_name: customName,
-        custom_brand: customBrand,
-        custom_category: customCategory,
-        custom_active_ingredients: activesArr,
-        opened_at: openedAt || null,
-        expiration_months: expiration ? parseInt(expiration, 10) : null
-      });
+      if (productEditing) {
+        await DataService.updateUserProduct(user?.id || 'guest-user-id', productEditing.id, {
+          custom_name: customName,
+          custom_brand: customBrand,
+          custom_category: customCategory,
+          custom_active_ingredients: activesArr,
+          opened_at: openedAt || null,
+          expiration_months: expiration ? parseInt(expiration, 10) : null
+        });
+      } else {
+        await DataService.addUserProduct(user?.id || 'guest-user-id', {
+          product_id: null,
+          custom_name: customName,
+          custom_brand: customBrand,
+          custom_category: customCategory,
+          custom_active_ingredients: activesArr,
+          opened_at: openedAt || null,
+          expiration_months: expiration ? parseInt(expiration, 10) : null
+        });
+      }
 
-      // Limpar formulário
-      setCustomName('');
-      setCustomBrand('');
-      setCustomActives('');
+      resetForm();
       setIsAddModalOpen(false);
       await loadData();
     } catch (e) {
@@ -186,7 +216,7 @@ export default function ProductsScreen() {
         </View>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => setIsAddModalOpen(true)}
+          onPress={() => { resetForm(); setIsAddModalOpen(true); }}
           className="bg-brand-rose-metallic p-3 rounded-full shadow-sm"
         >
           <Plus size={18} color="white" />
@@ -237,13 +267,21 @@ export default function ProductsScreen() {
                       {item.expiration_months ? `${item.expiration_months}M` : 'N/A'}
                     </Text>
                   </View>
-                  <TouchableOpacity
-                    onPress={() => handleDelete(item.id)}
-                    className="p-1.5 bg-red-500/10 rounded-lg"
-                    accessibilityLabel={t('accessibility.delete_product')}
-                  >
-                    <Trash2 size={12} color="#EF4444" />
-                  </TouchableOpacity>
+                  <View className="flex-row space-x-2">
+                    <TouchableOpacity
+                      onPress={() => openEditProduct(item)}
+                      className="p-1.5 bg-brand-nude/40 rounded-lg"
+                    >
+                      <Edit2 size={12} color="#B97C63" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleDelete(item.id)}
+                      className="p-1.5 bg-red-500/10 rounded-lg"
+                      accessibilityLabel={t('accessibility.delete_product')}
+                    >
+                      <Trash2 size={12} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             ))}
@@ -264,7 +302,7 @@ export default function ProductsScreen() {
             {/* Header Modal */}
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-xl font-serif text-brand-bronze font-bold">
-                {t('products.add_modal_title')}
+                {productEditing ? t('products.edit_modal_title') : t('products.add_modal_title')}
               </Text>
               <TouchableOpacity
                 onPress={() => setIsAddModalOpen(false)}
@@ -277,49 +315,55 @@ export default function ProductsScreen() {
             {/* Abas de Busca vs Manual */}
             <ScrollView className="flex-1 space-y-4" keyboardShouldPersistTaps="handled">
               
-              {/* Barra de busca */}
-              <View className="bg-brand-beige flex-row items-center px-4 py-3 rounded-2xl">
-                <Search size={18} color="#8E8E93" className="mr-2" />
-                <TextInput
-                  placeholder={t('products.search_placeholder')}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  className="flex-1 font-sans text-sm text-brand-charcoal"
-                />
-              </View>
+              {!productEditing && (
+                <>
+                  {/* Barra de busca */}
+                  <View className="bg-brand-beige flex-row items-center px-4 py-3 rounded-2xl">
+                    <Search size={18} color="#8E8E93" className="mr-2" />
+                    <TextInput
+                      placeholder={t('products.search_placeholder')}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                      className="flex-1 font-sans text-sm text-brand-charcoal"
+                    />
+                  </View>
 
-              {/* Resultados da busca rápida */}
-              {searchQuery.length > 0 && (
-                <View className="bg-brand-ivory border border-brand-beige rounded-2xl p-2 max-h-[160px]">
-                  <ScrollView nestedScrollEnabled={true}>
-                    {filteredCatalog.length === 0 ? (
-                      <Text className="font-sans text-xs text-brand-sage-dark text-center p-4">
-                        {t('products.no_catalog_results')}
-                      </Text>
-                    ) : (
-                      filteredCatalog.map(p => (
-                        <TouchableOpacity
-                           key={p.id}
-                          onPress={() => handleAddFromCatalog(p)}
-                          className="flex-row justify-between items-center p-3 border-b border-brand-beige active:bg-brand-beige"
-                        >
-                          <View>
-                            <Text className="font-sans text-xs font-bold text-brand-charcoal">{p.name}</Text>
-                            <Text className="font-sans text-[10px] text-brand-sage-dark">{p.brand} • <Text className="capitalize">{p.category}</Text></Text>
-                          </View>
-                          <Plus size={16} color="#B97C63" />
-                        </TouchableOpacity>
-                      ))
-                    )}
-                  </ScrollView>
-                </View>
+                  {/* Resultados da busca rápida */}
+                  {searchQuery.length > 0 && (
+                    <View className="bg-brand-ivory border border-brand-beige rounded-2xl p-2 max-h-[160px]">
+                      <ScrollView nestedScrollEnabled={true}>
+                        {filteredCatalog.length === 0 ? (
+                          <Text className="font-sans text-xs text-brand-sage-dark text-center p-4">
+                            {t('products.no_catalog_results')}
+                          </Text>
+                        ) : (
+                          filteredCatalog.map(p => (
+                            <TouchableOpacity
+                               key={p.id}
+                              onPress={() => handleAddFromCatalog(p)}
+                              className="flex-row justify-between items-center p-3 border-b border-brand-beige active:bg-brand-beige"
+                            >
+                              <View>
+                                <Text className="font-sans text-xs font-bold text-brand-charcoal">{p.name}</Text>
+                                <Text className="font-sans text-[10px] text-brand-sage-dark">{p.brand} • <Text className="capitalize">{p.category}</Text></Text>
+                              </View>
+                              <Plus size={16} color="#B97C63" />
+                            </TouchableOpacity>
+                          ))
+                        )}
+                      </ScrollView>
+                    </View>
+                  )}
+                </>
               )}
 
-              {/* Inserção Manual */}
-              <View className="border-t border-brand-beige pt-4">
-                <Text className="font-serif text-sm font-bold text-brand-bronze mb-3">
-                  {t('products.manual_title')}
-                </Text>
+              {/* Inserção Manual / Edição */}
+              <View className={!productEditing ? "border-t border-brand-beige pt-4" : ""}>
+                {!productEditing && (
+                  <Text className="font-serif text-sm font-bold text-brand-bronze mb-3">
+                    {t('products.manual_title')}
+                  </Text>
+                )}
 
                 <View className="space-y-3">
                   <View>
@@ -413,7 +457,7 @@ export default function ProductsScreen() {
               className="w-full py-4 bg-brand-rose-metallic rounded-full items-center mt-4"
             >
               <Text className="text-white font-sans text-base font-bold">
-                {t('products.add_button')}
+                {productEditing ? t('products.edit_button') : t('products.add_button')}
               </Text>
             </TouchableOpacity>
           </View>

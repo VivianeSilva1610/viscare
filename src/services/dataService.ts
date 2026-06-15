@@ -317,7 +317,7 @@ export class DataService {
       return { success: false, routineSteps: [], error: 'Skin profile quiz not completed yet.' };
     }
     if (userProducts.length === 0) {
-      return { success: false, routineSteps: [], error: 'Please add products to your cabinet first.' };
+      return { success: false, routineSteps: [], error: 'No products in cabinet.' };
     }
 
     const realUid = await this.getAuthUserId();

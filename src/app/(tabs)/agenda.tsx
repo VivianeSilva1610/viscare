@@ -43,7 +43,7 @@ export default function AgendaScreen() {
 
   useEffect(() => {
     loadAppointments();
-  }, [user]);
+  }, [user?.id]);
 
   const resetForm = () => {
     setFormTitle('');

@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation, Language } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { NotificationService } from '../../services/notifications';
 import { Reminder } from '../../services/mockDb';
-import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles } from 'lucide-react-native';
+import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 export default function SettingsScreen() {
-  const { user, isPremium, signOut, refreshProfile } = useAuth();
+  const { user, isPremium, signOut, refreshProfile, updatePassword } = useAuth();
   const { t, language, setLanguage } = useTranslation();
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [reminders, setReminders] = useState<Reminder[]>([]);
+
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
 
   const loadReminders = async () => {
     if (!user) return;
@@ -29,7 +34,7 @@ export default function SettingsScreen() {
   useEffect(() => {
     loadReminders();
     refreshProfile();
-  }, [user]);
+  }, [user?.id]);
 
   // Alternar lembretes
   const toggleReminder = async (type: 'AM' | 'SPF' | 'PM', currentVal: boolean) => {
@@ -135,6 +140,29 @@ export default function SettingsScreen() {
     await signOut();
     router.replace('/onboarding');
     setLoading(false);
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      Alert.alert(t('common.error'), t('auth.error_fill'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      Alert.alert(t('common.error'), t('auth.passwords_must_match'));
+      return;
+    }
+    setSavingPassword(true);
+    const res = await updatePassword(user?.email || '', newPassword);
+    setSavingPassword(false);
+
+    if (res.success) {
+      Alert.alert(t('settings.change_password'), t('auth.reset_success_done'));
+      setIsPasswordModalOpen(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } else {
+      Alert.alert(t('common.error'), res.error || 'Erro');
+    }
   };
 
   if (loading) {
@@ -275,6 +303,17 @@ export default function SettingsScreen() {
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
 
+        {/* Trocar Senha */}
+        <TouchableOpacity
+          onPress={() => setIsPasswordModalOpen(true)}
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
+        >
+          <Lock size={16} color="#B97C63" />
+          <Text className="font-sans text-xs font-bold text-brand-charcoal">
+            {t('settings.change_password')}
+          </Text>
+        </TouchableOpacity>
+
         {/* Logout */}
         <TouchableOpacity
           onPress={handleLogout}
@@ -297,6 +336,70 @@ export default function SettingsScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal Mudar Senha */}
+      <Modal
+        visible={isPasswordModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsPasswordModalOpen(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-[32px] p-6 pb-12">
+            <View className="flex-row justify-between items-center mb-6">
+              <Text className="text-xl font-serif text-brand-bronze font-bold">
+                {t('settings.change_password')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setIsPasswordModalOpen(false)}
+                className="p-2 bg-brand-beige rounded-full"
+              >
+                <X size={16} color="#8E8E93" />
+              </TouchableOpacity>
+            </View>
+
+            <View className="space-y-4">
+              <View>
+                <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
+                  {t('auth.new_password')}
+                </Text>
+                <TextInput
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  className="bg-brand-ivory px-4 py-3 border border-brand-beige rounded-xl font-sans text-sm"
+                />
+              </View>
+
+              <View>
+                <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">
+                  {t('auth.confirm_new_password')}
+                </Text>
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  className="bg-brand-ivory px-4 py-3 border border-brand-beige rounded-xl font-sans text-sm"
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={handleChangePassword}
+                disabled={savingPassword}
+                className={`w-full py-4 rounded-full items-center mt-2 ${savingPassword ? 'bg-brand-rose-metallic/60' : 'bg-brand-rose-metallic'}`}
+              >
+                {savingPassword ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-sans text-base font-bold">
+                    {t('settings.change_password')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

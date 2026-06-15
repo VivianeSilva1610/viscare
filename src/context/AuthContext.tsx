@@ -93,29 +93,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let authListener: any = null;
     if (isSupabaseConfigured) {
       const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-          if (event === 'PASSWORD_RECOVERY') {
-            await AsyncStorage.setItem('viscare_remember_me', 'true');
-            if (session.user.email) {
-              await AsyncStorage.setItem('viscare_reset_email', session.user.email);
+        try {
+          if (session?.user) {
+            if (event === 'PASSWORD_RECOVERY') {
+              await AsyncStorage.setItem('viscare_remember_me', 'true');
+              if (session.user.email) {
+                await AsyncStorage.setItem('viscare_reset_email', session.user.email);
+              }
             }
-          }
-          const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
-          if (rememberMe === 'true') {
             setUser({ id: session.user.id, email: session.user.email || '' });
             const userProfile = await DataService.getProfile(session.user.id);
             setProfile(userProfile);
             setIsPremium(userProfile.subscription_plan === 'premium');
             setIsGuest(false);
+          } else {
+            // Apenas limpa se não for Guest
+            const guestFlag = await AsyncStorage.getItem('viscare_is_guest');
+            if (guestFlag !== 'true') {
+              setUser(null);
+              setProfile(null);
+              setIsPremium(false);
+            }
           }
-        } else {
-          // Apenas limpa se não for Guest
-          const guestFlag = await AsyncStorage.getItem('viscare_is_guest');
-          if (guestFlag !== 'true') {
-            setUser(null);
-            setProfile(null);
-            setIsPremium(false);
-          }
+        } catch (e) {
+          console.warn('Erro no listener do Supabase', e);
         }
       });
       authListener = data.subscription;
@@ -195,6 +196,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       setIsLoading(true);
+      await AsyncStorage.setItem('viscare_remember_me', rememberMe ? 'true' : 'false');
       const { data, error } = await supabase.auth.signUp({ email: cleanEmail, password: pass });
       if (error) throw error;
       if (data.user) {
@@ -203,12 +205,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
-        
-        if (rememberMe) {
-          await AsyncStorage.setItem('viscare_remember_me', 'true');
-        } else {
-          await AsyncStorage.setItem('viscare_remember_me', 'false');
-        }
       }
       return { success: true };
     } catch (e: any) {
@@ -269,7 +265,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.signInWithPassword({ email: cleanEmail, password: pass });
+      await AsyncStorage.setItem('viscare_remember_me', rememberMe ? 'true' : 'false');
+      const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password: pass });
       if (error) throw error;
       if (data.user) {
         const userProfile = await DataService.getProfile(data.user.id);
@@ -277,12 +274,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(userProfile.subscription_plan === 'premium');
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
-        
-        if (rememberMe) {
-          await AsyncStorage.setItem('viscare_remember_me', 'true');
-        } else {
-          await AsyncStorage.setItem('viscare_remember_me', 'false');
-        }
       }
       return { success: true };
     } catch (e: any) {

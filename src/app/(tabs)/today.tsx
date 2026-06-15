@@ -118,7 +118,7 @@ export default function TodayScreen() {
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user?.id]);
 
   // Toggle active routine task
   const toggleStep = async (stepId: string, routineType: 'AM' | 'PM') => {

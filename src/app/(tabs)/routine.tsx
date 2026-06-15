@@ -5,6 +5,8 @@ import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Routine, RoutineStep, CompatibilityRule } from '../../services/mockDb';
 import { Sparkles, Trash2, ArrowUp, ArrowDown, Plus, X, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react-native';
+import { AIRecommendationService } from '../../services/aiRecommendations';
+import { SkinProfile } from '../../services/mockDb';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -184,18 +186,70 @@ export default function RoutineScreen() {
 
   // Gerar rotina com IA
   const handleGenerateWithAI = async () => {
-    if (cabinet.length === 0) {
-      Alert.alert(t('common.info'), t('routine.empty_cabinet_warning'));
-      return;
-    }
-
     setGenerating(true);
     try {
+      let currentCabinet = cabinet;
+
+      // Se o armário está vazio, tenta preencher automaticamente com as recomendações da IA
+      if (currentCabinet.length === 0) {
+        const skinProfile = await DataService.getSkinProfile(user?.id || 'guest-user-id');
+
+        if (!skinProfile) {
+          // Sem perfil de pele — orienta o usuário a completar o quiz
+          Alert.alert(
+            t('common.info'),
+            language === 'pt'
+              ? 'Complete o questionário de perfil de pele para que a IA possa gerar sua rotina personalizada.'
+              : language === 'it'
+              ? 'Completa il questionario del profilo pelle per ricevere una routine personalizzata dall\'IA.'
+              : 'Complete the skin profile quiz so the AI can generate your personalized routine.',
+            [{ text: 'OK' }]
+          );
+          setGenerating(false);
+          return;
+        }
+
+        // Buscar recomendações baseadas no perfil de pele
+        const recommendations = await AIRecommendationService.getRecommendations(skinProfile as SkinProfile);
+
+        if (recommendations.length === 0) {
+          Alert.alert(t('common.error'), t('alert.routine_error'));
+          setGenerating(false);
+          return;
+        }
+
+        // Adicionar os produtos recomendados ao armário automaticamente
+        const userId = user?.id || 'guest-user-id';
+        for (const rec of recommendations) {
+          await DataService.addUserProduct(userId, {
+            product_id: rec.product.id,
+            custom_name: rec.product.name,
+            custom_brand: rec.product.brand,
+            custom_category: rec.product.category,
+            custom_active_ingredients: rec.product.active_ingredients,
+            opened_at: new Date().toISOString().split('T')[0],
+            expiration_months: 12
+          });
+        }
+
+        // Recarregar o armário
+        currentCabinet = await DataService.getUserProducts(userId);
+        setCabinet(currentCabinet);
+
+        Alert.alert(
+          t('common.info'),
+          language === 'pt'
+            ? `✨ A IA adicionou ${recommendations.length} produto(s) ao seu armário com base no seu perfil de pele e está gerando sua rotina!`
+            : language === 'it'
+            ? `✨ L'IA ha aggiunto ${recommendations.length} prodotto/i al tuo armadietto in base al tuo profilo pelle e sta generando la tua routine!`
+            : `✨ AI added ${recommendations.length} product(s) to your cabinet based on your skin profile and is generating your routine!`
+        );
+      }
+
       const res = await DataService.generateRoutine(user?.id || 'guest-user-id', activeTab);
       if (res.success && res.routineSteps) {
         const currentRoutine = routines.find(r => r.type === activeTab);
         if (currentRoutine) {
-          // Converter mock local format para passos completos
           const fullSteps = res.routineSteps.map((s, idx) => ({
             id: `step-${Math.random()}`,
             routine_id: currentRoutine.id,
@@ -203,13 +257,13 @@ export default function RoutineScreen() {
             position: idx,
             notes: s.notes,
             is_completed: s.is_completed,
-            product: cabinet.find(p => p.id === s.user_product_id)
+            product: currentCabinet.find(p => p.id === s.user_product_id)
           }));
 
           setSteps(fullSteps);
           await DataService.saveRoutineSteps(currentRoutine.id, fullSteps as RoutineStep[]);
           await runCompatibilityCheck(fullSteps);
-          
+
           Alert.alert(
             t('common.info'),
             t('alert.routine_success')

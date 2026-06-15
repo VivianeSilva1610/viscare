@@ -156,6 +156,7 @@ const translations = {
     'products.category': 'Categoria',
     'products.active_ingredients': 'Principi Attivi principali (separati da virgola)',
     'products.add_button': 'Aggiungi all\'Armadietto',
+    'products.edit_button': 'Salva Modifiche',
     'products.delete': 'Elimina',
     'products.expiration': 'Scadenza (mesi dall\'apertura)',
     'products.opened': 'Aperto il',
@@ -190,6 +191,7 @@ const translations = {
     'settings.delete_warning': 'Attenzione: Questa azione è permanente e conforme alla normativa LGPD/GDPR. Eliminerà per sempre tutti i tuoi dati, rotine e account.',
     'settings.delete_confirm': 'Sì, Elimina Tutto',
     'settings.logout': 'Disconnetti',
+    'settings.change_password': 'Cambia Password',
     'settings.privacy': 'Informativa sulla Privacy',
     'settings.terms': 'Termini di Servizio',
 
@@ -261,6 +263,7 @@ const translations = {
 
     'products.no_catalog_results': 'Nessun prodotto trovato nel catalogo.',
     'products.add_modal_title': 'Aggiungi Prodotto',
+    'products.edit_modal_title': 'Modifica Prodotto',
     'products.empty_title': 'Nessun prodotto',
     'products.empty_msg': 'Il tuo armadietto è vuoto. Clicca sul "+" per aggiungere i tuoi prodotti.',
 
@@ -459,6 +462,7 @@ const translations = {
     'products.category': 'Category',
     'products.active_ingredients': 'Active Ingredients (comma separated)',
     'products.add_button': 'Add to Cabinet',
+    'products.edit_button': 'Save Changes',
     'products.delete': 'Delete',
     'products.expiration': 'Expiration (months after opening)',
     'products.opened': 'Opened on',
@@ -493,6 +497,7 @@ const translations = {
     'settings.delete_warning': 'Warning: This action is permanent and GDPR/LGPD compliant. It will forever delete all your data, routines, and account.',
     'settings.delete_confirm': 'Yes, Delete Everything',
     'settings.logout': 'Log Out',
+    'settings.change_password': 'Change Password',
     'settings.privacy': 'Privacy Policy',
     'settings.terms': 'Terms of Service',
 
@@ -550,6 +555,7 @@ const translations = {
 
     'products.no_catalog_results': 'No products found in catalog.',
     'products.add_modal_title': 'Add Product',
+    'products.edit_modal_title': 'Edit Product',
     'products.empty_title': 'No products',
     'products.empty_msg': 'Your cabinet is empty. Tap the "+" button to add your products.',
 
@@ -782,6 +788,7 @@ const translations = {
     'products.category': 'Categoria',
     'products.active_ingredients': 'Princípios Ativos principais (separados por vírgula)',
     'products.add_button': 'Adicionar ao Armário',
+    'products.edit_button': 'Salvar Alterações',
     'products.delete': 'Excluir',
     'products.expiration': 'Validade (meses após aberto)',
     'products.opened': 'Aberto em',
@@ -816,6 +823,7 @@ const translations = {
     'settings.delete_warning': 'Aviso: Esta ação é permanente e cumpre com as regras da LGPD/GDPR. Excluirá para sempre todos os seus dados, rotinas e conta.',
     'settings.delete_confirm': 'Sim, Excluir Tudo',
     'settings.logout': 'Sair',
+    'settings.change_password': 'Trocar Senha',
     'settings.privacy': 'Política de Privacidade',
     'settings.terms': 'Termos de Serviço',
 
@@ -873,6 +881,7 @@ const translations = {
 
     'products.no_catalog_results': 'Nenhum produto encontrado no catálogo.',
     'products.add_modal_title': 'Adicionar Produto',
+    'products.edit_modal_title': 'Editar Produto',
     'products.empty_title': 'Nenhum produto',
     'products.empty_msg': 'Seu armário está vazio. Toque no "+" para adicionar seus produtos.',
 
