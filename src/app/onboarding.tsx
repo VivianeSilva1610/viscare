@@ -369,7 +369,7 @@ export default function Onboarding() {
                       autoCapitalize="none"
                       keyboardType="email-address"
                       value={email}
-                      onChangeText={setEmail}
+                      onChangeText={(text) => setEmail(text.trim())}
                       className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
                     />
                   </View>
@@ -743,7 +743,7 @@ export default function Onboarding() {
               </Text>
               <TextInput
                 value={resetEmail}
-                onChangeText={setResetEmail}
+                onChangeText={(text) => setResetEmail(text.trim())}
                 placeholder="example@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"

@@ -150,17 +150,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, pass: string, displayName: string, rememberMe: boolean = false) => {
+    const cleanEmail = email.trim();
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
-        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         
         // Verificar se e-mail já está cadastrado
         const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
         if (savedPass !== null) {
           throw new Error(
             language === 'pt' ? 'Este e-mail já está cadastrado.' : 
-            language === 'it' ? 'Questo indirizzo email è già registrato.' : 
+            language === 'it' ? 'Questo indirizzo email è já registrato.' : 
             'This email is already registered.'
           );
         }
@@ -168,9 +169,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Salvar a senha do usuário
         await AsyncStorage.setItem('viscare_mock_password_' + mockId, pass);
 
-        setUser({ id: mockId, email });
+        setUser({ id: mockId, email: cleanEmail });
         let userProfile = await DataService.getProfile(mockId);
-        userProfile = await DataService.updateProfile(mockId, { display_name: displayName, email });
+        userProfile = await DataService.updateProfile(mockId, { display_name: displayName, email: cleanEmail });
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
@@ -178,7 +179,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (rememberMe) {
           await AsyncStorage.setItem('viscare_remember_me', 'true');
           await AsyncStorage.setItem('viscare_saved_user_id', mockId);
-          await AsyncStorage.setItem('viscare_saved_email', email);
+          await AsyncStorage.setItem('viscare_saved_email', cleanEmail);
         } else {
           await AsyncStorage.setItem('viscare_remember_me', 'false');
           await AsyncStorage.removeItem('viscare_saved_user_id');
@@ -194,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signUp({ email, password: pass });
+      const { data, error } = await supabase.auth.signUp({ email: cleanEmail, password: pass });
       if (error) throw error;
       if (data.user) {
         // Criar perfil com nome
@@ -218,10 +219,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, pass: string, rememberMe: boolean = false) => {
+    const cleanEmail = email.trim();
     if (!isSupabaseConfigured) {
       try {
         setIsLoading(true);
-        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         
         // Verificar se o e-mail está cadastrado e validar a senha
         const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
@@ -241,7 +243,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
         }
 
-        setUser({ id: mockId, email });
+        setUser({ id: mockId, email: cleanEmail });
         const userProfile = await DataService.getProfile(mockId);
         setProfile(userProfile);
         setIsPremium(userProfile.subscription_plan === 'premium');
@@ -251,7 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (rememberMe) {
           await AsyncStorage.setItem('viscare_remember_me', 'true');
           await AsyncStorage.setItem('viscare_saved_user_id', mockId);
-          await AsyncStorage.setItem('viscare_saved_email', email);
+          await AsyncStorage.setItem('viscare_saved_email', cleanEmail);
         } else {
           await AsyncStorage.setItem('viscare_remember_me', 'false');
           await AsyncStorage.removeItem('viscare_saved_user_id');
@@ -267,7 +269,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.signInWithPassword({ email, password: pass });
+      const { data, error } = await supabase.signInWithPassword({ email: cleanEmail, password: pass });
       if (error) throw error;
       if (data.user) {
         const userProfile = await DataService.getProfile(data.user.id);
@@ -321,9 +323,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetPassword = async (email: string) => {
+    const cleanEmail = email.trim();
     if (!isSupabaseConfigured) {
       try {
-        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
         if (savedPass === null) {
           const savedLang = await AsyncStorage.getItem('viscare_language');
@@ -340,7 +343,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: 'https://viscaree.vercel.app/onboarding?reset=true',
       });
       if (error) throw error;
@@ -351,9 +354,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updatePassword = async (email: string, newPass: string) => {
+    const cleanEmail = email.trim();
     if (!isSupabaseConfigured) {
       try {
-        const mockId = 'mock-' + email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+        const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
         await AsyncStorage.setItem('viscare_mock_password_' + mockId, newPass);
         return { success: true };
       } catch (e: any) {
