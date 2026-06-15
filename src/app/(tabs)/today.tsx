@@ -488,10 +488,35 @@ export default function TodayScreen() {
         if (!isSupabaseConfigured) throw new Error('Supabase not configured');
         if (!base64Data) throw new Error('Image base64 data not available');
 
+        // Obter os produtos da rotina ativa para enviar à IA do Gemini
+        const activeIngredients: string[] = [];
+        let hasSpf = false;
+        amSteps.forEach(s => {
+          if (s.product) {
+            if (s.product.custom_category === 'spf') hasSpf = true;
+            s.product.custom_active_ingredients?.forEach(i => activeIngredients.push(i.trim()));
+          }
+        });
+        pmSteps.forEach(s => {
+          if (s.product) {
+            if (s.product.custom_category === 'spf') hasSpf = true;
+            s.product.custom_active_ingredients?.forEach(i => activeIngredients.push(i.trim()));
+          }
+        });
+
         const { data, error } = await supabase.functions.invoke('analyze-skin', {
           body: {
             image: base64Data,
             language: language,
+            activeProducts: cabinetProducts.map(p => ({
+              name: p.custom_name,
+              brand: p.custom_brand,
+              category: p.custom_category,
+              activeIngredients: p.custom_active_ingredients || [],
+              isFavorite: p.is_favorite || false
+            })),
+            routineIngredients: activeIngredients,
+            hasSpfInRoutine: hasSpf
           }
         });
         if (error || !data) throw new Error(error?.message || 'Failed to get analysis');

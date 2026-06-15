@@ -30,7 +30,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { image, language } = await req.json();
+    const { image, language, activeProducts, routineIngredients, hasSpfInRoutine } = await req.json();
 
     if (!image) {
       return new Response(
@@ -58,22 +58,32 @@ Deno.serve(async (req: Request) => {
 
     // Construir o prompt dinamicamente com base no idioma solicitado
     let languageInstructions = '';
-    if (lang === 'pt') {
-      languageInstructions = "Escreva o diagnóstico em Português. Seja empático, encorajador e profissional.";
-    } else if (lang === 'it') {
-      languageInstructions = "Scrivi la diagnosi in Italiano. Sii empatico, incoraggiante e professionale.";
-    } else {
-      languageInstructions = "Write the diagnosis in English. Be empathetic, encouraging, and professional.";
+    let productsContext = '';
+
+    if (activeProducts && activeProducts.length > 0) {
+      productsContext = `O usuário tem estes produtos no armário: ${JSON.stringify(activeProducts)}. `;
+    }
+    if (routineIngredients && routineIngredients.length > 0) {
+      productsContext += `Os seguintes ingredientes estão ativos nas rotinas AM/PM: ${routineIngredients.join(', ')}. Protetor solar (SPF) na rotina: ${hasSpfInRoutine ? 'Sim' : 'Não'}.`;
     }
 
-    const promptText = `Análise clínica de imagem facial da pele do usuário. Analise as características visuais para fornecer uma avaliação aproximada.
+    if (lang === 'pt') {
+      languageInstructions = "Escreva o diagnóstico em Português. Use vocabulário simples e claro. Explique o que as porcentagens significam (ex: se rugas for 68%, significa que a pele está 68% lisa e sem marcas, e não que tem 68% de rugas; se hidratação for 70%, significa nível de umidade bom). Explique como os produtos ativos da rotina atual do usuário se relacionam e ajudam no tratamento dos problemas observados no rosto.";
+    } else if (lang === 'it') {
+      languageInstructions = "Scrivi la diagnosi in Italiano. Usa un vocabolario semplice e chiaro. Spiega cosa significano le percentuali (es: se le rughe sono al 68%, significa che la pelle è liscia al 68%, non che ha il 68% di rughe; se l'idratazione è al 70%, significa un buon livello di umidità). Spiega come i prodotti attivi della routine dell'utente si collegano e aiutano a trattare i problemi osservati sul viso.";
+    } else {
+      languageInstructions = "Write the diagnosis in English. Use simple and clear vocabulary. Explain what the percentages mean (e.g. if wrinkles is 68%, it means the skin is 68% smooth and mark-free, not that it has 68% wrinkles; if hydration is 70%, it means a good moisture level). Explain how the active products in the user's current routine relate to and help treat the problems observed on the face.";
+    }
+
+    const promptText = `Análise clínica de imagem facial da pele do rosto do usuário. Concentre-se especificamente nos aspectos faciais (viso).
+    ${productsContext}
     Retorne estritamente um objeto JSON com os seguintes campos (sem tags de código markdown e sem blocos \`\`\`json):
     {
-      "hydration": número entre 0 e 100 (onde 100 significa pele muito hidratada, 40 significa seca),
-      "wrinkles": número entre 0 e 100 (onde 100 significa ausência total de rugas e linhas, pele lisa),
-      "sensitivity": número entre 0 e 100 (onde 100 significa pele extremamente reativa, vermelha ou irritada, e 0 significa tolerante),
-      "acne": número entre 0 e 100 (onde 100 significa pele totalmente limpa e livre de cravos ou espinhas, e 0 significa acne severa),
-      "diagnosis": "Um texto conciso com no máximo 3 frases. ${languageInstructions} Comente sobre o estado geral visível (ex: áreas de vermelhidão, poros ou linhas finas) e mencione qual ativo seria recomendado (ex: Ácido Hialurônico, Niacinamida, Vitamina C ou Retinol) baseado no que foi observado na foto."
+      "hydration": número entre 0 e 100 (onde 100 significa pele perfeitamente hidratada, 0 significa extremamente seca),
+      "wrinkles": número entre 0 e 100 (onde 100 significa pele totalmente lisa, firme e sem marcas de rugas/linhas finas, e 0 significa rugas severas generalizadas),
+      "sensitivity": número entre 0 e 100 (onde 100 significa pele extremamente reativa e irritada/vermelha, e 0 significa pele tolerante),
+      "acne": número entre 0 e 100 (onde 100 significa pele completamente lisa e pura, sem cravos ou espinhas, e 0 significa acne severa),
+      "diagnosis": "Um texto conciso com no máximo 4 frases. ${languageInstructions} Comente sobre o estado geral visível do rosto na foto e correlacione diretamente com os produtos/ingredientes que o usuário já usa ou deveria usar."
     }`;
 
     // Chamar API do Gemini
