@@ -78,8 +78,17 @@ export default function ProductsScreen() {
           style: 'destructive',
           onPress: async () => {
             setLoading(true);
-            await DataService.deleteUserProduct(user?.id || 'guest-user-id', id);
-            await loadData();
+            try {
+              await DataService.deleteUserProduct(user?.id || 'guest-user-id', id);
+              await loadData();
+            } catch (err: any) {
+              setLoading(false);
+              console.error('Failed to delete product:', err);
+              Alert.alert(
+                t('common.error'),
+                err.message || 'Erro ao excluir o produto.'
+              );
+            }
           }
         }
       ]

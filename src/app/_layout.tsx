@@ -5,12 +5,41 @@ import { useFonts, PlayfairDisplay_400Regular, PlayfairDisplay_600SemiBold, Play
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { LocalizationProvider } from '../context/LocalizationContext';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Platform, Alert } from 'react-native';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import '../global.css';
 
 // Impedir que o Splash Screen seja ocultado automaticamente antes de carregar as fontes
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// Polyfill Alert.alert for Web, as react-native-web has a stub that does nothing.
+if (Platform.OS === 'web') {
+  (Alert as any).alert = (title: string, message?: string, buttons?: any[]) => {
+    const text = message ? `${title}\n\n${message}` : title;
+    if (!buttons || buttons.length === 0) {
+      window.alert(text);
+    } else if (buttons.length === 1) {
+      window.alert(text);
+      if (buttons[0].onPress) {
+        buttons[0].onPress();
+      }
+    } else {
+      const result = window.confirm(text);
+      if (result) {
+        const okBtn = buttons.find(b => b.style !== 'cancel') || buttons[0];
+        if (okBtn && okBtn.onPress) {
+          okBtn.onPress();
+        }
+      } else {
+        const cancelBtn = buttons.find(b => b.style === 'cancel');
+        if (cancelBtn && cancelBtn.onPress) {
+          cancelBtn.onPress();
+        }
+      }
+    }
+  };
+}
+
 
 function RootLayoutContent() {
   const { user, isLoading: isAuthLoading } = useAuth();

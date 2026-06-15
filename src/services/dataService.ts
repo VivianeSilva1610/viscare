@@ -117,15 +117,21 @@ export class DataService {
   static async deleteUserProduct(userId: string, productId: string): Promise<void> {
     const realUid = await this.getAuthUserId();
     if (realUid) {
-      await supabase
+      const { error } = await supabase
         .from('user_products')
         .delete()
         .eq('id', productId)
         .eq('user_id', realUid);
+      
+      if (error) {
+        console.error('Error deleting product from Supabase:', error);
+        throw new Error(error.message);
+      }
       return;
     }
     await MockDatabase.deleteUserProduct(userId, productId);
   }
+
 
   // 8. OBTÊR ROTINAS (AM / PM)
   static async getRoutines(userId: string): Promise<Routine[]> {
