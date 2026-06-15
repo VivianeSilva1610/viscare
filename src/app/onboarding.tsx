@@ -77,7 +77,8 @@ export default function Onboarding() {
 
   // === STEP 0: AUTH LOGIC ===
   const handleAuthSubmit = async () => {
-    if (!email || !password) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) {
       Alert.alert(t('common.error'), t('auth.error_fill'));
       return;
     }
@@ -89,9 +90,9 @@ export default function Onboarding() {
     setLoading(true);
     let res;
     if (isSignUpMode) {
-      res = await signUp(email, password, name.trim(), rememberMe);
+      res = await signUp(cleanEmail, password, name.trim(), rememberMe);
     } else {
-      res = await signIn(email, password, rememberMe);
+      res = await signIn(cleanEmail, password, rememberMe);
     }
 
     if (res.success) {
