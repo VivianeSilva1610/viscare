@@ -145,7 +145,48 @@ export default function Onboarding() {
           window.location.href = data.url;
         } else {
           const result = await WebBrowser.openAuthSessionAsync(data.url, 'viscare://onboarding');
-          if (result.type !== 'success') {
+          if (result.type === 'success' && result.url) {
+            const url = result.url;
+            const params: Record<string, string> = {};
+            
+            // Parse query params (?...)
+            const queryParts = url.split('?')[1];
+            if (queryParts) {
+              const pairs = queryParts.split('&');
+              for (const pair of pairs) {
+                const [key, value] = pair.split('=');
+                if (key && value) {
+                  params[key] = decodeURIComponent(value);
+                }
+              }
+            }
+
+            // Parse hash params (#...)
+            const hashParts = url.split('#')[1];
+            if (hashParts) {
+              const pairs = hashParts.split('&');
+              for (const pair of pairs) {
+                const [key, value] = pair.split('=');
+                if (key && value) {
+                  params[key] = decodeURIComponent(value);
+                }
+              }
+            }
+
+            const { access_token, refresh_token, code } = params;
+
+            if (access_token && refresh_token) {
+              await AsyncStorage.setItem('viscare_is_guest', 'false');
+              await AsyncStorage.setItem('viscare_remember_me', 'true');
+              const { error: sessionError } = await supabase.auth.setSession({ access_token, refresh_token });
+              if (sessionError) throw sessionError;
+            } else if (code) {
+              await AsyncStorage.setItem('viscare_is_guest', 'false');
+              await AsyncStorage.setItem('viscare_remember_me', 'true');
+              const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+              if (exchangeError) throw exchangeError;
+            }
+          } else {
             setLoading(false);
           }
         }

@@ -61,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (session?.user) {
             const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
             if (rememberMe === 'true') {
+              await AsyncStorage.setItem('viscare_is_guest', 'false');
               setUser({ id: session.user.id, email: session.user.email || '' });
               const userProfile = await DataService.getProfile(session.user.id);
               setProfile(userProfile);
@@ -112,6 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 await AsyncStorage.setItem('viscare_reset_email', session.user.email);
               }
             }
+            await AsyncStorage.setItem('viscare_is_guest', 'false');
             setUser({ id: session.user.id, email: session.user.email || '' });
             const userProfile = await DataService.getProfile(session.user.id);
             setProfile(userProfile);
