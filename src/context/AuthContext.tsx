@@ -40,13 +40,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Inicializar sessão
   useEffect(() => {
+    // Timeout de segurança: garante que o loading sempre termina
+    // mesmo que o Supabase demore ou falhe silenciosamente
+    const safetyTimeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 8000);
+
     const initAuth = async () => {
       try {
         const guestFlag = await AsyncStorage.getItem('viscare_is_guest');
         
         if (isSupabaseConfigured) {
-          // Pegar sessão atual do Supabase
-          const { data: { session } } = await supabase.auth.getSession();
+          // Pegar sessão atual do Supabase com timeout de 5s
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise<{ data: { session: null } }>(resolve =>
+            setTimeout(() => resolve({ data: { session: null } }), 5000)
+          );
+          const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
           
           if (session?.user) {
             const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
@@ -85,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (e) {
         console.warn('Erro ao inicializar autenticação', e);
       } finally {
+        clearTimeout(safetyTimeout);
         setIsLoading(false);
       }
     };

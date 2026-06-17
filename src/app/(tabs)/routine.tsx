@@ -69,6 +69,97 @@ export default function RoutineScreen() {
     }, [user, activeTab])
   );
 
+  // Ordem de categorias recomendada dermatologicamente
+  const CATEGORY_ORDER = {
+    cleanser: 1,
+    toner: 2,
+    treatment: 3,
+    moisturizer: 4,
+    spf: 5
+  };
+
+  // Gerador de Notas Ativas com base na IA
+  const generateStepNote = (category: string, activeIngredients: string[], routineType: 'AM' | 'PM', stepNumber: number) => {
+    let typeLabel = '';
+    let desc = '';
+    const cat = category.toLowerCase();
+
+    if (cat === 'cleanser') {
+      typeLabel = language === 'pt' ? 'Limpar' : language === 'it' ? 'Detersione' : 'Cleanse';
+      desc = routineType === 'AM'
+        ? (language === 'pt' ? 'Limpe suavemente o rosto para começar o dia.' : language === 'it' ? 'Pulisci delicatamente il viso per iniziare la giornata.' : 'Gently cleanse your face to start the day.')
+        : (language === 'pt' ? 'Remova as impurezas e a maquiagem acumuladas.' : language === 'it' ? 'Rimuovi le impurità e il trucco accumulati.' : 'Remove accumulated impurities and makeup.');
+    } else if (cat === 'toner') {
+      typeLabel = language === 'pt' ? 'Tonificar' : language === 'it' ? 'Tonificare' : 'Tone';
+      desc = language === 'pt' ? 'Aplique dando batidinhas para restaurar o pH.' : language === 'it' ? 'Applica picchiettando per ripristinare il pH.' : 'Pat gently to restore pH balance.';
+    } else if (cat === 'treatment') {
+      typeLabel = language === 'pt' ? 'Tratar' : language === 'it' ? 'Trattamento' : 'Treat';
+      const hasPhotosensitive = activeIngredients?.some(i => {
+        const name = i.toLowerCase();
+        return name.includes('retinol') || name.includes('retinolo') || name.includes('aha') || name.includes('bha') || name.includes('glicol') || name.includes('salicil');
+      });
+      if (hasPhotosensitive) {
+        desc = language === 'pt' ? 'Recomendado para uso na rotina da noite. Use protetor solar pela manhã.' : language === 'it' ? 'Consigliato per l\'uso nella routine serale. Usa la protezione solare al mattino.' : 'Recommended for night routine use. Use sunscreen in the morning.';
+      } else {
+        desc = language === 'pt' ? 'Use uma pequena quantidade e massageie com cuidado.' : language === 'it' ? 'Usa una piccola quantità e massaggia con cura.' : 'Use a small amount and massage gently.';
+      }
+    } else if (cat === 'moisturizer') {
+      typeLabel = language === 'pt' ? 'Hidratar' : language === 'it' ? 'Idratare' : 'Moisturize';
+      desc = language === 'pt' ? 'Massageie para selar a hidratação.' : language === 'it' ? 'Massaggia per sigillare l\'idratazione.' : 'Massage to lock in hydration.';
+    } else if (cat === 'spf') {
+      typeLabel = language === 'pt' ? 'Proteger' : language === 'it' ? 'Protezione' : 'Protect';
+      desc = language === 'pt' ? 'Proteção solar obrigatória pela manhã. Reaplique durante o dia.' : language === 'it' ? 'Protezione solare obbligatoria al mattino. Riapplica durante il giorno.' : 'Mandatory morning sun protection. Reapply throughout the day.';
+    }
+
+    return language === 'pt'
+      ? `${stepNumber}º Passo: ${typeLabel} - ${desc}`
+      : language === 'it'
+      ? `${stepNumber}° Passaggio: ${typeLabel} - ${desc}`
+      : `Step ${stepNumber}: ${typeLabel} - ${desc}`;
+  };
+
+  // Ordena os passos usando a ordem dermatológica da IA e gera as notas
+  const orderStepsDermatologicallyAndAnnotate = (
+    stepsList: (RoutineStep & { product?: UserProduct })[],
+    routineType: 'AM' | 'PM'
+  ) => {
+    const sorted = [...stepsList].sort((a, b) => {
+      const catA = a.product?.custom_category || 'cleanser';
+      const catB = b.product?.custom_category || 'cleanser';
+      const orderA = CATEGORY_ORDER[catA] || 99;
+      const orderB = CATEGORY_ORDER[catB] || 99;
+      return orderA - orderB;
+    });
+
+    return sorted.map((s, idx) => {
+      const stepNumber = idx + 1;
+      const category = s.product?.custom_category || 'cleanser';
+      const actives = s.product?.custom_active_ingredients || [];
+      return {
+        ...s,
+        position: idx,
+        notes: generateStepNote(category, actives, routineType, stepNumber)
+      };
+    });
+  };
+
+  // Apenas anota os passos na ordem fornecida (mantém a ordenação manual das setas)
+  const annotateStepsOrderOnly = (
+    stepsList: (RoutineStep & { product?: UserProduct })[],
+    routineType: 'AM' | 'PM'
+  ) => {
+    return stepsList.map((s, idx) => {
+      const stepNumber = idx + 1;
+      const category = s.product?.custom_category || 'cleanser';
+      const actives = s.product?.custom_active_ingredients || [];
+      return {
+        ...s,
+        position: idx,
+        notes: generateStepNote(category, actives, routineType, stepNumber)
+      };
+    });
+  };
+
   // Executar motor de regras de compatibilidade
   const runCompatibilityCheck = async (currentSteps: (RoutineStep & { product?: UserProduct })[]) => {
     // Extrair ingredientes ativos dos produtos na rotina
@@ -106,16 +197,14 @@ export default function RoutineScreen() {
     updated[index] = updated[index - 1];
     updated[index - 1] = temp;
 
-    // Atualizar índices de posição
-    updated.forEach((s, idx) => {
-      s.position = idx;
-    });
+    // Atualizar índices de posição e notas
+    const annotated = annotateStepsOrderOnly(updated, activeTab);
 
-    setSteps(updated);
+    setSteps(annotated);
     const currentRoutine = routines.find(r => r.type === activeTab);
     if (currentRoutine) {
-      await DataService.saveRoutineSteps(currentRoutine.id, updated);
-      await runCompatibilityCheck(updated);
+      await DataService.saveRoutineSteps(currentRoutine.id, annotated as RoutineStep[]);
+      await runCompatibilityCheck(annotated);
     }
   };
 
@@ -128,32 +217,29 @@ export default function RoutineScreen() {
     updated[index] = updated[index + 1];
     updated[index + 1] = temp;
 
-    // Atualizar índices de posição
-    updated.forEach((s, idx) => {
-      s.position = idx;
-    });
+    // Atualizar índices de posição e notas
+    const annotated = annotateStepsOrderOnly(updated, activeTab);
 
-    setSteps(updated);
+    setSteps(annotated);
     const currentRoutine = routines.find(r => r.type === activeTab);
     if (currentRoutine) {
-      await DataService.saveRoutineSteps(currentRoutine.id, updated);
-      await runCompatibilityCheck(updated);
+      await DataService.saveRoutineSteps(currentRoutine.id, annotated as RoutineStep[]);
+      await runCompatibilityCheck(annotated);
     }
   };
 
   // Remover passo
   const removeStep = async (stepId: string) => {
     const updated = steps.filter(s => s.id !== stepId);
-    // Reajustar posições
-    updated.forEach((s, idx) => {
-      s.position = idx;
-    });
+    
+    // Atualizar índices de posição e notas
+    const annotated = annotateStepsOrderOnly(updated, activeTab);
 
-    setSteps(updated);
+    setSteps(annotated);
     const currentRoutine = routines.find(r => r.type === activeTab);
     if (currentRoutine) {
-      await DataService.saveRoutineSteps(currentRoutine.id, updated);
-      await runCompatibilityCheck(updated);
+      await DataService.saveRoutineSteps(currentRoutine.id, annotated as RoutineStep[]);
+      await runCompatibilityCheck(annotated);
     }
   };
 
@@ -181,8 +267,12 @@ export default function RoutineScreen() {
 
     try {
       const allSteps = [...steps, { ...newStep, id: `temp-${Math.random()}`, routine_id: currentRoutine.id, product }];
+      
+      // Ordenar dermatologicamente e anotar com a IA
+      const orderedAndAnnotated = orderStepsDermatologicallyAndAnnotate(allSteps, activeTab);
+
       // Salvar no banco
-      await DataService.saveRoutineSteps(currentRoutine.id, allSteps as RoutineStep[]);
+      await DataService.saveRoutineSteps(currentRoutine.id, orderedAndAnnotated as RoutineStep[]);
       await loadData();
     } catch (e) {
       console.warn(e);
@@ -266,9 +356,12 @@ export default function RoutineScreen() {
             product: currentCabinet.find(p => p.id === s.user_product_id)
           }));
 
-          setSteps(fullSteps);
-          await DataService.saveRoutineSteps(currentRoutine.id, fullSteps as RoutineStep[]);
-          await runCompatibilityCheck(fullSteps);
+          // Ordenar dermatologicamente e anotar com a IA para formatar as notas da mesma forma
+          const orderedAndAnnotated = orderStepsDermatologicallyAndAnnotate(fullSteps, activeTab);
+
+          setSteps(orderedAndAnnotated);
+          await DataService.saveRoutineSteps(currentRoutine.id, orderedAndAnnotated as RoutineStep[]);
+          await runCompatibilityCheck(orderedAndAnnotated);
 
           Alert.alert(
             t('common.info'),

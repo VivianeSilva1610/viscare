@@ -817,6 +817,11 @@ export default function TodayScreen() {
                   <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">
                     {step.product?.custom_brand || t('home.brand_default')}
                   </Text>
+                  {step.notes ? (
+                    <Text className="font-sans text-[11px] text-brand-rose-light mt-1 italic">
+                      {step.notes}
+                    </Text>
+                  ) : null}
                 </View>
               </TouchableOpacity>
             ))}
@@ -918,6 +923,11 @@ export default function TodayScreen() {
                   <Text className="font-sans text-xs text-brand-sage-dark mt-0.5">
                     {step.product?.custom_brand || t('home.brand_default')}
                   </Text>
+                  {step.notes ? (
+                    <Text className="font-sans text-[11px] text-brand-rose-light mt-1 italic">
+                      {step.notes}
+                    </Text>
+                  ) : null}
                 </View>
               </TouchableOpacity>
             ))}
