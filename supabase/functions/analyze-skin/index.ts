@@ -156,8 +156,15 @@ Deno.serve(async (req: Request) => {
       throw new Error('Nenhuma resposta de texto retornada pelo Gemini.');
     }
 
-    // Fazer o parse da resposta em JSON
-    const parsedResult = JSON.parse(generatedText.trim());
+    // Fazer o parse da resposta em JSON limpando blocos markdown se existirem
+    let cleanedText = generatedText.trim();
+    if (cleanedText.startsWith('```')) {
+      const match = cleanedText.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+      if (match) {
+        cleanedText = match[1];
+      }
+    }
+    const parsedResult = JSON.parse(cleanedText.trim());
 
     return new Response(
       JSON.stringify(parsedResult),

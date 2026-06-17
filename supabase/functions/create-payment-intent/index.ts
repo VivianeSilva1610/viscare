@@ -75,7 +75,7 @@ Deno.serve(async (req: Request) => {
     const amountCents = planPrices[validCurrency] || planPrices.BRL;
 
     if (useCheckout) {
-      // Cria uma Checkout Session para redirecionamento web seguro
+      // Cria uma Checkout Session de assinatura para redirecionamento web seguro
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -85,15 +85,25 @@ Deno.serve(async (req: Request) => {
               product_data: {
                 name: plan === 'monthly' ? 'VisCare Premium — Mensal' : 'VisCare Premium — Anual',
                 description: plan === 'monthly' 
-                  ? 'Assinatura Mensal com acesso ilimitado a todas as rotinas e scanner IA.'
-                  : 'Assinatura Anual com acesso ilimitado a todas as rotinas e scanner IA (Desconto de 37%).',
+                  ? 'Período gratuito de 7 dias. Depois, será cobrado o valor da assinatura mensal.'
+                  : 'Período gratuito de 7 dias. Depois, será cobrado o valor da assinatura anual (37% de desconto).',
               },
               unit_amount: amountCents,
+              recurring: {
+                interval: plan === 'monthly' ? 'month' : 'year',
+              },
             },
             quantity: 1,
           },
         ],
-        mode: 'payment',
+        mode: 'subscription',
+        subscription_data: {
+          trial_period_days: 7,
+          metadata: {
+            userId,
+            plan,
+          },
+        },
         success_url: `https://viscare.vercel.app/paywall?success=true&plan=${plan}`,
         cancel_url: `https://viscare.vercel.app/paywall?canceled=true`,
         metadata: {

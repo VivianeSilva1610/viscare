@@ -440,11 +440,20 @@ export async function purchasePlan(
           }
         }
       }
-      console.warn('[PaymentService] Stripe Checkout indisponível, usando modo simulado:', error);
-      return mockPurchase(plan);
+      // Se falhou ao obter a URL do Stripe, exibe o erro em produção ou usa mock em dev
+      const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
+      if (isDev) {
+        console.warn('[PaymentService] Stripe Checkout indisponível, usando modo simulado:', error);
+        return mockPurchase(plan);
+      }
+      return { success: false, isPremium: false, error: error || 'Serviço de pagamento Stripe temporariamente indisponível.' };
     } catch (e: any) {
-      console.warn('[PaymentService] Erro no Stripe Checkout, usando modo simulado:', e.message);
-      return mockPurchase(plan);
+      const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
+      if (isDev) {
+        console.warn('[PaymentService] Erro no Stripe Checkout, usando modo simulado:', e.message);
+        return mockPurchase(plan);
+      }
+      return { success: false, isPremium: false, error: e.message || 'Erro ao processar checkout do Stripe.' };
     }
   }
 
@@ -454,6 +463,10 @@ export async function purchasePlan(
   }
 
   // 3. Modo simulado (fallback universal se nada estiver configurado)
-  console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure Stripe ou RevenueCat para produção.');
-  return mockPurchase(plan);
+  const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
+  if (isDev) {
+    console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure Stripe ou RevenueCat para produção.');
+    return mockPurchase(plan);
+  }
+  return { success: false, isPremium: false, error: 'Serviço de pagamento indisponível. Por favor, tente novamente mais tarde.' };
 }
