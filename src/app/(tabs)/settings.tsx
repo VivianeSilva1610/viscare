@@ -323,7 +323,10 @@ export default function SettingsScreen() {
       <View className="bg-white p-5 rounded-[32px] border border-brand-beige shadow-sm mb-12 space-y-4">
         
         {/* Termos mockados */}
-        <TouchableOpacity className="flex-row justify-between items-center py-1">
+        <TouchableOpacity
+          onPress={() => router.push('/privacy')}
+          className="flex-row justify-between items-center py-1"
+        >
           <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.privacy')}</Text>
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
