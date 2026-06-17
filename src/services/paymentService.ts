@@ -403,24 +403,43 @@ export async function purchasePlan(
   plan: PlanType,
   userId: string,
 ): Promise<PurchaseResult> {
-  // 1. Móvel com RevenueCat configurado → compra nativa (mais segura)
-  if (Platform.OS !== 'web' && isRevenueCatConfigured) {
-    return purchaseWithRevenueCat(plan);
-  }
-
-  // 2. Web com Stripe configurado → Stripe Checkout Session redirect
-  if (Platform.OS === 'web' && isStripeConfigured) {
+  // PRIORIDADE: Se Stripe estiver configurado, usamos Stripe (permite receber pagamentos fora das lojas nas duas plataformas)
+  if (isStripeConfigured) {
     const currency = detectLocalCurrency();
     try {
       const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
       if (url) {
-        // Redireciona o navegador para o checkout seguro do Stripe
-        if (typeof window !== 'undefined') {
-          window.location.href = url;
+        if (Platform.OS === 'web') {
+          // Redireciona o navegador para o checkout seguro do Stripe (Web)
+          if (typeof window !== 'undefined') {
+            window.location.href = url;
+          }
+          return { success: false, isPremium: false, error: 'REDIRECTED' };
+        } else {
+          // No mobile, abrimos o checkout usando a sessão de autenticação do WebBrowser.
+          // Quando o checkout redirecionar para a nossa página de sucesso na web, ela disparará o deep link 'viscare://paywall'
+          // fechando o navegador e devolvendo o controle com 'success=true'.
+          const WebBrowser = await import('expo-web-browser').catch(() => null);
+          if (WebBrowser) {
+            const redirectUrl = 'viscare://paywall';
+            const authResult = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
+            if (authResult.type === 'success' && authResult.url) {
+              const returnedUrl = authResult.url;
+              if (returnedUrl.includes('success=true')) {
+                return { success: true, isPremium: true };
+              }
+            }
+            return { success: false, isPremium: false, error: 'CANCELLED' };
+          } else {
+            // Fallback usando o Linking padrão se o WebBrowser falhar
+            const Linking = await import('react-native').then(m => m.Linking).catch(() => null);
+            if (Linking) {
+              await Linking.openURL(url);
+              return { success: false, isPremium: false, error: 'REDIRECTED' };
+            }
+          }
         }
-        return { success: false, isPremium: false, error: 'REDIRECTED' };
       }
-      // Fallback: Edge Function indisponível temporariamente
       console.warn('[PaymentService] Stripe Checkout indisponível, usando modo simulado:', error);
       return mockPurchase(plan);
     } catch (e: any) {
@@ -429,7 +448,12 @@ export async function purchasePlan(
     }
   }
 
-  // 3. Modo simulado (fallback universal)
-  console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
+  // 1. Móvel com RevenueCat configurado → compra nativa (segunda opção se Stripe não estiver configurado)
+  if (Platform.OS !== 'web' && isRevenueCatConfigured) {
+    return purchaseWithRevenueCat(plan);
+  }
+
+  // 3. Modo simulado (fallback universal se nada estiver configurado)
+  console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure Stripe ou RevenueCat para produção.');
   return mockPurchase(plan);
 }

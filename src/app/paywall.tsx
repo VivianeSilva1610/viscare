@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../context/LocalizationContext';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   Sparkles, Check, X, ShieldCheck, Lock, CreditCard,
   RefreshCw, BadgeCheck, Zap, Star, Camera
@@ -19,11 +19,17 @@ export default function PaywallScreen() {
   const { purchasePremium, restorePurchases, isPremium, user, refreshProfile } = useAuth();
   const { t, language } = useTranslation();
   const router = useRouter();
+  const localParams = useLocalSearchParams();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [restoring, setRestoring] = useState<boolean>(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly'); // anual pré-selecionado (melhor valor)
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
+  
+  // Controle de redirecionamento para o app nativo
+  const [showNativeRedirect, setShowNativeRedirect] = useState<boolean>(false);
+  const [redirectPlan, setRedirectPlan] = useState<PlanType>('yearly');
+  const [redirectType, setRedirectType] = useState<'success' | 'canceled' | null>(null);
 
   // Carregar informações de preço na moeda local do dispositivo
   useEffect(() => {
@@ -31,18 +37,55 @@ export default function PaywallScreen() {
     setPricing(info);
   }, []);
 
-  // Verificar se retornou de um pagamento bem-sucedido na Web
+  // Verificar se retornou de um pagamento bem-sucedido na Web ou Mobile (via deep link)
   useEffect(() => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('success') === 'true') {
-        const plan = (params.get('plan') as PlanType) || 'yearly';
+    // 1. Tratamento no Mobile (Native Deep Linking)
+    if (Platform.OS !== 'web') {
+      if (localParams.success === 'true') {
+        const plan = (localParams.plan as PlanType) || 'yearly';
         handleWebPurchaseSuccess(plan);
-      } else if (params.get('canceled') === 'true') {
+      } else if (localParams.canceled === 'true') {
         Alert.alert(t('common.error'), 'Pagamento cancelado pelo usuário.');
       }
+      return;
     }
-  }, [user]);
+
+    // 2. Tratamento no Web (Browser / In-App Browser)
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const isSuccess = params.get('success') === 'true';
+      const isCanceled = params.get('canceled') === 'true';
+      const plan = (params.get('plan') as PlanType) || 'yearly';
+
+      if (isSuccess) {
+        if (!user) {
+          // Usuário não está logado na web (ex: abriu o Stripe no WebView/WebBrowser do app móvel)
+          // Mostramos a tela de redirecionamento nativo e acionamos o deep link do app
+          setShowNativeRedirect(true);
+          setRedirectPlan(plan);
+          setRedirectType('success');
+          
+          // Tenta redirecionar automaticamente para o app nativo
+          setTimeout(() => {
+            window.location.href = `viscare://paywall?success=true&plan=${plan}`;
+          }, 1000);
+        } else {
+          // Usuário logado na web, atualiza o perfil direto no banco
+          handleWebPurchaseSuccess(plan);
+        }
+      } else if (isCanceled) {
+        if (!user) {
+          setShowNativeRedirect(true);
+          setRedirectType('canceled');
+          setTimeout(() => {
+            window.location.href = `viscare://paywall?canceled=true`;
+          }, 1000);
+        } else {
+          Alert.alert(t('common.error'), 'Pagamento cancelado pelo usuário.');
+        }
+      }
+    }
+  }, [user, localParams.success, localParams.canceled]);
 
   const handleWebPurchaseSuccess = async (plan: PlanType) => {
     if (!user?.id) return;
@@ -121,6 +164,57 @@ export default function PaywallScreen() {
         return t('paywall.per_month_equivalent').replace('{price}', v);
       })()
     : '';
+
+  if (showNativeRedirect) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F8F4F1', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <View style={{
+          width: 72, height: 72,
+          backgroundColor: redirectType === 'success' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
+          borderRadius: 20,
+          alignItems: 'center', justifyContent: 'center',
+          marginBottom: 24,
+        }}>
+          {redirectType === 'success' ? (
+            <Sparkles size={36} color="#4CAF50" />
+          ) : (
+            <X size={36} color="#F44336" />
+          )}
+        </View>
+        
+        <Text style={{ fontSize: 22, fontWeight: '700', color: '#333', textAlign: 'center', marginBottom: 12 }}>
+          {redirectType === 'success' ? 'Pagamento Concluído!' : 'Pagamento Cancelado'}
+        </Text>
+        
+        <Text style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 32, lineHeight: 20 }}>
+          {redirectType === 'success' 
+            ? 'Sua assinatura foi processada com sucesso. Clique no botão abaixo para retornar ao aplicativo e liberar seu acesso Premium.'
+            : 'O pagamento foi cancelado. Clique no botão abaixo para voltar ao aplicativo.'}
+        </Text>
+
+        <TouchableOpacity
+          onPress={() => {
+            const url = redirectType === 'success' 
+              ? `viscare://paywall?success=true&plan=${redirectPlan}`
+              : 'viscare://paywall?canceled=true';
+            if (typeof window !== 'undefined') {
+              window.location.href = url;
+            }
+          }}
+          style={{
+            backgroundColor: redirectType === 'success' ? '#4CAF50' : '#B97C63',
+            paddingVertical: 14,
+            paddingHorizontal: 28,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
+            {redirectType === 'success' ? 'Abrir no Aplicativo' : 'Voltar ao Aplicativo'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F8F4F1' }}>
