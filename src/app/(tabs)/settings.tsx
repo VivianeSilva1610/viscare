@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, ActivityIndicator, Modal, TextInput, Platform } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation, Language } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
@@ -7,11 +7,38 @@ import { NotificationService } from '../../services/notifications';
 import { Reminder } from '../../services/mockDb';
 import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 
 export default function SettingsScreen() {
   const { user, isPremium, signOut, refreshProfile, updatePassword } = useAuth();
   const { t, language, setLanguage } = useTranslation();
   const router = useRouter();
+
+  const handleOpenPrivacy = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        router.push('/privacy' as any);
+      } else {
+        await WebBrowser.openBrowserAsync('https://viscaree.vercel.app/privacy');
+      }
+    } catch (e) {
+      console.warn('Erro ao abrir privacidade:', e);
+      router.push('/privacy' as any);
+    }
+  };
+
+  const handleOpenTerms = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        router.push('/terms' as any);
+      } else {
+        await WebBrowser.openBrowserAsync('https://viscaree.vercel.app/terms');
+      }
+    } catch (e) {
+      console.warn('Erro ao abrir termos:', e);
+      router.push('/terms' as any);
+    }
+  };
 
   const [loading, setLoading] = useState<boolean>(false);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -324,7 +351,7 @@ export default function SettingsScreen() {
         
         {/* Termos mockados */}
         <TouchableOpacity
-          onPress={() => router.push('/privacy')}
+          onPress={handleOpenPrivacy}
           className="flex-row justify-between items-center py-1"
         >
           <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.privacy')}</Text>
@@ -332,7 +359,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push('/terms')}
+          onPress={handleOpenTerms}
           className="flex-row justify-between items-center py-1 border-t border-brand-beige pt-3"
         >
           <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.terms')}</Text>
