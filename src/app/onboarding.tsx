@@ -11,6 +11,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Heart, Bell, Shield, ArrowRight, Check, User, Mail, Lock, Sparkles, Globe, CheckCircle2, X } from 'lucide-react-native';
 
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
+
 export default function Onboarding() {
   const { t, language, setLanguage } = useTranslation();
   const { signUp, signIn, loginAsGuest, user, profile, resetPassword, updatePassword } = useAuth();
@@ -42,13 +46,22 @@ export default function Onboarding() {
   }, [params]);
 
   useEffect(() => {
-    // Se o utilizador já estiver logado como utilizador real (não guest) e não tiver skinProfile,
-    // pula a tela de Auth e vai direto para o Disclaimer/Quiz.
+    // Se o utilizador já estiver logado como utilizador real (não guest), verifica se ele já tem skinProfile.
+    // Se tiver, redireciona para a home. Se não tiver, vai direto para o Disclaimer/Quiz.
     // Se for guest, queremos mostrar a tela de Auth para dar a chance de criar conta.
     const skipAuthIfRealUser = async () => {
       const isGuestFlag = await AsyncStorage.getItem('viscare_is_guest');
       if (user && isGuestFlag !== 'true' && step === 0) {
-        setStep(1);
+        try {
+          const skinProfile = await DataService.getSkinProfile(user.id);
+          if (skinProfile) {
+            router.replace('/(tabs)/today');
+          } else {
+            setStep(1);
+          }
+        } catch (e) {
+          setStep(1);
+        }
       }
     };
     skipAuthIfRealUser();
@@ -126,6 +139,17 @@ export default function Onboarding() {
         }
       });
       if (error) throw error;
+
+      if (data?.url) {
+        if (Platform.OS === 'web') {
+          window.location.href = data.url;
+        } else {
+          const result = await WebBrowser.openAuthSessionAsync(data.url, 'viscare://onboarding');
+          if (result.type !== 'success') {
+            setLoading(false);
+          }
+        }
+      }
     } catch (e: any) {
       console.warn('Erro ao fazer login com Google', e);
       Alert.alert(t('common.error'), e.message || 'Erro ao conectar com o Google.');

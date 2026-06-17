@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 import { LocalizationProvider } from '../context/LocalizationContext';
 import { ActivityIndicator, View, Platform, Alert } from 'react-native';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
+import * as Linking from 'expo-linking';
 import '../global.css';
 
 // Impedir que o Splash Screen seja ocultado automaticamente antes de carregar as fontes
@@ -69,6 +70,67 @@ function RootLayoutContent() {
       router.replace('/onboarding');
     }
   }, [user, isAuthLoading, segments, fontsLoaded]);
+
+  // Tratar links profundos (Deep Links) no celular
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const handleDeepLink = async (event: { url: string }) => {
+      try {
+        const url = event.url;
+        const params: Record<string, string> = {};
+        
+        // Parse query params (?...)
+        const queryParts = url.split('?')[1];
+        if (queryParts) {
+          const pairs = queryParts.split('&');
+          for (const pair of pairs) {
+            const [key, value] = pair.split('=');
+            if (key && value) {
+              params[key] = decodeURIComponent(value);
+            }
+          }
+        }
+
+        // Parse hash params (#...)
+        const hashParts = url.split('#')[1];
+        if (hashParts) {
+          const pairs = hashParts.split('&');
+          for (const pair of pairs) {
+            const [key, value] = pair.split('=');
+            if (key && value) {
+              params[key] = decodeURIComponent(value);
+            }
+          }
+        }
+
+        const { access_token, refresh_token, code } = params;
+
+        if (access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+          if (error) console.error('Erro ao definir sessão via deep link:', error);
+        } else if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) console.error('Erro ao trocar código por sessão via deep link:', error);
+        }
+      } catch (e) {
+        console.warn('Erro ao processar URL do deep link:', e);
+      }
+    };
+
+    // Verificar se o app foi aberto através de um link
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Ouvir o evento de redefinição de senha do Supabase
   useEffect(() => {
