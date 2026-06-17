@@ -4,12 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Product } from '../../services/mockDb';
-import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle, Edit2 } from 'lucide-react-native';
+import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle, Edit2, Sparkles } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { supabase } from '../../services/supabase';
 
 export default function ProductsScreen() {
   const { user, isPremium } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,6 +30,10 @@ export default function ProductsScreen() {
   const [customActives, setCustomActives] = useState<string>('');
   const [openedAt, setOpenedAt] = useState<string>(new Date().toISOString().split('T')[0]);
   const [expiration, setExpiration] = useState<string>('12');
+
+  // Estados para Avaliação de Produto por IA (Premium)
+  const [aiLoading, setAiLoading] = useState<boolean>(false);
+  const [aiEvaluation, setAiEvaluation] = useState<string>('');
 
   const loadData = async () => {
     if (!user) {
@@ -121,6 +126,7 @@ export default function ProductsScreen() {
     setCustomActives('');
     setOpenedAt(new Date().toISOString().split('T')[0]);
     setExpiration('12');
+    setAiEvaluation('');
   };
 
   const openEditProduct = (item: UserProduct) => {
@@ -131,6 +137,7 @@ export default function ProductsScreen() {
     setCustomActives(item.custom_active_ingredients.join(', '));
     setOpenedAt(item.opened_at || '');
     setExpiration(item.expiration_months ? item.expiration_months.toString() : '');
+    setAiEvaluation(item.ai_evaluation || '');
     setIsAddModalOpen(true);
   };
 
@@ -158,6 +165,46 @@ export default function ProductsScreen() {
     }
   };
 
+  // Avaliar o produto manualmente digitado usando Inteligência Artificial (Gemini)
+  const handleAIEvaluate = async () => {
+    if (!isPremium) {
+      router.push('/paywall');
+      return;
+    }
+    if (!customName.trim() || !customBrand.trim()) {
+      Alert.alert(
+        t('common.error'),
+        language === 'pt'
+          ? 'Por favor, preencha o Nome e a Marca do produto primeiro para a avaliação da IA.'
+          : language === 'it'
+          ? 'Per favore, inserisci prima il Nome e la Marca del prodotto per la valutazione dell\'IA.'
+          : 'Please enter the Product Name and Brand first for the AI evaluation.'
+      );
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-product', {
+        body: {
+          name: customName.trim(),
+          brand: customBrand.trim(),
+          activeIngredients: customActives.trim(),
+          language: language
+        }
+      });
+      if (error || !data) throw new Error(error?.message || 'Erro ao avaliar produto');
+      
+      if (data.category) setCustomCategory(data.category);
+      if (data.activeIngredients) setCustomActives(data.activeIngredients.join(', '));
+      if (data.evaluation) setAiEvaluation(data.evaluation);
+    } catch (err: any) {
+      console.warn('AI evaluation error', err);
+      Alert.alert(t('common.error'), err.message || 'Falha ao conectar com o serviço de IA.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   // Adicionar ou Atualizar produto manualmente
   const handleManualAdd = async () => {
     if (!customName || !customBrand) {
@@ -182,7 +229,8 @@ export default function ProductsScreen() {
           custom_category: customCategory,
           custom_active_ingredients: activesArr,
           opened_at: openedAt || null,
-          expiration_months: expiration ? parseInt(expiration, 10) : null
+          expiration_months: expiration ? parseInt(expiration, 10) : null,
+          ai_evaluation: aiEvaluation || null
         });
       } else {
         await DataService.addUserProduct(user?.id || 'guest-user-id', {
@@ -192,7 +240,8 @@ export default function ProductsScreen() {
           custom_category: customCategory,
           custom_active_ingredients: activesArr,
           opened_at: openedAt || null,
-          expiration_months: expiration ? parseInt(expiration, 10) : null
+          expiration_months: expiration ? parseInt(expiration, 10) : null,
+          ai_evaluation: aiEvaluation || null
         });
       }
 
@@ -268,6 +317,14 @@ export default function ProductsScreen() {
                     <Text className="font-sans text-[10px] text-brand-rose-light mt-2 font-medium" numberOfLines={2}>
                       ✨ {item.custom_active_ingredients.join(', ')}
                     </Text>
+                  )}
+                  {item.ai_evaluation && (
+                    <View className="bg-brand-rose-metallic/5 p-2 rounded-xl mt-2 border border-brand-rose-metallic/10">
+                      <Text className="font-sans text-[8px] font-bold text-brand-rose-metallic uppercase tracking-wider">Avaliação da IA 🌟</Text>
+                      <Text className="font-sans text-[9px] text-brand-charcoal mt-0.5 leading-relaxed" numberOfLines={3}>
+                        {item.ai_evaluation}
+                      </Text>
+                    </View>
                   )}
                 </View>
 
@@ -400,6 +457,34 @@ export default function ProductsScreen() {
                       className="bg-brand-ivory px-4 py-2.5 border border-brand-beige rounded-xl font-sans text-sm"
                     />
                   </View>
+
+                  {/* Botão de Avaliação IA para Premium */}
+                  <TouchableOpacity
+                    onPress={handleAIEvaluate}
+                    disabled={aiLoading}
+                    className="bg-brand-rose-metallic/10 border border-brand-rose-metallic/35 py-3 rounded-2xl flex-row items-center justify-center space-x-2 my-2 active:bg-brand-rose-metallic/20"
+                  >
+                    {aiLoading ? (
+                      <ActivityIndicator size="small" color="#B97C63" />
+                    ) : (
+                      <>
+                        <Sparkles size={16} color="#B97C63" />
+                        <Text className="font-sans text-xs font-bold text-brand-rose-metallic uppercase tracking-wider">
+                          {language === 'pt' ? 'Preencher e Avaliar com IA 🌟' : language === 'it' ? 'Compila e Valuta con IA 🌟' : 'Auto-fill & Evaluate with AI 🌟'}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Campo de Visualização da Avaliação IA no Modal */}
+                  {aiEvaluation ? (
+                    <View className="bg-brand-rose-metallic/5 p-4 border border-brand-rose-metallic/20 rounded-2xl my-2">
+                      <Text className="font-serif text-xs font-bold text-brand-rose-metallic uppercase tracking-wider">Avaliação do Dermatologista IA 🌟</Text>
+                      <Text className="font-sans text-xs text-brand-charcoal mt-1.5 leading-relaxed">
+                        {aiEvaluation}
+                      </Text>
+                    </View>
+                  ) : null}
 
                   <View>
                     <Text className="text-xs font-sans font-semibold text-brand-sage-dark mb-1">

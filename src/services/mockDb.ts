@@ -41,6 +41,7 @@ export interface UserProduct {
   opened_at: string | null;
   expiration_months: number | null;
   is_favorite?: boolean;
+  ai_evaluation?: string | null;
 }
 
 export interface Ingredient {
