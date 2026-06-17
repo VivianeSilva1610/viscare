@@ -94,6 +94,7 @@ const translations = {
     'ai_rec.why': 'Perché questo prodotto?',
     'ai_rec.add_all': "Aggiungi Tutti all'Armadietto",
     'ai_rec.loading': 'Analizzando il tuo profilo...',
+    'ai_rec.step': 'Passo {n}',
 
     // Onboarding - Notifications (STEP 4)
     'notif.title': 'Resta Costante',
@@ -400,6 +401,7 @@ const translations = {
     'ai_rec.why': 'Why this product?',
     'ai_rec.add_all': 'Add All to Cabinet',
     'ai_rec.loading': 'Analyzing your profile...',
+    'ai_rec.step': 'Step {n}',
 
     // Onboarding - Notifications (STEP 4)
     'notif.title': 'Stay Consistent',
@@ -706,6 +708,7 @@ const translations = {
     'ai_rec.why': 'Por que este produto?',
     'ai_rec.add_all': 'Adicionar Todos ao Armário',
     'ai_rec.loading': 'Analisando seu perfil...',
+    'ai_rec.step': 'Passo {n}',
 
     // Onboarding - Notifications (STEP 4)
     'notif.title': 'Mantenha a Constância',

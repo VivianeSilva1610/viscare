@@ -621,9 +621,16 @@ export default function Onboarding() {
             <View className="space-y-4 mb-8">
               {recommendations.map((rec, idx) => (
                 <View key={idx} className="bg-white p-4 rounded-3xl border border-[#8F9779]/20 shadow-sm">
-                  <View className="flex-row items-center mb-2">
-                    <CheckCircle2 size={20} color="#8F9779" />
-                    <Text className="font-sans text-base font-bold text-[#2C2C2E] ml-2">{rec.product.name}</Text>
+                  <View className="flex-row justify-between items-center mb-2">
+                    <View className="flex-row items-center flex-1 pr-2">
+                      <View className="bg-[#8F9779]/15 px-2.5 py-0.5 rounded-full mr-2">
+                        <Text className="text-[10px] font-sans font-bold text-[#8F9779] uppercase">
+                          {t('ai_rec.step').replace('{n}', (idx + 1).toString())}
+                        </Text>
+                      </View>
+                      <Text className="font-sans text-base font-bold text-[#2C2C2E] flex-1" numberOfLines={1}>{rec.product.name}</Text>
+                    </View>
+                    <CheckCircle2 size={18} color="#8F9779" />
                   </View>
                   <Text className="font-sans text-xs text-[#8E8E93] mb-3">{rec.product.brand} • {rec.product.category.toUpperCase()}</Text>
                   
