@@ -339,7 +339,7 @@ export default function TodayScreen() {
       msg += "Com base na sua rotina ativa, ";
       const activeMsgs: string[] = [];
       if (ingredientsList.includes('retinolo') || ingredientsList.includes('retinol')) {
-        activeMsgs.push("o Retinol está atuando na renovação celular e diminuição de linhas de expressão");
+        activeMsgs.push("o Retinol está atuando na renovação celular e diminuição de linhas de expressão (sendo recomendado o uso apenas na rotina da noite)");
       }
       if (ingredientsList.includes('acido ialuronico') || ingredientsList.includes('ácido hialurônico') || ingredientsList.includes('hyaluronic acid')) {
         activeMsgs.push("o Ácido Hialurônico está retendo água e garantindo boa elasticidade e hidratação");
@@ -351,7 +351,7 @@ export default function TodayScreen() {
         activeMsgs.push("a Niacinamida está ajudando a suavizar poros e acalmar vermelhidões");
       }
       if (ingredientsList.includes('aha/bha') || ingredientsList.includes('aha') || ingredientsList.includes('bha')) {
-        activeMsgs.push("os esfoliantes AHA/BHA estão desobstruindo os poros");
+        activeMsgs.push("os esfoliantes AHA/BHA estão desobstruindo os poros (sendo recomendado o uso apenas na rotina da noite)");
       }
       if (hasSpf) {
         activeMsgs.push("o uso diário de Protetor Solar (SPF) está protegendo a barreira cutânea contra danos UV");
@@ -373,7 +373,7 @@ export default function TodayScreen() {
       msg += "In base alla tua routine attiva, ";
       const activeMsgs: string[] = [];
       if (ingredientsList.includes('retinolo') || ingredientsList.includes('retinol')) {
-        activeMsgs.push("il Retinolo sta agendo sul rinnovamento cellulare e sulla riduzione delle rughe d'espressione");
+        activeMsgs.push("il Retinolo sta agendo sul rinnovamento cellulare e sulla riduzione delle rughe d'espressione (si raccomanda l'uso solo nella routine serale)");
       }
       if (ingredientsList.includes('acido ialuronico') || ingredientsList.includes('acido ialuronico') || ingredientsList.includes('hyaluronic acid')) {
         activeMsgs.push("l'Acido Ialuronico sta trattenendo l'acqua garantendo elasticità e idratazione");
@@ -385,7 +385,7 @@ export default function TodayScreen() {
         activeMsgs.push("la Niacinamide sta aiutando a ridurre i pori dilatati e lenire gli arrossamenti");
       }
       if (ingredientsList.includes('aha/bha') || ingredientsList.includes('aha') || ingredientsList.includes('bha')) {
-        activeMsgs.push("gli esfolianti AHA/BHA stanno liberando i pori ostruiti");
+        activeMsgs.push("gli esfolianti AHA/BHA stanno liberando i pori ostruiti (si raccomanda l'uso solo nella routine serale)");
       }
       if (hasSpf) {
         activeMsgs.push("l'uso quotidiano della Protezione Solare (SPF) sta difendendo la barriera cutanea dai danni UV");
@@ -407,7 +407,7 @@ export default function TodayScreen() {
       msg += "Based on your active routine, ";
       const activeMsgs: string[] = [];
       if (ingredientsList.includes('retinolo') || ingredientsList.includes('retinol')) {
-        activeMsgs.push("Retinol is working on cellular renewal and smoothing fine lines");
+        activeMsgs.push("Retinol is working on cellular renewal and smoothing fine lines (recommended for night routine use only)");
       }
       if (ingredientsList.includes('acido ialuronico') || ingredientsList.includes('hyaluronic acid')) {
         activeMsgs.push("Hyaluronic Acid is retaining water, ensuring elasticity and hydration");
@@ -419,7 +419,7 @@ export default function TodayScreen() {
         activeMsgs.push("Niacinamide is helping smooth pores and calm redness");
       }
       if (ingredientsList.includes('aha/bha') || ingredientsList.includes('aha') || ingredientsList.includes('bha')) {
-        activeMsgs.push("AHA/BHA chemical exfoliants are clearing your pores");
+        activeMsgs.push("AHA/BHA chemical exfoliants are clearing your pores (recommended for night routine use only)");
       }
       if (hasSpf) {
         activeMsgs.push("daily SPF use is protecting your skin barrier against UV damage");
