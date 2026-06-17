@@ -414,15 +414,14 @@ export async function purchasePlan(
     try {
       const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
       if (url) {
-        // Redireciona o navegador do usuário para o checkout seguro do Stripe
+        // Redireciona o navegador para o checkout seguro do Stripe
         if (typeof window !== 'undefined') {
           window.location.href = url;
         }
         return { success: false, isPremium: false, error: 'REDIRECTED' };
       }
-      // Se a Edge Function falhar (não deployada ou sem STRIPE_SECRET_KEY),
-      // usa modo simulado como fallback para não bloquear o usuário
-      console.warn('[PaymentService] Stripe Checkout falhou, usando modo simulado:', error);
+      // Fallback: Edge Function indisponível temporariamente
+      console.warn('[PaymentService] Stripe Checkout indisponível, usando modo simulado:', error);
       return mockPurchase(plan);
     } catch (e: any) {
       console.warn('[PaymentService] Erro no Stripe Checkout, usando modo simulado:', e.message);
@@ -430,7 +429,7 @@ export async function purchasePlan(
     }
   }
 
-  // 3. Modo simulado (fallback universal — desenvolvimento ou sem chaves configuradas)
+  // 3. Modo simulado (fallback universal)
   console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
   return mockPurchase(plan);
 }
