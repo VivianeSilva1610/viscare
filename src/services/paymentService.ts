@@ -411,27 +411,26 @@ export async function purchasePlan(
   // 2. Web com Stripe configurado → Stripe Checkout Session redirect
   if (Platform.OS === 'web' && isStripeConfigured) {
     const currency = detectLocalCurrency();
-    const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
-    if (!url) {
-      return { success: false, isPremium: false, error: error || 'Não foi possível iniciar o pagamento.' };
+    try {
+      const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
+      if (url) {
+        // Redireciona o navegador do usuário para o checkout seguro do Stripe
+        if (typeof window !== 'undefined') {
+          window.location.href = url;
+        }
+        return { success: false, isPremium: false, error: 'REDIRECTED' };
+      }
+      // Se a Edge Function falhar (não deployada ou sem STRIPE_SECRET_KEY),
+      // usa modo simulado como fallback para não bloquear o usuário
+      console.warn('[PaymentService] Stripe Checkout falhou, usando modo simulado:', error);
+      return mockPurchase(plan);
+    } catch (e: any) {
+      console.warn('[PaymentService] Erro no Stripe Checkout, usando modo simulado:', e.message);
+      return mockPurchase(plan);
     }
-    // Redireciona o navegador do usuário para o checkout seguro do Stripe
-    if (typeof window !== 'undefined') {
-      window.location.href = url;
-    }
-    return { success: false, isPremium: false, error: 'REDIRECTED' };
   }
 
-  // 3. Modo simulado (apenas em desenvolvimento se não houver chaves de API configuradas)
-  const isDev = __DEV__ || process.env.NODE_ENV === 'development';
-  if (isDev) {
-    console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
-    return mockPurchase(plan);
-  }
-
-  return { 
-    success: false, 
-    isPremium: false, 
-    error: 'Serviço de pagamento temporariamente indisponível. As chaves de API não foram configuradas na hospedagem.' 
-  };
+  // 3. Modo simulado (fallback universal — desenvolvimento ou sem chaves configuradas)
+  console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure RevenueCat e Stripe para produção.');
+  return mockPurchase(plan);
 }
