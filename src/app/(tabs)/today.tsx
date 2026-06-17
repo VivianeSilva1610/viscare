@@ -563,6 +563,11 @@ export default function TodayScreen() {
         });
         if (error || !data) throw new Error(error?.message || 'Failed to get analysis');
 
+        // Verificar se a imagem é de fato um rosto (viso)
+        if (data.invalidImage) {
+          throw new Error(`INVALID_IMAGE:${data.error_message || 'Imagem inválida. Envie uma foto do seu rosto.'}`);
+        }
+
         newScanResult = {
           hydration: data.hydration,
           wrinkles: data.wrinkles,
@@ -570,9 +575,20 @@ export default function TodayScreen() {
           acne: data.acne,
           diagnosis: data.diagnosis
         };
-      } catch (err) {
-        console.warn('AI analysis error, using smart fallback', err);
-        // Fallback realista baseado em ingredientes
+      } catch (err: any) {
+        console.warn('AI analysis error', err);
+        const errMsg = err?.message || '';
+        
+        // Se for erro de validação facial (não é um rosto), aborta o fluxo e alerta o usuário
+        if (errMsg.startsWith('INVALID_IMAGE:')) {
+          const userFriendlyMsg = errMsg.split('INVALID_IMAGE:')[1];
+          Alert.alert(t('common.error'), userFriendlyMsg);
+          setScanStep('select');
+          setScanModalVisible(false);
+          return;
+        }
+
+        // Fallback realista baseado em ingredientes se houver falha de rede/API
         const hScore = 75 + Math.floor(Math.random() * 20);
         const wScore = 65 + Math.floor(Math.random() * 25);
         const sScore = 15 + Math.floor(Math.random() * 45);

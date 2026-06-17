@@ -75,10 +75,16 @@ Deno.serve(async (req: Request) => {
       languageInstructions = "Write the diagnosis in English. Use simple and clear vocabulary. Explain what the percentages mean (e.g. if wrinkles is 68%, it means the skin is 68% smooth and mark-free, not that it has 68% wrinkles; if hydration is 70%, it means a good moisture level). Explain how the active products in the user's current routine relate to and help treat the problems observed on the face.";
     }
 
-    const promptText = `Análise clínica de imagem facial da pele do rosto do usuário. Concentre-se especificamente nos aspectos faciais (viso).
+    const promptText = `Analise a imagem enviada.
+    Primeiro, verifique se a imagem é claramente uma foto de um rosto humano (viso/rosto). Se a imagem NÃO contiver um rosto humano (por exemplo, for uma foto de um objeto, animal, texto, paisagem, pé, mão, etc.), você deve retornar um JSON com "invalidImage": true, "error_message" contendo uma mensagem de erro explicativa no idioma solicitado: '${lang}', os campos hydration, wrinkles, sensitivity e acne definidos como 0, e o campo diagnosis definido como uma string vazia "".
+    
+    Se a imagem for de um rosto humano válido, retorne "invalidImage": false, "error_message": "" e faça uma análise clínica de imagem facial da pele do rosto do usuário, concentrando-se especificamente nos aspectos faciais (viso).
     ${productsContext}
+    
     Retorne estritamente um objeto JSON com os seguintes campos (sem tags de código markdown e sem blocos \`\`\`json):
     {
+      "invalidImage": booleano (true se não for um rosto humano, false caso contrário),
+      "error_message": string (mensagem de erro explicativa no idioma '${lang}' se invalidImage for true, caso contrário string vazia ""),
       "hydration": número entre 0 e 100 (onde 100 significa pele perfeitamente hidratada, 0 significa extremamente seca),
       "wrinkles": número entre 0 e 100 (onde 100 significa pele totalmente lisa, firme e sem marcas de rugas/linhas finas, e 0 significa rugas severas generalizadas),
       "sensitivity": número entre 0 e 100 (onde 100 significa pele extremamente reativa e irritada/vermelha, e 0 significa pele tolerante),
@@ -109,6 +115,19 @@ Deno.serve(async (req: Request) => {
         ],
         generationConfig: {
           responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              invalidImage: { type: 'BOOLEAN' },
+              error_message: { type: 'STRING' },
+              hydration: { type: 'INTEGER' },
+              wrinkles: { type: 'INTEGER' },
+              sensitivity: { type: 'INTEGER' },
+              acne: { type: 'INTEGER' },
+              diagnosis: { type: 'STRING' }
+            },
+            required: ['invalidImage', 'error_message', 'hydration', 'wrinkles', 'sensitivity', 'acne', 'diagnosis']
+          }
         },
       }),
     });
