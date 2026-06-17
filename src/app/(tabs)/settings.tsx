@@ -135,6 +135,25 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleManageSubscription = async () => {
+    const portalUrl = process.env.EXPO_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL || '';
+    if (!portalUrl || portalUrl.includes('YOUR_PORTAL_ID')) {
+      Alert.alert(
+        t('common.info') || 'Info',
+        language === 'pt' 
+          ? 'Para gerenciar ou cancelar sua assinatura, você pode utilizar o link "Gerenciar Assinatura" no e-mail de confirmação enviado pelo Stripe, ou entrar em contato com o suporte em suporte@viscare.app.'
+          : language === 'it'
+          ? 'Per gestire o annullare l\'abbonamento, puoi utilizzare il link "Gestisci abbonamento" nell\'e-mail di conferma inviata da Stripe, o contattare il supporto a supporto@viscare.app.'
+          : 'To manage or cancel your subscription, please use the "Manage Subscription" link in the confirmation email sent by Stripe, or contact support at support@viscare.app.'
+      );
+      return;
+    }
+    const Linking = await import('react-native').then(m => m.Linking).catch(() => null);
+    if (Linking) {
+      await Linking.openURL(portalUrl);
+    }
+  };
+
   const handleLogout = async () => {
     setLoading(true);
     await signOut();
@@ -201,7 +220,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {!isPremium && (
+        {!isPremium ? (
           <TouchableOpacity
             onPress={() => router.push('/paywall')}
             activeOpacity={0.9}
@@ -210,6 +229,17 @@ export default function SettingsScreen() {
             <Sparkles size={16} color="white" />
             <Text className="text-white font-sans text-sm font-bold">
               {t('settings.upgrade')}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={handleManageSubscription}
+            activeOpacity={0.9}
+            className="w-full bg-[#FAF9F6] border border-brand-rose-metallic/35 py-3 rounded-full flex-row items-center justify-center space-x-1"
+          >
+            <Lock size={16} color="#B97C63" />
+            <Text className="text-brand-rose-metallic font-sans text-sm font-bold">
+              {language === 'pt' ? 'Gerenciar Assinatura' : language === 'it' ? 'Gestisci Abbonamento' : 'Manage Subscription'}
             </Text>
           </TouchableOpacity>
         )}
