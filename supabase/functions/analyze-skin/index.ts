@@ -67,24 +67,36 @@ Deno.serve(async (req: Request) => {
       productsContext += `Os seguintes ingredientes estão ativos nas rotinas AM/PM: ${routineIngredients.join(', ')}. Protetor solar (SPF) na rotina: ${hasSpfInRoutine ? 'Sim' : 'Não'}.`;
     }
 
+    let invalidImageMessage = '';
+
     if (lang === 'pt') {
       languageInstructions = "Escreva o diagnóstico em Português. Use vocabulário simples e claro. Explique o que as porcentagens significam (ex: se rugas for 68%, significa que a pele está 68% lisa e sem marcas, e não que tem 68% de rugas; se hidratação for 70%, significa nível de umidade bom). Explique como os produtos ativos da rotina atual do usuário se relacionam e ajudam no tratamento dos problemas observados no rosto. Importante: Se o usuário tiver ingredientes fotossensíveis ou esfoliantes ácidos na rotina (como Retinol, AHA/BHA ou Ácido Glicólico), recomende explicitamente o uso desses ativos apenas na rotina da noite.";
+      invalidImageMessage = "A imagem enviada não contém um rosto humano visível. Por favor, envie ou tire uma foto nítida do seu rosto para fazer a análise de pele.";
     } else if (lang === 'it') {
       languageInstructions = "Scrivi la diagnosi in Italiano. Usa un vocabolario semplice e chiaro. Spiega cosa significano le percentuali (es: se le rughe sono al 68%, significa che la pelle è liscia al 68%, non che ha il 68% di rughe; se l'idratazione è al 70%, significa un buon livello di umidità). Spiega come i prodotti attivi della routine dell'utente si collegano e aiutano a trattare i problemi osservati sul viso. Importante: Se la routine contiene ingredienti fotosensibili o esfolianti acidi (come Retinolo, AHA/BHA o Acido Glicolico), raccomanda esplicitamente l'uso di questi attivi solo nella routine serale.";
+      invalidImageMessage = "L'immagine caricata non contiene un viso umano visibile. Per favore, carica o scatta una foto nitida del tuo viso per eseguire l'analisi della pelle.";
     } else {
       languageInstructions = "Write the diagnosis in English. Use simple and clear vocabulary. Explain what the percentages mean (e.g. if wrinkles is 68%, it means the skin is 68% smooth and mark-free, not that it has 68% wrinkles; if hydration is 70%, it means a good moisture level). Explain how the active products in the user's current routine relate to and help treat the problems observed on the face. Important: If the routine contains photosensitive ingredients or exfoliating acids (such as Retinol, AHA/BHA, or Glycolic Acid), explicitly recommend the use of these actives only in the night routine.";
+      invalidImageMessage = "The uploaded image does not contain a visible human face. Please upload or take a clear photo of your face to perform the skin analysis.";
     }
 
-    const promptText = `Analise a imagem enviada.
-    Primeiro, verifique se a imagem é claramente uma foto de um rosto humano (viso/rosto). Se a imagem NÃO contiver um rosto humano (por exemplo, for uma foto de um objeto, animal, texto, paisagem, pé, mão, etc.), você deve retornar um JSON com "invalidImage": true, "error_message" contendo uma mensagem de erro explicativa no idioma solicitado: '${lang}', os campos hydration, wrinkles, sensitivity e acne definidos como 0, e o campo diagnosis definido como uma string vazia "".
+    const promptText = `Analise a imagem enviada e faça a validação facial de forma extremamente rígida.
     
-    Se a imagem for de um rosto humano válido, retorne "invalidImage": false, "error_message": "" e faça uma análise clínica de imagem facial da pele do rosto do usuário, concentrando-se especificamente nos aspectos faciais (viso).
+    REGRA DE SEGURANÇA E VALIDAÇÃO ABSOLUTA:
+    Você deve primeiro validar se a imagem contém um rosto humano (viso) claramente identificável.
+    - Se a imagem NÃO for de um rosto humano (por exemplo, se for uma foto de um objeto, comida, animal, paisagem, texto, ou de outra parte do corpo que não seja o rosto, como mãos, braços, pés, pernas, etc.), você deve OBRIGATORIAMENTE definir "invalidImage" como true e o campo "error_message" como exatamente a seguinte frase correspondente ao idioma solicitado:
+      Para o idioma '${lang}': "${invalidImageMessage}"
+      Além disso, defina hydration=0, wrinkles=0, sensitivity=0, acne=0 e diagnosis="".
+      Você NUNCA deve fazer uma análise de pele para imagens que não apresentem um rosto humano.
+    
+    - Se a imagem contiver um rosto humano válido e nítido (viso), defina "invalidImage" como false, "error_message" como "" e proceda normalmente com a análise clínica da pele do rosto.
+    
     ${productsContext}
     
     Retorne estritamente um objeto JSON com os seguintes campos (sem tags de código markdown e sem blocos \`\`\`json):
     {
-      "invalidImage": booleano (true se não for um rosto humano, false caso contrário),
-      "error_message": string (mensagem de erro explicativa no idioma '${lang}' se invalidImage for true, caso contrário string vazia ""),
+      "invalidImage": booleano (true se a imagem NÃO contiver um rosto humano visível, false caso contrário),
+      "error_message": string (mensagem explicativa se invalidImage for true, caso contrário string vazia ""),
       "hydration": número entre 0 e 100 (onde 100 significa pele perfeitamente hidratada, 0 significa extremamente seca),
       "wrinkles": número entre 0 e 100 (onde 100 significa pele totalmente lisa, firme e sem marcas de rugas/linhas finas, e 0 significa rugas severas generalizadas),
       "sensitivity": número entre 0 e 100 (onde 100 significa pele extremamente reativa e irritada/vermelha, e 0 significa pele tolerante),
