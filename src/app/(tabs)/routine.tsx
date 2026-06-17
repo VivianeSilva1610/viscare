@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
@@ -7,6 +7,7 @@ import { UserProduct, Routine, RoutineStep, CompatibilityRule } from '../../serv
 import { Sparkles, Trash2, ArrowUp, ArrowDown, Plus, X, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react-native';
 import { AIRecommendationService } from '../../services/aiRecommendations';
 import { SkinProfile } from '../../services/mockDb';
+import { useFocusEffect } from 'expo-router';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -62,9 +63,11 @@ export default function RoutineScreen() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [user, activeTab]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [user, activeTab])
+  );
 
   // Executar motor de regras de compatibilidade
   const runCompatibilityCheck = async (currentSteps: (RoutineStep & { product?: UserProduct })[]) => {

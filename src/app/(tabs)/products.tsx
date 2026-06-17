@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Modal } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Product } from '../../services/mockDb';
 import { Plus, Search, Trash2, X, AlertTriangle, Calendar, Star, HelpCircle, Edit2 } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 export default function ProductsScreen() {
   const { user, isPremium } = useAuth();
@@ -49,9 +49,11 @@ export default function ProductsScreen() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [user?.id]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [user?.id])
+  );
 
   // Filtrar catálogo global com base na query do usuário
   useEffect(() => {

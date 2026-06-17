@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions, Modal, TextInput, Image } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Routine, RoutineStep, Appointment } from '../../services/mockDb';
 import { CheckCircle2, Circle, Flame, Sun, Moon, ArrowRight, Star, CalendarHeart, Plus, Trash2, X, Sparkles, Camera, Image as ImageIcon, Sliders } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import { NotificationService } from '../../services/notifications';
@@ -116,9 +116,11 @@ export default function TodayScreen() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [user?.id]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [user?.id])
+  );
 
   // Toggle active routine task
   const toggleStep = async (stepId: string, routineType: 'AM' | 'PM') => {
