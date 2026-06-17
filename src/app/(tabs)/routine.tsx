@@ -22,6 +22,7 @@ export default function RoutineScreen() {
   // Estados do Verificador de Compatibilidade
   const [compatStatus, setCompatStatus] = useState<'green' | 'yellow' | 'red'>('green');
   const [compatConflicts, setCompatConflicts] = useState<CompatibilityRule[]>([]);
+  const [compatSynergies, setCompatSynergies] = useState<CompatibilityRule[]>([]);
 
   // Estados para Adicionar Prodotto Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -83,12 +84,14 @@ export default function RoutineScreen() {
     if (ingredients.length <= 1) {
       setCompatStatus('green');
       setCompatConflicts([]);
+      setCompatSynergies([]);
       return;
     }
 
     const res = await DataService.checkCompatibility(ingredients);
     setCompatStatus(res.status);
-    setCompatConflicts(res.conflicts);
+    setCompatConflicts(res.conflicts.filter(c => c.severity !== 'green'));
+    setCompatSynergies(res.conflicts.filter(c => c.severity === 'green'));
   };
 
   // Reordenação de passos (Subir)
@@ -371,7 +374,23 @@ export default function RoutineScreen() {
                 <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
                   {compatConflicts.map((c, i) => (
                     <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
-                      ⚠️ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                      {c.severity === 'red' ? '❌' : '⚠️'} <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                        language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
+                      }
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              {/* Sinergias (Ótimas Combinações) */}
+              {compatSynergies.length > 0 && (
+                <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
+                  <Text className="font-sans text-[11px] font-bold text-brand-sage-dark uppercase tracking-wider">
+                    {language === 'pt' ? 'Sinergias Recomendadas ✨' : language === 'it' ? 'Sinergie Raccomandate ✨' : 'Recommended Synergies ✨'}
+                  </Text>
+                  {compatSynergies.map((c, i) => (
+                    <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
+                      ✨ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
                         language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
                       }
                     </Text>
