@@ -202,7 +202,8 @@ INSERT INTO public.ingredients (name, benefits_it, benefits_en, benefits_pt, evi
 ('Vitamin C', 'Antiossidante', 'Antioxidant', 'Antioxidante', 'High', 'Luminosita', 'Brightness', 'Brilho'),
 ('Hyaluronic Acid', 'Idratazione', 'Hydration', 'Hidratação', 'High', 'Idrata', 'Hydrates', 'Hidrata'),
 ('AHA/BHA', 'Esfoliazione', 'Exfoliation', 'Esfoliação', 'High', 'Esfolia', 'Exfoliates', 'Esfolia'),
-('Niacinamide', 'Regolazione', 'Regulation', 'Regulação', 'High', 'Vitamina B3', 'Vitamin B3', 'Vitamina B3');
+('Niacinamide', 'Regolazione', 'Regulation', 'Regulação', 'High', 'Vitamina B3', 'Vitamin B3', 'Vitamina B3'),
+('PDRN', 'Rigenerazione cellulare, guarigione delle ferite, antietà', 'Cellular regeneration, wound healing, anti-aging', 'Regeneração celular, cicatrização, antienvelhecimento', 'Moderate', 'Derivato dal DNA del salmone, stimola la riparazione dei tessuti e migliora l''elasticità e l''idratazione della pelle.', 'Derived from salmon DNA, it stimulates tissue repair and improves skin elasticity and hydration.', 'Derivado do DNA de salmão, estimula a reparação de tecidos e melhora a elasticidade e hidratação da pele.');
 
 INSERT INTO public.products (name, brand, category, active_ingredients) VALUES
 ('Gentle Cleanser', 'CeraVe', 'cleanser', '{"Hyaluronic Acid"}'),

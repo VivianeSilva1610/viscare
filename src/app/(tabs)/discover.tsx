@@ -54,7 +54,8 @@ export default function DiscoverScreen() {
       setFilteredIngredients(ingredients);
       return;
     }
-    const q = searchQuery.toLowerCase();
+    // Normaliza digitação incorreta (ex: pdnr -> pdrn)
+    const q = searchQuery.toLowerCase().replace('pdnr', 'pdrn');
     const filtered = ingredients.filter(i => 
       i.name.toLowerCase().includes(q)
     );
@@ -414,6 +415,13 @@ function generateAIResult(query: string, lang: string): Ingredient {
     benefits_pt = `Firmeza da pele, estímulo de colágeno, redução de rugas, elasticidade.`;
     description_en = `Peptides are chains of amino acids that serve as building blocks for essential skin proteins like collagen and elastin. They help firm the skin and visibly reduce wrinkles.`;
     benefits_en = `Skin firming, collagen stimulation, wrinkle reduction, elasticity.`;
+  } else if (lower.includes('pdrn') || lower.includes('pdnr') || lower.includes('polideso')) {
+    description_it = `Il PDRN (Polidesossiribonucleotide) è un ingrediente bio-rigenerativo di origine naturale (estratto dal DNA del salmone). Stimola la rigenerazione cellulare, accelera la guarigione della barriera cutanea e promuove la sintesi di collagene ed elastina per ridurre rughe e rugosità.`;
+    benefits_it = `Rigenerazione cellulare intensa, guarigione dei tessuti e cicatrici, aumento di collagene ed elasticità.`;
+    description_pt = `O PDRN (Polidesoxirribonucleotídeo) é um ativo biorregenerador celular de origem natural (extraído do DNA de salmão). Estimula a regeneração das células, acelera a cicatrização da barreira cutânea e promove a produção de colágeno e elastina para reduzir rugas e imperfeições.`;
+    benefits_pt = `Regeneração celular profunda, cicatrização e reparação tecidual, estímulo de colágeno e melhora da firmeza.`;
+    description_en = `PDRN (Polydeoxyribonucleotide) is a bio-regenerative active ingredient of natural origin (extracted from salmon DNA). It stimulates cell regeneration, accelerates skin barrier healing, and promotes collagen and elastin synthesis to reduce wrinkles and signs of aging.`;
+    benefits_en = `Intense cell regeneration, tissue and scar healing, collagen boost, and skin firming.`;
   } else {
     // Gerador genérico inteligente
     description_it = `L'ingrediente '${name}' è un composto attivo utilizzato in dermatologia cosmetica. Aiuta a supportare la struttura della pelle, fornendo un trattamento mirato per migliorare l'aspetto e la consistenza cutanea.`;
