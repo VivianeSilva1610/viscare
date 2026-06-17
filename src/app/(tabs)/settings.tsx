@@ -331,7 +331,10 @@ export default function SettingsScreen() {
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="flex-row justify-between items-center py-1 border-t border-brand-beige pt-3">
+        <TouchableOpacity
+          onPress={() => router.push('/terms')}
+          className="flex-row justify-between items-center py-1 border-t border-brand-beige pt-3"
+        >
           <Text className="font-sans text-xs text-brand-charcoal font-medium">{t('settings.terms')}</Text>
           <ChevronRight size={14} color="#C6C6C8" />
         </TouchableOpacity>
