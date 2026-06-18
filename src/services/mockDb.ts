@@ -5,7 +5,7 @@ export interface Profile {
   email: string;
   display_name: string;
   language: 'it' | 'en' | 'pt';
-  subscription_plan: 'free' | 'premium';
+  subscription_plan: 'free' | 'premium' | 'influencer';
   subscription_expires_at: string | null;
   streak_count: number;
   last_active_date: string | null;

@@ -27,6 +27,18 @@ interface AuthContextProps {
   updatePassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
 }
 
+const checkPremiumActive = (profile: Profile | null): boolean => {
+  if (!profile) return false;
+  const plan = profile.subscription_plan;
+  if (plan === 'premium' || plan === 'influencer') {
+    if (profile.subscription_expires_at) {
+      return new Date(profile.subscription_expires_at) > new Date();
+    }
+    return true; 
+  }
+  return false;
+};
+
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setUser({ id: session.user.id, email: session.user.email || '' });
               const userProfile = await DataService.getProfile(session.user.id);
               setProfile(userProfile);
-              setIsPremium(userProfile.subscription_plan === 'premium');
+              setIsPremium(checkPremiumActive(userProfile));
               setIsGuest(false);
             } else {
               await supabase.auth.signOut();
@@ -85,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser({ id: savedUserId, email: savedEmail });
                 const userProfile = await DataService.getProfile(savedUserId);
                 setProfile(userProfile);
-                setIsPremium(userProfile.subscription_plan === 'premium');
+                setIsPremium(checkPremiumActive(userProfile));
                 setIsGuest(false);
               }
             }
@@ -115,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser({ id: session.user.id, email: session.user.email || '' });
             const userProfile = await DataService.getProfile(session.user.id);
             setProfile(userProfile);
-            setIsPremium(userProfile.subscription_plan === 'premium');
+            setIsPremium(checkPremiumActive(userProfile));
             setIsGuest(false);
           } else {
             // Apenas limpa se não for Guest
@@ -150,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userProfile = await DataService.updateProfile(guestId, { display_name: displayName || 'Visitatore' });
     }
     setProfile(userProfile);
-    setIsPremium(userProfile.subscription_plan === 'premium');
+    setIsPremium(checkPremiumActive(userProfile));
     setIsGuest(true);
     await AsyncStorage.setItem('viscare_is_guest', 'true');
   };
@@ -255,7 +267,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser({ id: mockId, email: cleanEmail });
         const userProfile = await DataService.getProfile(mockId);
         setProfile(userProfile);
-        setIsPremium(userProfile.subscription_plan === 'premium');
+        setIsPremium(checkPremiumActive(userProfile));
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
 
@@ -284,7 +296,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         const userProfile = await DataService.getProfile(data.user.id);
         setProfile(userProfile);
-        setIsPremium(userProfile.subscription_plan === 'premium');
+        setIsPremium(checkPremiumActive(userProfile));
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
       }
@@ -322,7 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user?.id) {
       const p = await DataService.getProfile(user.id);
       setProfile(p);
-      setIsPremium(p.subscription_plan === 'premium');
+      setIsPremium(checkPremiumActive(p));
     }
   };
 

@@ -14,6 +14,12 @@ DROP TABLE IF EXISTS public.profiles CASCADE;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. PROFILES TABLE
+-- O campo subscription_plan aceita os valores:
+--   - 'free': Plano padrão gratuito.
+--   - 'premium': Assinatura premium paga.
+--   - 'influencer': Plano administrativo de 30 dias que concede acesso a todas as funções premium.
+-- Para conceder o acesso de influencer por 30 dias a partir do servidor, use:
+-- UPDATE public.profiles SET subscription_plan = 'influencer', subscription_expires_at = NOW() + INTERVAL '30 days' WHERE email = 'usuario@email.com';
 CREATE TABLE public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT NOT NULL,
