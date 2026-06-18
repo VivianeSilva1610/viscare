@@ -360,26 +360,7 @@ export class DataService {
       spf: 5
     };
 
-    // Filtrar produtos cabíveis para a rotina
-    const validProducts = userProducts.filter(p => {
-      const cat = p.custom_category.toLowerCase();
-      // Não incluir SPF na rotina PM
-      if (type === 'PM' && cat === 'spf') return false;
-
-      // Não incluir Retinol ou ácidos esfoliantes na rotina AM
-      if (type === 'AM') {
-        const hasPhotosensitive = p.custom_active_ingredients?.some(i => {
-          const name = i.toLowerCase();
-          return name.includes('retinol') || name.includes('retinolo') || name.includes('aha') || name.includes('bha') || name.includes('glicol') || name.includes('salicil');
-        });
-        if (hasPhotosensitive) return false;
-      }
-      return true;
-    });
-
-    if (validProducts.length === 0) {
-      return { success: false, routineSteps: [], error: 'routine.error_no_suitable_products' };
-    }
+    const validProducts = [...userProducts];
 
     // Ordenar os produtos usando a ordem dermatológica regulamentada
     const sortedProducts = [...validProducts].sort((a, b) => {
@@ -391,28 +372,42 @@ export class DataService {
     // Mapear para passos de rotina
     const recommendedSteps = sortedProducts.map((p, index) => {
       let note = '';
-      if (p.custom_category === 'cleanser') {
+      const cat = p.custom_category.toLowerCase();
+      const hasPhotosensitive = p.custom_active_ingredients?.some(i => {
+        const name = i.toLowerCase();
+        return name.includes('retinol') || name.includes('retinolo') || name.includes('aha') || name.includes('bha') || name.includes('glicol') || name.includes('salicil');
+      });
+
+      if (cat === 'cleanser') {
         if (type === 'AM') {
           note = language === 'pt' ? 'Limpe suavemente o rosto para começar o dia.' : language === 'it' ? 'Pulisci delicatamente il viso per iniziare la giornata.' : 'Gently cleanse your face to start the day.';
         } else {
           note = language === 'pt' ? 'Remova as impurezas e a maquiagem acumuladas.' : language === 'it' ? 'Rimuovi le impurità e il trucco accumulati.' : 'Remove accumulated impurities and makeup.';
         }
-      } else if (p.custom_category === 'toner') {
-        note = language === 'pt' ? 'Aplique dando batidinhas para restaurar o pH.' : language === 'it' ? 'Applica picchiettando per ripristinare il pH.' : 'Pat gently to restore pH balance.';
-      } else if (p.custom_category === 'treatment') {
-        const hasPhotosensitive = p.custom_active_ingredients?.some(i => {
-          const name = i.toLowerCase();
-          return name.includes('retinol') || name.includes('retinolo') || name.includes('aha') || name.includes('bha') || name.includes('glicol') || name.includes('salicil');
-        });
+      } else if (cat === 'toner') {
+        if (type === 'AM' && hasPhotosensitive) {
+          note = language === 'pt' ? '⚠️ Contém ativos fotossensíveis. Use protetor solar.' : language === 'it' ? '⚠️ Contiene attivi fotosensibili. Usa la protezione solare.' : '⚠️ Contains photosensitive actives. Use sunscreen.';
+        } else {
+          note = language === 'pt' ? 'Aplique dando batidinhas para restaurar o pH.' : language === 'it' ? 'Applica picchiettando per ripristinare il pH.' : 'Pat gently to restore pH balance.';
+        }
+      } else if (cat === 'treatment') {
         if (hasPhotosensitive) {
-          note = language === 'pt' ? 'Recomendado para uso na rotina da noite. Use protetor solar pela manhã.' : language === 'it' ? 'Consigliato per l\'uso nella routine serale. Usa la protezione solare al mattino.' : 'Recommended for night routine use. Use sunscreen in the morning.';
+          if (type === 'AM') {
+            note = language === 'pt' ? '⚠️ Contém ativos fotossensíveis. Uso obrigatório de protetor solar.' : language === 'it' ? '⚠️ Contiene attivi fotosensibili. Uso obbligatorio della protezione solare.' : '⚠️ Contains photosensitive actives. Mandatory use of sunscreen.';
+          } else {
+            note = language === 'pt' ? 'Recomendado para uso na rotina da noite. Use protetor solar pela manhã.' : language === 'it' ? 'Consigliato per l\'uso nella routine serale. Usa la protezione solare al mattino.' : 'Recommended for night routine use. Use sunscreen in the morning.';
+          }
         } else {
           note = language === 'pt' ? 'Use uma pequena quantidade e massageie com cuidado.' : language === 'it' ? 'Usa una piccola quantità e massaggia con cura.' : 'Use a small amount and massage gently.';
         }
-      } else if (p.custom_category === 'moisturizer') {
+      } else if (cat === 'moisturizer') {
         note = language === 'pt' ? 'Massageie para selar a hidratação.' : language === 'it' ? 'Massaggia per sigillare l\'idratazione.' : 'Massage to lock in hydration.';
-      } else if (p.custom_category === 'spf') {
-        note = language === 'pt' ? 'Proteção solar obrigatória pela manhã. Reaplique durante o dia.' : language === 'it' ? 'Protezione solare obbligatoria al mattino. Riapplica durante il giorno.' : 'Mandatory morning sun protection. Reapply throughout the day.';
+      } else if (cat === 'spf') {
+        if (type === 'PM') {
+          note = language === 'pt' ? '⚠️ Filtro solar (geralmente não é necessário na rotina da noite).' : language === 'it' ? '⚠️ Protezione solare (di solito non necessaria nella routine serale).' : '⚠️ Sunscreen (usually not necessary for the night routine).';
+        } else {
+          note = language === 'pt' ? 'Proteção solar obrigatória pela manhã. Reaplique durante o dia.' : language === 'it' ? 'Protezione solare obbligatoria al mattino. Riapplica durante il giorno.' : 'Mandatory morning sun protection. Reapply throughout the day.';
+        }
       }
 
       return {
