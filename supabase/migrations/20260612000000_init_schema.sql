@@ -187,7 +187,10 @@ BEGIN
     VALUES (new.id, new.email, COALESCE(new.raw_user_meta_data->>'language', 'pt'), 'free');
     RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+-- Revoke execute permission from public to secure the SECURITY DEFINER function
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
