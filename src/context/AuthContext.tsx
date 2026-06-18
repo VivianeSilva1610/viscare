@@ -1,15 +1,13 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase, isSupabaseConfigured } from '../services/supabase';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { DataService } from '../services/dataService';
-import { Profile, MockDatabase } from '../services/mockDb';
+import { Profile } from '../services/mockDb';
 import {
+  PlanType,
   purchasePlan,
-  restoreRevenueCatPurchases,
-  initializeRevenueCat,
-  checkPremiumStatus,
-  PlanType
+  restoreRevenueCatPurchases
 } from '../services/paymentService';
+import { isSupabaseConfigured, supabase } from '../services/supabase';
 
 
 interface AuthContextProps {
@@ -49,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       try {
         const guestFlag = await AsyncStorage.getItem('viscare_is_guest');
-        
+
         if (isSupabaseConfigured) {
           // Pegar sessão atual do Supabase com timeout de 5s
           const sessionPromise = supabase.auth.getSession();
@@ -57,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setTimeout(() => resolve({ data: { session: null } }), 5000)
           );
           const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-          
+
           if (session?.user) {
             const rememberMe = await AsyncStorage.getItem('viscare_remember_me');
             if (rememberMe === 'true') {
@@ -170,14 +168,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
         const language = (await AsyncStorage.getItem('viscare_language')) || 'pt';
         const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-        
+
         // Verificar se e-mail já está cadastrado
         const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
         if (savedPass !== null) {
           throw new Error(
-            language === 'pt' ? 'Este e-mail já está cadastrado.' : 
-            language === 'it' ? 'Questo indirizzo email è já registrato.' : 
-            'This email is already registered.'
+            language === 'pt' ? 'Este e-mail já está cadastrado.' :
+              language === 'it' ? 'Questo indirizzo email è já registrato.' :
+                'This email is already registered.'
           );
         }
 
@@ -190,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile(userProfile);
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
-        
+
         if (rememberMe) {
           await AsyncStorage.setItem('viscare_remember_me', 'true');
           await AsyncStorage.setItem('viscare_saved_user_id', mockId);
@@ -200,7 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await AsyncStorage.removeItem('viscare_saved_user_id');
           await AsyncStorage.removeItem('viscare_saved_email');
         }
-        
+
         return { success: true };
       } catch (e: any) {
         return { success: false, error: e.message || 'Erro desconhecido' };
@@ -235,22 +233,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(true);
         const language = (await AsyncStorage.getItem('viscare_language')) || 'pt';
         const mockId = 'mock-' + cleanEmail.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-        
+
         // Verificar se o e-mail está cadastrado e validar a senha
         const savedPass = await AsyncStorage.getItem('viscare_mock_password_' + mockId);
         if (savedPass === null) {
           throw new Error(
-            language === 'pt' ? 'Usuário não cadastrado.' : 
-            language === 'it' ? 'Utente non registrato.' : 
-            'User not registered.'
+            language === 'pt' ? 'Usuário não cadastrado.' :
+              language === 'it' ? 'Utente non registrato.' :
+                'User not registered.'
           );
         }
-        
+
         if (savedPass !== pass) {
           throw new Error(
-            language === 'pt' ? 'Senha incorreta. Verifique suas credenciais.' : 
-            language === 'it' ? 'Password errata. Verifica le tue credenziali.' : 
-            'Incorrect password. Please check your credentials.'
+            language === 'pt' ? 'Senha incorreta. Verifique suas credenciais.' :
+              language === 'it' ? 'Password errata. Verifica le tue credenziali.' :
+                'Incorrect password. Please check your credentials.'
           );
         }
 
@@ -260,7 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(userProfile.subscription_plan === 'premium');
         setIsGuest(false);
         await AsyncStorage.removeItem('viscare_is_guest');
-        
+
         if (rememberMe) {
           await AsyncStorage.setItem('viscare_remember_me', 'true');
           await AsyncStorage.setItem('viscare_saved_user_id', mockId);
@@ -270,7 +268,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await AsyncStorage.removeItem('viscare_saved_user_id');
           await AsyncStorage.removeItem('viscare_saved_email');
         }
-        
+
         return { success: true };
       } catch (e: any) {
         return { success: false, error: e.message || 'Erro desconhecido' };
@@ -338,9 +336,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const savedLang = await AsyncStorage.getItem('viscare_language');
           return {
             success: false,
-            error: savedLang === 'pt' ? 'E-mail não encontrado.' : 
-                   savedLang === 'it' ? 'E-mail non trovata.' : 
-                   'Email not found.'
+            error: savedLang === 'pt' ? 'E-mail não encontrado.' :
+              savedLang === 'it' ? 'E-mail non trovata.' :
+                'Email not found.'
           };
         }
         return { success: true };

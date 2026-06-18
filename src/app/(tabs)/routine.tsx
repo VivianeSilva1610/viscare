@@ -369,7 +369,7 @@ export default function RoutineScreen() {
           );
         }
       } else {
-        Alert.alert(t('common.error'), res.error || t('alert.routine_error'));
+        Alert.alert(t('common.error'), t(res.error || 'alert.routine_error'));
       }
     } catch (e) {
       Alert.alert(t('common.error'), t('common.connection_error'));

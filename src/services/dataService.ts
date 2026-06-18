@@ -320,10 +320,10 @@ export class DataService {
     const userProducts = await this.getUserProducts(userId);
     
     if (!skinProfile) {
-      return { success: false, routineSteps: [], error: 'Skin profile quiz not completed yet.' };
+      return { success: false, routineSteps: [], error: 'routine.error_quiz_not_completed' };
     }
     if (userProducts.length === 0) {
-      return { success: false, routineSteps: [], error: 'No products in cabinet.' };
+      return { success: false, routineSteps: [], error: 'routine.empty_cabinet_warning' };
     }
 
     const realUid = await this.getAuthUserId();
@@ -378,7 +378,7 @@ export class DataService {
     });
 
     if (validProducts.length === 0) {
-      return { success: false, routineSteps: [], error: 'No suitable products found for this routine.' };
+      return { success: false, routineSteps: [], error: 'routine.error_no_suitable_products' };
     }
 
     // Ordenar os produtos usando a ordem dermatológica regulamentada
