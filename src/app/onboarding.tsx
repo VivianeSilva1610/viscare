@@ -50,6 +50,10 @@ export default function Onboarding() {
     // Se tiver, redireciona para a home. Se não tiver, vai direto para o Disclaimer/Quiz.
     // Se for guest, queremos mostrar a tela de Auth para dar a chance de criar conta.
     const skipAuthIfRealUser = async () => {
+      if (params?.retake === 'true') {
+        setStep(2);
+        return;
+      }
       const isGuestFlag = await AsyncStorage.getItem('viscare_is_guest');
       if (user && isGuestFlag !== 'true' && step === 0) {
         try {
@@ -65,7 +69,7 @@ export default function Onboarding() {
       }
     };
     skipAuthIfRealUser();
-  }, [user]);
+  }, [user, params?.retake]);
 
   // STEP 1: Disclaimer
   const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(false);
