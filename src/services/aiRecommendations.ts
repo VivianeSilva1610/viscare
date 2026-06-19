@@ -9,6 +9,11 @@ export interface ProductRecommendation {
     en: string;
     pt: string;
   };
+  bestTime: {
+    it: string;
+    en: string;
+    pt: string;
+  };
 }
 
 /**
@@ -43,13 +48,17 @@ export class AIRecommendationService {
       'p-11': 'Watery Essence SPF 50+',
     };
 
-    const addProduct = (productId: string, reason: { it: string; en: string; pt: string }) => {
+    const addProduct = (
+      productId: string, 
+      reason: { it: string; en: string; pt: string },
+      bestTime: { it: string; en: string; pt: string }
+    ) => {
       if (addedProductIds.has(productId)) return;
       const mappedName = idToNameMap[productId] || productId;
       const product = catalog.find(p => p.id === productId || p.name === mappedName);
       if (product) {
         addedProductIds.add(productId);
-        recommendations.push({ product, reason });
+        recommendations.push({ product, reason, bestTime });
       }
     };
 
@@ -59,6 +68,10 @@ export class AIRecommendationService {
         it: 'Detergente delicato ideale per pelle grassa/mista. Uso suggerito: Mattina e Sera.',
         en: 'Gentle cleanser ideal for oily/combination skin. Suggested use: Morning & Night.',
         pt: 'Limpador suave ideal para pele oleosa/mista. Uso sugerido: Manhã e Noite.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     } else {
       // Pele seca ou normal
@@ -66,6 +79,10 @@ export class AIRecommendationService {
         it: 'Detergente idratante perfetto per pelle secca/normale. Uso suggerito: Mattina e Sera.',
         en: 'Hydrating cleanser perfect for dry/normal skin. Suggested use: Morning & Night.',
         pt: 'Limpador hidratante perfeito para pele seca/normal. Uso sugerido: Manhã e Noite.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     }
 
@@ -82,6 +99,10 @@ export class AIRecommendationService {
         it: 'Il BHA pulisce i pori in profondità. Uso suggerito: Solo Sera, 2-3 volte a settimana.',
         en: 'BHA deeply cleanses pores. Suggested use: Night only, 2-3 times a week.',
         pt: 'O BHA limpa os poros profundamente. Uso sugerido: Apenas à Noite, 2-3 vezes por semana.'
+      }, {
+        it: '🌙 Sera',
+        en: '🌙 Night',
+        pt: '🌙 Noite'
       });
     }
 
@@ -94,6 +115,10 @@ export class AIRecommendationService {
         it: 'L\'acido glicolico schiarisce le macchie. Uso suggerito: Solo Sera, 2-3 volte a settimana.',
         en: 'Glycolic acid fades dark spots. Suggested use: Night only, 2-3 times a week.',
         pt: 'O ácido glicólico clareia manchas. Uso sugerido: Apenas à Noite, 2-3 vezes por semana.'
+      }, {
+        it: '🌙 Sera',
+        en: '🌙 Night',
+        pt: '🌙 Noite'
       });
     }
 
@@ -106,6 +131,10 @@ export class AIRecommendationService {
         it: 'Il Retinolo combatte le rughe. Uso suggerito: Solo Sera, usare SPF al mattino.',
         en: 'Retinol fights wrinkles. Suggested use: Night only, use SPF in the morning.',
         pt: 'O Retinol combate as rugas. Uso sugerido: Apenas à Noite, use sempre SPF pela manhã.'
+      }, {
+        it: '🌙 Sera',
+        en: '🌙 Night',
+        pt: '🌙 Noite'
       });
     }
 
@@ -118,6 +147,10 @@ export class AIRecommendationService {
         it: 'L\'Acido Ialuronico dona un\'idratazione profonda. Uso suggerito: Mattina e Sera su pelle umida.',
         en: 'Hyaluronic Acid provides deep hydration. Suggested use: Morning & Night on damp skin.',
         pt: 'O Ácido Hialurônico proporciona hidratação profunda. Uso sugerido: Manhã e Noite na pele úmida.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     }
 
@@ -127,6 +160,10 @@ export class AIRecommendationService {
         it: 'La Vitamina C illumina e protegge. Uso suggerito: Mattina, prima della crema solare.',
         en: 'Vitamin C brightens and protects. Suggested use: Morning, before sunscreen.',
         pt: 'A Vitamina C ilumina e protege. Uso sugerido: Manhã, antes do protetor solar.'
+      }, {
+        it: '☀️ Mattina',
+        en: '☀️ Morning',
+        pt: '☀️ Manhã'
       });
     }
 
@@ -137,7 +174,11 @@ export class AIRecommendationService {
       addProduct('p-6', {
         it: 'L\'Acido Ialuronico rinforza la barriera. Uso suggerito: Mattina e Sera.',
         en: 'Hyaluronic Acid strengthens the barrier. Suggested use: Morning & Night.',
-        pt: 'O Ácido Hialurônico fortalece a barreira. Uso sugerido: Manhã e Noite.'
+        pt: 'O Ácido Hialurônico fortalece a barreira. Uso suggerido: Manhã e Noite.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     }
 
@@ -147,12 +188,20 @@ export class AIRecommendationService {
         it: 'Crema ricca per pelle nutrita. Uso suggerito: Mattina e Sera.',
         en: 'Rich cream for nourished skin. Suggested use: Morning & Night.',
         pt: 'Creme rico para nutrir a pele. Uso sugerido: Manhã e Noite.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     } else {
       addProduct('p-8', {
         it: 'Idratante leggero. Uso suggerito: Mattina e Sera.',
         en: 'Lightweight moisturizer. Suggested use: Morning & Night.',
-        pt: 'Hidratante leve. Uso sugerido: Manhã e Noite.'
+        pt: 'Hidratante leve. Uso suggerido: Manhã e Noite.'
+      }, {
+        it: '☀️ Mattina / 🌙 Sera',
+        en: '☀️ Morning / 🌙 Night',
+        pt: '☀️ Manhã / 🌙 Noite'
       });
     }
 
@@ -161,13 +210,21 @@ export class AIRecommendationService {
       addProduct('p-11', {
         it: 'Protezione solare leggera per pelle grassa. Uso suggerito: Mattina, riapplicare ogni 2 ore.',
         en: 'Light sunscreen for oily skin. Suggested use: Morning, reapply every 2 hours.',
-        pt: 'Protetor solar leve para pele oleosa. Uso sugerido: Manhã, reaplicar a cada 2 horas.'
+        pt: 'Protetor solar leve para pele oleosa. Uso suggerido: Manhã, reaplicar a cada 2 horas.'
+      }, {
+        it: '☀️ Mattina / 🌤️ Pomeriggio',
+        en: '☀️ Morning / 🌤️ Afternoon',
+        pt: '☀️ Manhã / 🌤️ Tarde'
       });
     } else {
       addProduct('p-10', {
         it: 'Protezione solare SPF 50+. Uso suggerito: Mattina, riapplicare ogni 2 ore.',
         en: 'SPF 50+ Sunscreen. Suggested use: Morning, reapply every 2 hours.',
         pt: 'Protetor solar FPS 50+. Uso sugerido: Manhã, reaplicar a cada 2 horas.'
+      }, {
+        it: '☀️ Mattina / 🌤️ Pomeriggio',
+        en: '☀️ Morning / 🌤️ Afternoon',
+        pt: '☀️ Manhã / 🌤️ Tarde'
       });
     }
 

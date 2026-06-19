@@ -681,7 +681,16 @@ export default function Onboarding() {
                   
                   <View className="bg-[#FAF9F6] p-3 rounded-2xl">
                     <Text className="font-sans text-xs font-semibold text-[#D97D64] mb-1">{t('ai_rec.why')}</Text>
-                    <Text className="font-sans text-xs text-[#2C2C2E] italic">"{rec.reason[language]}"</Text>
+                    <Text className="font-sans text-xs text-[#2C2C2E] italic mb-3">"{rec.reason[language]}"</Text>
+                    
+                    <View className="border-t border-[#E5E5EA] pt-2 mt-1">
+                      <Text className="font-sans text-[10px] font-bold text-[#8F9779] uppercase tracking-wider mb-1">
+                        {t('ai_rec.tip_best_time')}
+                      </Text>
+                      <Text className="font-sans text-xs text-[#2C2C2E] font-semibold">
+                        {rec.bestTime[language]}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               ))}
