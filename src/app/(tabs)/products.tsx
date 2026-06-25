@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Modal, Linking } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
@@ -282,6 +282,26 @@ export default function ProductsScreen() {
           <Plus size={18} color="white" />
         </TouchableOpacity>
       </View>
+
+      {/* Banner da Loja Viscaree */}
+      <TouchableOpacity 
+        activeOpacity={0.9}
+        onPress={() => Linking.openURL('https://viscare.app.br')}
+        className="mx-6 mt-4 p-4 rounded-2xl flex-row items-center justify-between shadow-sm"
+        style={{ backgroundColor: '#B97C63' }}
+      >
+        <View className="flex-1 mr-4">
+          <Text className="font-serif text-white font-bold text-lg mb-1">
+            {language === 'pt' ? 'Conheça nossa loja!' : language === 'it' ? 'Visita il nostro negozio!' : 'Visit our store!'}
+          </Text>
+          <Text className="font-sans text-white/90 text-xs leading-relaxed">
+            {language === 'pt' ? 'Compre produtos recomendados para sua rotina na viscare.app.br' : language === 'it' ? 'Acquista prodotti consigliati per la tua routine su viscare.app.br' : 'Buy recommended products for your routine at viscare.app.br'}
+          </Text>
+        </View>
+        <View className="bg-white/20 p-2 rounded-full">
+          <Sparkles size={20} color="white" />
+        </View>
+      </TouchableOpacity>
 
       {/* Grid de Produtos cadastrados */}
       {cabinet.length === 0 ? (

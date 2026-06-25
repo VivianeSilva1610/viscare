@@ -138,7 +138,7 @@ export default function Onboarding() {
         provider: 'google',
         options: {
           redirectTo: Platform.OS === 'web' 
-            ? 'https://viscaree.vercel.app/onboarding' 
+            ? 'https://viscare.app.br/onboarding' 
             : 'viscare://onboarding',
         }
       });

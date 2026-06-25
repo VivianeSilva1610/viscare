@@ -104,8 +104,8 @@ Deno.serve(async (req: Request) => {
             plan,
           },
         },
-        success_url: `https://viscare.vercel.app/paywall?success=true&plan=${plan}`,
-        cancel_url: `https://viscare.vercel.app/paywall?canceled=true`,
+        success_url: `https://viscare.app.br/paywall?success=true&plan=${plan}`,
+        cancel_url: `https://viscare.app.br/paywall?canceled=true`,
         metadata: {
           userId,
           plan,

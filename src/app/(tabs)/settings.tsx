@@ -19,7 +19,7 @@ export default function SettingsScreen() {
       if (Platform.OS === 'web') {
         router.push('/privacy' as any);
       } else {
-        await WebBrowser.openBrowserAsync('https://viscaree.vercel.app/privacy');
+        await WebBrowser.openBrowserAsync('https://viscare.app.br/privacy');
       }
     } catch (e) {
       console.warn('Erro ao abrir privacidade:', e);
@@ -32,7 +32,7 @@ export default function SettingsScreen() {
       if (Platform.OS === 'web') {
         router.push('/terms' as any);
       } else {
-        await WebBrowser.openBrowserAsync('https://viscaree.vercel.app/terms');
+        await WebBrowser.openBrowserAsync('https://viscare.app.br/terms');
       }
     } catch (e) {
       console.warn('Erro ao abrir termos:', e);
