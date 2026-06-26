@@ -9,7 +9,7 @@ import { CalendarHeart, Clock, MapPin, CheckCircle2, Circle, Plus, Trash2, X } f
 export default function AgendaScreen() {
   const { t, language } = useTranslation();
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<number>(14);
+  const [selectedDate, setSelectedDate] = useState<number>(new Date().getDate());
 
   // Estados de dados dinâmicos
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -149,15 +149,26 @@ export default function AgendaScreen() {
 
   const currentWeekdays = weekdays[language] || weekdays['it'];
 
-  const days = [
-    { day: currentWeekdays[0], date: 10 },
-    { day: currentWeekdays[1], date: 11 },
-    { day: currentWeekdays[2], date: 12 },
-    { day: currentWeekdays[3], date: 13 },
-    { day: currentWeekdays[4], date: 14 },
-    { day: currentWeekdays[5], date: 15 },
-    { day: currentWeekdays[6], date: 16 },
-  ];
+  const days = React.useMemo(() => {
+    const result = [];
+    const today = new Date();
+    let currentDay = today.getDay();
+    if (currentDay === 0) currentDay = 7; // Sunday is 0, make it 7
+    
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - currentDay + 1);
+    
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      result.push({
+        day: currentWeekdays[i],
+        date: d.getDate(),
+        fullDate: d
+      });
+    }
+    return result;
+  }, [currentWeekdays]);
 
   const upcomingList = appointments.filter(a => a.status === 'upcoming');
   const completedList = appointments.filter(a => a.status === 'completed');
