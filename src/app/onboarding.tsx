@@ -380,50 +380,26 @@ export default function Onboarding() {
                 </TouchableOpacity>
               </View>
 
-              {/* Logo oficial Viscare — substitui o texto de boas-vindas */}
+              {/* Logo oficial Viscare */}
               <View style={{ alignItems: 'center', marginBottom: 40 }}>
-                <View style={{
-                  shadowColor: '#B97C63',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 24,
-                  elevation: 12,
-                  borderRadius: 36,
-                }}>
-                  <Image
-                    source={require('../../assets/images/logo.png')}
-                    style={{ width: 160, height: 160, borderRadius: 36 }}
-                    resizeMode="cover"
-                  />
-                </View>
+                <Image
+                  source={require('../../assets/images/logo.png')}
+                  style={{ width: 160, height: 160 }}
+                  resizeMode="contain"
+                />
               </View>
 
               <View className="space-y-4">
-                {/* Botões Sociais */}
-                <TouchableOpacity 
-                  onPress={handleGoogleSignIn}
-                  disabled={loading}
-                  className="flex-row items-center justify-center bg-white py-3.5 rounded-full border border-brand-warm-gray shadow-sm"
-                >
-                  <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_google')}</Text>
-                </TouchableOpacity>
-
-                <View className="flex-row items-center my-2">
-                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
-                  <Text className="text-xs font-sans text-brand-sage-dark px-3">{t('auth.or')}</Text>
-                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
-                </View>
-
                 {isSignUpMode && (
                   <View>
                     <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.name')}</Text>
-                    <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                    <View className="flex-row items-center bg-white px-4 h-[56px] border border-brand-warm-gray rounded-spa shadow-sm">
                       <User size={18} color="#AEB09B" />
                       <TextInput
                         placeholder={t('auth.name_placeholder')}
                         value={name}
                         onChangeText={setName}
-                        className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
+                        className="flex-1 px-3 h-full font-sans text-base text-brand-charcoal"
                       />
                     </View>
                   </View>
@@ -431,7 +407,7 @@ export default function Onboarding() {
 
                 <View>
                   <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.email')}</Text>
-                  <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                  <View className="flex-row items-center bg-white px-4 h-[56px] border border-brand-warm-gray rounded-spa shadow-sm">
                     <Mail size={18} color="#AEB09B" />
                     <TextInput
                       placeholder="example@email.com"
@@ -439,21 +415,21 @@ export default function Onboarding() {
                       keyboardType="email-address"
                       value={email}
                       onChangeText={(text) => setEmail(text.trim())}
-                      className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
+                      className="flex-1 px-3 h-full font-sans text-base text-brand-charcoal"
                     />
                   </View>
                 </View>
 
                 <View>
                   <Text className="text-xs font-sans text-brand-charcoal font-semibold mb-1 uppercase tracking-wider">{t('auth.password')}</Text>
-                  <View className="flex-row items-center bg-white px-4 py-2 border border-brand-warm-gray rounded-2xl shadow-sm">
+                  <View className="flex-row items-center bg-white px-4 h-[56px] border border-brand-warm-gray rounded-spa shadow-sm">
                     <Lock size={18} color="#AEB09B" />
                     <TextInput
                       placeholder="••••••••"
                       secureTextEntry
                       value={password}
                       onChangeText={setPassword}
-                      className="flex-1 px-3 py-2 font-sans text-base text-brand-charcoal"
+                      className="flex-1 px-3 h-full font-sans text-base text-brand-charcoal"
                     />
                   </View>
                 </View>
@@ -461,7 +437,7 @@ export default function Onboarding() {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => setRememberMe(!rememberMe)}
-                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, paddingHorizontal: 4 }}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, paddingHorizontal: 4 }}
                 >
                   <View style={{
                     width: 20,
@@ -469,12 +445,12 @@ export default function Onboarding() {
                     borderRadius: 6,
                     borderWidth: 1,
                     borderColor: rememberMe ? '#B97C63' : '#AEB09B',
-                    backgroundColor: rememberMe ? '#B97C63' : '#FFFFFF',
+                    backgroundColor: rememberMe ? '#B97C63' : 'transparent',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginRight: 10
                   }}>
-                    {rememberMe && <Check size={14} color="white" />}
+                    {rememberMe && <Check size={14} color="white" strokeWidth={2} />}
                   </View>
                   <Text className="text-sm font-sans text-brand-charcoal font-medium">
                     {t('auth.remember_me')}
@@ -484,9 +460,9 @@ export default function Onboarding() {
                 {!isSignUpMode && (
                   <TouchableOpacity
                     onPress={() => { setResetEmail(email); setForgotModalVisible(true); }}
-                    style={{ alignSelf: 'flex-end', marginTop: 8, paddingHorizontal: 4 }}
+                    style={{ alignSelf: 'flex-end', marginTop: 4, paddingHorizontal: 4 }}
                   >
-                    <Text className="text-xs font-sans text-brand-bronze font-medium underline">
+                    <Text className="text-sm font-sans text-brand-bronze font-medium underline">
                       {t('auth.forgot_password')}
                     </Text>
                   </TouchableOpacity>
@@ -495,7 +471,7 @@ export default function Onboarding() {
                 <TouchableOpacity
                   activeOpacity={0.9}
                   onPress={handleAuthSubmit}
-                  className="w-full py-4 bg-brand-rose-metallic rounded-full items-center mt-6 shadow-sm"
+                  className="w-full h-[56px] justify-center bg-brand-rose-metallic rounded-spa items-center mt-6 shadow-sm"
                 >
                   {loading ? <ActivityIndicator size="small" color="white" /> : (
                     <Text className="text-white font-sans text-base font-semibold tracking-wide">
@@ -509,6 +485,22 @@ export default function Onboarding() {
                     {isSignUpMode ? t('auth.toggle_signin') : t('auth.toggle_signup')}
                   </Text>
                 </TouchableOpacity>
+
+                <View className="flex-row items-center my-6">
+                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
+                  <Text className="text-xs font-sans text-brand-sage-dark px-3">{t('auth.or')}</Text>
+                  <View className="flex-1 h-[1px] bg-brand-warm-gray" />
+                </View>
+
+                {/* Botões Sociais */}
+                <TouchableOpacity 
+                  onPress={handleGoogleSignIn}
+                  disabled={loading}
+                  className="flex-row items-center justify-center bg-white h-[56px] rounded-spa border border-brand-warm-gray shadow-sm"
+                >
+                  <Text className="font-sans font-semibold text-brand-charcoal">{t('auth.continue_google')}</Text>
+                </TouchableOpacity>
+
               </View>
 
             </View>

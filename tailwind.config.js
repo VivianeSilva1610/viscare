@@ -6,6 +6,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'brand-offwhite': '#FDFBF7',
         'brand-nude': '#F1E7E2',
         'brand-beige': '#E7D8D0',
         'brand-rose-light': '#D7A58D',
@@ -24,6 +25,9 @@ module.exports = {
       fontFamily: {
         serif: ['PlayfairDisplay_400Regular', 'PlayfairDisplay_600SemiBold', 'PlayfairDisplay_700Bold', 'serif'],
         sans: ['Poppins_400Regular', 'Poppins_500Medium', 'Poppins_600SemiBold', 'sans-serif'],
+      },
+      borderRadius: {
+        'spa': '16px',
       }
     },
   },

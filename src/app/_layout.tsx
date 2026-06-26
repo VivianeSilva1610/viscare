@@ -169,10 +169,14 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <LocalizationProvider>
-        <RootLayoutContent />
-      </LocalizationProvider>
-    </AuthProvider>
+    <View className="flex-1 bg-brand-offwhite">
+      <View className="max-w-[480px] mx-auto w-full flex-1 bg-white shadow-xl shadow-brand-charcoal/5">
+        <AuthProvider>
+          <LocalizationProvider>
+            <RootLayoutContent />
+          </LocalizationProvider>
+        </AuthProvider>
+      </View>
+    </View>
   );
 }

@@ -241,7 +241,7 @@ export default function SettingsScreen() {
             <Text className="font-serif text-base font-bold text-brand-charcoal">
               {t('settings.premium_status')}
             </Text>
-            <Text className={`font-sans text-sm font-semibold ${isPremium ? 'text-brand-rose-metallic' : 'text-[#8E8E8E]'}`}>
+            <Text className={`font-sans text-sm font-semibold ${isPremium ? 'text-brand-rose-metallic' : 'text-brand-charcoal/60'}`}>
               {isPremium ? t('settings.premium') : t('settings.free')}
             </Text>
           </View>
@@ -279,16 +279,17 @@ export default function SettingsScreen() {
           <Text className="font-serif text-sm font-bold text-brand-charcoal">{t('settings.language')}</Text>
         </View>
 
-        <View className="flex-row justify-between mt-2">
+        <View className="mt-2 space-y-1">
           {(['it', 'en', 'pt'] as const).map(lang => (
             <TouchableOpacity
               key={lang}
               onPress={() => changeLanguage(lang)}
-              className={`w-[30%] py-2 border rounded-2xl items-center ${language === lang ? 'bg-brand-rose-light/10 border-brand-rose-metallic' : 'bg-brand-ivory border-brand-beige'}`}
+              className={`w-full py-3 px-4 flex-row justify-between items-center rounded-2xl ${language === lang ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/20' : 'bg-transparent border border-transparent'}`}
             >
-              <Text className={`font-sans text-xs font-bold uppercase ${language === lang ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
+              <Text className={`font-sans text-sm font-bold ${language === lang ? 'text-brand-rose-metallic' : 'text-brand-charcoal/60'}`}>
                 {lang === 'it' ? 'Italiano' : lang === 'pt' ? 'Português' : 'English'}
               </Text>
+              {language === lang && <Sparkles size={16} color="#B97C63" />}
             </TouchableOpacity>
           ))}
         </View>
@@ -306,7 +307,7 @@ export default function SettingsScreen() {
           <View className="flex-row justify-between items-center py-2 border-b border-brand-beige">
             <View>
               <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('home.routine_am')}</Text>
-              <Text className="font-sans text-[10px] text-[#8E8E93]">07:00 AM</Text>
+              <Text className="font-sans text-[10px] text-brand-charcoal/60">07:00 AM</Text>
             </View>
             <Switch
               trackColor={{ false: '#E5E5EA', true: '#B97C63' }}
@@ -320,7 +321,7 @@ export default function SettingsScreen() {
           <View className="flex-row justify-between items-center py-2 border-b border-brand-beige">
             <View>
               <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('settings.spf_reapply')}</Text>
-              <Text className="font-sans text-[10px] text-[#8E8E93]">12:00 PM</Text>
+              <Text className="font-sans text-[10px] text-brand-charcoal/60">12:00 PM</Text>
             </View>
             <Switch
               trackColor={{ false: '#E5E5EA', true: '#B97C63' }}
@@ -334,7 +335,7 @@ export default function SettingsScreen() {
           <View className="flex-row justify-between items-center py-2">
             <View>
               <Text className="font-sans text-xs font-bold text-brand-charcoal">{t('home.routine_pm')}</Text>
-              <Text className="font-sans text-[10px] text-[#8E8E93]">10:00 PM</Text>
+              <Text className="font-sans text-[10px] text-brand-charcoal/60">10:00 PM</Text>
             </View>
             <Switch
               trackColor={{ false: '#E5E5EA', true: '#B97C63' }}

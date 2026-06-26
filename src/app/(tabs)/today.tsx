@@ -657,24 +657,19 @@ export default function TodayScreen() {
           <Text className="font-serif text-3xl font-bold text-brand-charcoal mb-2">
             {skinScore}<Text className="text-lg">/100</Text>
           </Text>
-          
-          <View className="bg-white/60 self-start px-3 py-1.5 rounded-full flex-row items-center space-x-1 mt-2">
-            <Flame size={14} color="#D97D64" fill="#D97D64" />
-            <Text className="font-sans text-xs font-semibold text-brand-charcoal">
-              {streak} {t('home.streak')}
-            </Text>
-          </View>
         </View>
 
-        {/* Circular Progress */}
-        <View className="w-20 h-20 bg-white rounded-full items-center justify-center shadow-sm border-[4px] border-brand-rose-light">
-          <Text className="font-sans font-bold text-lg text-brand-bronze">{skinScore}%</Text>
+        <View className="bg-white/80 px-4 py-2.5 rounded-2xl flex-row items-center space-x-2 border border-brand-rose-metallic/20 shadow-sm">
+          <Flame size={20} color="#C87A63" fill="#C87A63" />
+          <Text className="font-sans text-sm font-bold text-brand-rose-metallic">
+            {streak} {t('home.streak')}
+          </Text>
         </View>
       </View>
 
       {/* AI Facial Scanner Banner */}
-      <View className="bg-brand-rose-light/10 border border-brand-rose-metallic/30 rounded-3xl p-6 mb-8 shadow-sm relative overflow-hidden">
-        <View className="flex-row justify-between items-center">
+      <View className="bg-white/60 backdrop-blur-md border border-brand-rose-metallic/40 rounded-3xl p-6 mb-8 shadow-sm relative overflow-hidden">
+        <View className="flex-row justify-between items-start mb-4">
           <View className="flex-1 pr-4">
             <View className="flex-row items-center space-x-2 mb-2">
               <Sparkles size={14} color="#B97C63" />
@@ -687,30 +682,41 @@ export default function TodayScreen() {
                 </View>
               )}
             </View>
-            <Text className="font-serif text-lg font-bold text-brand-charcoal leading-tight">
+            <Text className="font-serif text-xl font-bold text-brand-charcoal leading-tight">
               {t('scan.subtitle')}
             </Text>
             
             {isPremium ? (
-              <Text className="font-sans text-xs text-brand-sage-dark mt-2 font-medium">
+              <Text className="font-sans text-xs text-brand-charcoal/70 mt-2 font-medium">
                 {user?.email?.toLowerCase() === 'viroedu@gmail.com'
                   ? (language === 'pt' ? 'Acesso Ilimitado' : language === 'it' ? 'Accesso Illimitato' : 'Unlimited Access')
                   : t('scan.remaining').replace('{n}', (Math.max(0, 2 - scansCountThisMonth)).toString())}
               </Text>
-            ) : (
-              <Text className="font-sans text-xs text-brand-sage-dark mt-2 font-medium">
-                {t('scan.premium_required_msg')}
-              </Text>
-            )}
+            ) : null}
           </View>
+        </View>
 
+        {!isPremium ? (
+          <TouchableOpacity 
+            onPress={() => router.push('/paywall')}
+            className="w-full h-[52px] bg-brand-rose-metallic rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
+          >
+            <Sparkles size={18} color="white" style={{ marginRight: 8 }} />
+            <Text className="text-white font-sans text-sm font-bold tracking-wide">
+              {language === 'pt' ? 'Desbloquear a Análise Facial' : language === 'it' ? 'Sblocca l\'Analisi Facciale' : 'Unlock Facial Analysis'}
+            </Text>
+          </TouchableOpacity>
+        ) : (
           <TouchableOpacity 
             onPress={handleScanCardClick}
-            className="w-14 h-14 bg-brand-rose-metallic rounded-2xl items-center justify-center shadow-md"
+            className="w-full h-[52px] bg-brand-charcoal rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
           >
-            <Sparkles size={24} color="white" />
+            <Camera size={18} color="white" style={{ marginRight: 8 }} />
+            <Text className="text-white font-sans text-sm font-bold tracking-wide">
+              {language === 'pt' ? 'Iniciar Escaneamento' : language === 'it' ? 'Inizia Scansione' : 'Start Scan'}
+            </Text>
           </TouchableOpacity>
-        </View>
+        )}
       </View>
 
       {/* Próximos Cuidados (Agenda Preview) */}

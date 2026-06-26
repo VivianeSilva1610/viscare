@@ -4,10 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { UserProduct, Routine, RoutineStep, CompatibilityRule } from '../../services/mockDb';
-import { Sparkles, Trash2, ArrowUp, ArrowDown, Plus, X, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react-native';
+import { Sparkles, Trash2, ArrowUp, ArrowDown, Plus, X, CheckCircle, AlertTriangle, AlertCircle, GripVertical } from 'lucide-react-native';
 import { AIRecommendationService } from '../../services/aiRecommendations';
 import { SkinProfile } from '../../services/mockDb';
 import { useFocusEffect } from 'expo-router';
+import { NestableScrollContainer, NestableDraggableFlatList, ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -188,38 +190,11 @@ export default function RoutineScreen() {
     setCompatSynergies(res.conflicts.filter(c => c.severity === 'green'));
   };
 
-  // Reordenação de passos (Subir)
-  const moveUp = async (index: number) => {
-    if (index === 0) return;
-    const updated = [...steps];
-    // Trocar posições
-    const temp = updated[index];
-    updated[index] = updated[index - 1];
-    updated[index - 1] = temp;
-
+  // Reordenação de passos (Drag and Drop)
+  const handleReorderSteps = async (newData: (RoutineStep & { product?: UserProduct })[]) => {
     // Atualizar índices de posição e notas
-    const annotated = annotateStepsOrderOnly(updated, activeTab);
-
-    setSteps(annotated);
-    const currentRoutine = routines.find(r => r.type === activeTab);
-    if (currentRoutine) {
-      await DataService.saveRoutineSteps(currentRoutine.id, annotated as RoutineStep[]);
-      await runCompatibilityCheck(annotated);
-    }
-  };
-
-  // Reordenação de passos (Descer)
-  const moveDown = async (index: number) => {
-    if (index === steps.length - 1) return;
-    const updated = [...steps];
-    // Trocar posições
-    const temp = updated[index];
-    updated[index] = updated[index + 1];
-    updated[index + 1] = temp;
-
-    // Atualizar índices de posição e notas
-    const annotated = annotateStepsOrderOnly(updated, activeTab);
-
+    const annotated = annotateStepsOrderOnly(newData, activeTab);
+    
     setSteps(annotated);
     const currentRoutine = routines.find(r => r.type === activeTab);
     if (currentRoutine) {
@@ -389,10 +364,79 @@ export default function RoutineScreen() {
   // Filtrar produtos no armário que ainda não estão nessa rotina
   const availableProducts = cabinet.filter(p => !steps.some(s => s.user_product_id === p.id));
 
+  const renderRoutineStep = ({ item: step, drag, isActive, getIndex }: RenderItemParams<RoutineStep & { product?: UserProduct }>) => {
+    const index = getIndex() || 0;
+    
+    // Check if step's product has an ingredient in compatConflicts
+    let isConflicted = false;
+    if (step.product?.custom_active_ingredients) {
+      isConflicted = step.product.custom_active_ingredients.some(ing => 
+        compatConflicts.some(conflict => 
+          conflict.ingredient_a.toLowerCase() === ing.toLowerCase() || 
+          conflict.ingredient_b.toLowerCase() === ing.toLowerCase()
+        )
+      );
+    }
+
+    return (
+      <ScaleDecorator>
+        <TouchableOpacity
+          activeOpacity={1}
+          onLongPress={drag}
+          delayLongPress={200}
+          className={`bg-white p-4 rounded-3xl flex-row items-center justify-between shadow-sm mb-4 ${
+            isActive ? 'opacity-80 scale-105 border-brand-rose-metallic border-2' : 
+            isConflicted ? 'border-2 border-red-300' : 'border border-brand-beige'
+          }`}
+        >
+          {/* Grip Handler */}
+          <TouchableOpacity onPressIn={drag} className="mr-3">
+            <GripVertical size={20} color="#AEB09B" />
+          </TouchableOpacity>
+          
+          <View className="flex-1 pr-3">
+            <View className="flex-row items-center space-x-2">
+              <View className="w-5 h-5 bg-brand-beige rounded-full items-center justify-center">
+                <Text className="text-[10px] font-sans font-bold text-brand-sage-dark">{index + 1}</Text>
+              </View>
+              <Text className="font-sans text-sm font-bold text-brand-charcoal">
+                {step.product?.custom_name || t('home.product_default')}
+              </Text>
+            </View>
+            <Text className="font-sans text-xs text-[#8E8E93] mt-0.5 ml-7">
+              {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{step.product?.custom_category}</Text>
+            </Text>
+            {step.product?.custom_active_ingredients.length ? (
+              <Text className="font-sans text-[11px] text-brand-rose-light mt-1 ml-7">
+                ✨ {step.product.custom_active_ingredients.join(', ')}
+              </Text>
+            ) : null}
+            {step.notes ? (
+              <Text className="font-sans text-xs text-brand-sage-dark mt-1 ml-7 italic">
+                {step.notes}
+              </Text>
+            ) : null}
+          </View>
+
+          <View className="flex-row items-center space-x-1">
+            <TouchableOpacity
+              onPress={() => removeStep(step.id)}
+              className="p-2 rounded-xl bg-red-500/10"
+              accessibilityLabel={t('accessibility.remove_step')}
+            >
+              <Trash2 size={14} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
   return (
-    <View className="flex-1 bg-brand-ivory pt-12">
-      {/* Header */}
-      <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View className="flex-1 bg-brand-ivory pt-12">
+        {/* Header */}
+        <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
         <Text className="text-2xl font-serif text-brand-bronze font-bold">
           {t('routine.tab_title')}
         </Text>
@@ -433,7 +477,7 @@ export default function RoutineScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 px-6">
+      <NestableScrollContainer className="flex-1 px-6">
         
         {/* COMPATIBILITY STATUS BANNER */}
         {steps.length > 1 && (
@@ -516,75 +560,24 @@ export default function RoutineScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          <View className="space-y-4 pb-20">
-            {steps.map((step, index) => (
-              <View
-                key={step.id}
-                className="bg-white p-4 border border-brand-beige rounded-3xl flex-row items-center justify-between shadow-sm"
-              >
-                <View className="flex-1 pr-3">
-                  <View className="flex-row items-center space-x-2">
-                    <View className="w-5 h-5 bg-brand-beige rounded-full items-center justify-center">
-                      <Text className="text-[10px] font-sans font-bold text-brand-sage-dark">{index + 1}</Text>
-                    </View>
-                    <Text className="font-sans text-sm font-bold text-brand-charcoal">
-                      {step.product?.custom_name || t('home.product_default')}
-                    </Text>
-                  </View>
-                  <Text className="font-sans text-xs text-[#8E8E93] mt-0.5 ml-7">
-                    {step.product?.custom_brand || t('home.brand_default')} • <Text className="capitalize">{step.product?.custom_category}</Text>
-                  </Text>
-                  {step.product?.custom_active_ingredients.length ? (
-                    <Text className="font-sans text-[11px] text-brand-rose-light mt-1 ml-7">
-                      ✨ {step.product.custom_active_ingredients.join(', ')}
-                    </Text>
-                  ) : null}
-                  {step.notes ? (
-                    <Text className="font-sans text-xs text-brand-sage-dark mt-1 ml-7 italic">
-                      {step.notes}
-                    </Text>
-                  ) : null}
-                </View>
-
-                {/* Controles de reordenação e deleção */}
-                <View className="flex-row items-center space-x-1">
-                  <TouchableOpacity
-                    onPress={() => moveUp(index)}
-                    disabled={index === 0}
-                    className={`p-2 rounded-xl bg-brand-beige ${index === 0 ? 'opacity-40' : ''}`}
-                    accessibilityLabel={t('accessibility.move_up')}
-                  >
-                    <ArrowUp size={14} color="#8E8E93" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => moveDown(index)}
-                    disabled={index === steps.length - 1}
-                    className={`p-2 rounded-xl bg-brand-beige ${index === steps.length - 1 ? 'opacity-40' : ''}`}
-                    accessibilityLabel={t('accessibility.move_down')}
-                  >
-                    <ArrowDown size={14} color="#8E8E93" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => removeStep(step.id)}
-                    className="p-2 rounded-xl bg-red-500/10"
-                    accessibilityLabel={t('accessibility.remove_step')}
-                  >
-                    <Trash2 size={14} color="#EF4444" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
+          <View className="pb-20 pt-2">
+            <NestableDraggableFlatList
+              data={steps}
+              keyExtractor={(item) => item.id}
+              onDragEnd={({ data }) => handleReorderSteps(data)}
+              renderItem={renderRoutineStep}
+            />
 
             <TouchableOpacity
               onPress={() => setIsAddModalOpen(true)}
-              className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-2"
+              className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-4"
             >
               <Plus size={18} color="#B97C63" />
               <Text className="text-brand-rose-metallic font-sans text-sm font-bold">{t('routine.add_step')}</Text>
             </TouchableOpacity>
           </View>
         )}
-      </ScrollView>
+      </NestableScrollContainer>
 
       {/* MODAL ADICIONAR PRODUTO */}
       <Modal
@@ -638,5 +631,6 @@ export default function RoutineScreen() {
         </View>
       </Modal>
     </View>
+    </GestureHandlerRootView>
   );
 }
