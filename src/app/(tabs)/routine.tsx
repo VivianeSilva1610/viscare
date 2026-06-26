@@ -9,6 +9,7 @@ import { AIRecommendationService } from '../../services/aiRecommendations';
 import { SkinProfile } from '../../services/mockDb';
 import { useFocusEffect } from 'expo-router';
 import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import { TouchableOpacity as GHTouchableOpacity } from 'react-native-gesture-handler';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -379,7 +380,7 @@ export default function RoutineScreen() {
 
     return (
       <ScaleDecorator>
-        <TouchableOpacity
+        <GHTouchableOpacity
           activeOpacity={1}
           onLongPress={drag}
           delayLongPress={200}
@@ -389,9 +390,9 @@ export default function RoutineScreen() {
           }`}
         >
           {/* Grip Handler */}
-          <TouchableOpacity onPressIn={drag} className="mr-3">
+          <GHTouchableOpacity onPressIn={drag} className="mr-3">
             <GripVertical size={20} color="#AEB09B" />
-          </TouchableOpacity>
+          </GHTouchableOpacity>
           
           <View className="flex-1 pr-3">
             <View className="flex-row items-center space-x-2">
@@ -418,15 +419,15 @@ export default function RoutineScreen() {
           </View>
 
           <View className="flex-row items-center space-x-1">
-            <TouchableOpacity
+            <GHTouchableOpacity
               onPress={() => removeStep(step.id)}
               className="p-2 rounded-xl bg-red-500/10"
               accessibilityLabel={t('accessibility.remove_step')}
             >
               <Trash2 size={14} color="#EF4444" />
-            </TouchableOpacity>
+            </GHTouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </GHTouchableOpacity>
       </ScaleDecorator>
     );
   };
@@ -547,7 +548,7 @@ export default function RoutineScreen() {
                     {compatSynergies.length > 0 && (
                       <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
                         <Text className="font-sans text-[11px] font-bold text-brand-sage-dark uppercase tracking-wider">
-                          {language === 'pt' ? 'Sinergias Recomendadas ✨' : language === 'it' ? 'Sinergie Raccomandate ✨' : 'Recommended Synergies ✨'}
+                          {t('compat.synergies_title')}
                         </Text>
                         {compatSynergies.map((c, i) => (
                           <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">

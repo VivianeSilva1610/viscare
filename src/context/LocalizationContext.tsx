@@ -177,6 +177,7 @@ const translations = {
     'compat.danger': 'Conflitto Rilevato',
     'compat.rules_title': 'Spiegazioni sulla Compatibilità',
     'compat.conflict_count': '{n} conflitto(i) di principi attivi rilevati in questa routine.',
+    'compat.synergies_title': 'Sinergie Raccomandate ✨',
 
     // Discover
     'discover.title': 'Esplora Ingredienti',
@@ -490,6 +491,7 @@ const translations = {
     'compat.danger': 'Conflict Detected',
     'compat.rules_title': 'Compatibility Explanations',
     'compat.conflict_count': '{n} active ingredient conflict(s) detected in this routine.',
+    'compat.synergies_title': 'Recommended Synergies ✨',
 
     // Discover
     'discover.title': 'Explore Ingredients',
@@ -803,6 +805,7 @@ const translations = {
     'compat.danger': 'Conflito Detectado',
     'compat.rules_title': 'Explicações sobre Compatibilidade',
     'compat.conflict_count': '{n} conflito(s) de ingrediente ativo detectados nesta rotina.',
+    'compat.synergies_title': 'Sinergias Recomendadas ✨',
 
     // Discover
     'discover.title': 'Explorar Ingredientes',
