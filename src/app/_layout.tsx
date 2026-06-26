@@ -167,16 +167,20 @@ function RootLayoutContent() {
   );
 }
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 export default function RootLayout() {
   return (
-    <View className="flex-1 bg-brand-offwhite">
-      <View className="max-w-[480px] mx-auto w-full flex-1 bg-white shadow-xl shadow-brand-charcoal/5">
-        <AuthProvider>
-          <LocalizationProvider>
-            <RootLayoutContent />
-          </LocalizationProvider>
-        </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View className="flex-1 bg-brand-offwhite">
+        <View className="max-w-[480px] mx-auto w-full flex-1 bg-white shadow-xl shadow-brand-charcoal/5">
+          <AuthProvider>
+            <LocalizationProvider>
+              <RootLayoutContent />
+            </LocalizationProvider>
+          </AuthProvider>
+        </View>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 }

@@ -9,7 +9,6 @@ import { AIRecommendationService } from '../../services/aiRecommendations';
 import { SkinProfile } from '../../services/mockDb';
 import { useFocusEffect } from 'expo-router';
 import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -433,207 +432,205 @@ export default function RoutineScreen() {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="flex-1 bg-brand-ivory pt-12">
-        {/* Header */}
-        <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
-        <Text className="text-2xl font-serif text-brand-bronze font-bold">
-          {t('routine.tab_title')}
-        </Text>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleGenerateWithAI}
-          disabled={generating}
-          className="bg-brand-rose-metallic px-4 py-2 rounded-full flex-row items-center space-x-1.5 shadow-sm"
-        >
-          {generating ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <>
-              <Sparkles size={16} color="white" />
-              <Text className="text-white font-sans text-xs font-bold">{t('routine.generate_ai')}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* AM/PM Tabs */}
-      <View className="flex-row px-6 my-4">
-        <TouchableOpacity
-          onPress={() => setActiveTab('AM')}
-          className={`flex-1 py-3 items-center rounded-2xl mr-2 ${activeTab === 'AM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
-        >
-          <Text className={`font-sans text-sm font-bold ${activeTab === 'AM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
-            {t('routine.am_label')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setActiveTab('PM')}
-          className={`flex-1 py-3 items-center rounded-2xl ${activeTab === 'PM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
-        >
-          <Text className={`font-sans text-sm font-bold ${activeTab === 'PM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
-            {t('routine.pm_label')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View className="flex-1">
-        {steps.length === 0 ? (
-          <ScrollView className="flex-1 px-6">
-            <View className="bg-white p-8 rounded-3xl border border-brand-beige items-center justify-center my-6">
-              <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed mb-6">
-                {t('routine.empty_desc')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setIsAddModalOpen(true)}
-                className="px-6 py-3 bg-brand-rose-metallic rounded-full flex-row items-center space-x-2 shadow-sm"
-              >
-                <Plus size={16} color="white" />
-                <Text className="text-white font-sans text-sm font-bold">{t('routine.add_step')}</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        ) : (
-          <DraggableFlatList
-            data={steps}
-            keyExtractor={(item) => item.id}
-            onDragEnd={({ data }) => handleReorderSteps(data)}
-            renderItem={renderRoutineStep}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
-            ListHeaderComponent={
-              <View className="mb-2">
-                {/* COMPATIBILITY STATUS BANNER */}
-                {steps.length > 1 && (
-                  <View className={`p-4 rounded-3xl mb-4 border flex-row items-start ${
-                    compatStatus === 'red' 
-                      ? 'bg-red-500/10 border-red-500/30' 
-                      : compatStatus === 'yellow' 
-                        ? 'bg-yellow-500/10 border-yellow-500/30' 
-                        : 'bg-brand-sage-light/15 border-brand-sage-light/30'
-                  }`}>
-                    <View className="mr-3 mt-0.5">
-                      {compatStatus === 'red' ? (
-                        <AlertCircle size={20} color="#EF4444" />
-                      ) : compatStatus === 'yellow' ? (
-                        <AlertTriangle size={20} color="#F5A623" />
-                      ) : (
-                        <CheckCircle size={20} color="#AEB09B" />
-                      )}
-                    </View>
-                    <View className="flex-1">
-                      <Text className={`font-serif text-sm font-bold ${
-                        compatStatus === 'red' ? 'text-red-500' : compatStatus === 'yellow' ? 'text-yellow-600' : 'text-brand-sage-dark'
-                      }`}>
-                        {compatStatus === 'red' ? t('compat.danger') : compatStatus === 'yellow' ? t('compat.caution') : t('compat.safe')}
-                      </Text>
-                      <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
-                        {compatStatus === 'green' ? t('compat.safe_desc') : (
-                          t('compat.conflict_count').replace('{n}', compatConflicts.length.toString())
-                        )}
-                      </Text>
-                      
-                      {/* Explicações adicionais do conflito */}
-                      {compatConflicts.length > 0 && (
-                        <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
-                          {compatConflicts.map((c, i) => (
-                            <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
-                              {c.severity === 'red' ? '❌' : '⚠️'} <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
-                                language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
-                              }
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-
-                      {/* Sinergias (Ótimas Combinações) */}
-                      {compatSynergies.length > 0 && (
-                        <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
-                          <Text className="font-sans text-[11px] font-bold text-brand-sage-dark uppercase tracking-wider">
-                            {language === 'pt' ? 'Sinergias Recomendadas ✨' : language === 'it' ? 'Sinergie Raccomandate ✨' : 'Recommended Synergies ✨'}
-                          </Text>
-                          {compatSynergies.map((c, i) => (
-                            <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
-                              ✨ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
-                                language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
-                              }
-                            </Text>
-                          ))}
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                )}
-
-                <Text className="font-sans text-xs text-brand-sage-dark mb-4">
-                  {t('routine.order_hint')}
-                </Text>
-              </View>
-            }
-            ListFooterComponent={
-              <TouchableOpacity
-                onPress={() => setIsAddModalOpen(true)}
-                className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-4"
-              >
-                <Plus size={18} color="#B97C63" />
-                <Text className="text-brand-rose-metallic font-sans text-sm font-bold">{t('routine.add_step')}</Text>
-              </TouchableOpacity>
-            }
-          />
-        )}
-      </View>
-
-      {/* MODAL ADICIONAR PRODUTO */}
-      <Modal
-        visible={isAddModalOpen}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIsAddModalOpen(false)}
+    <View className="flex-1 bg-brand-ivory pt-12">
+      {/* Header */}
+      <View className="px-6 py-4 flex-row justify-between items-center border-b border-brand-beige">
+      <Text className="text-2xl font-serif text-brand-bronze font-bold">
+        {t('routine.tab_title')}
+      </Text>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={handleGenerateWithAI}
+        disabled={generating}
+        className="bg-brand-rose-metallic px-4 py-2 rounded-full flex-row items-center space-x-1.5 shadow-sm"
       >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="bg-white rounded-t-[32px] p-6 max-h-[80%]">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-serif text-brand-bronze font-bold">
-                {t('routine.add_step')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setIsAddModalOpen(false)}
-                className="p-2 bg-brand-beige rounded-full"
-              >
-                <X size={16} color="#8E8E93" />
-              </TouchableOpacity>
-            </View>
-
-            {availableProducts.length === 0 ? (
-              <View className="py-8 items-center">
-                <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed">
-                  {t('routine.available_empty_desc')}
-                </Text>
-              </View>
-            ) : (
-              <ScrollView className="space-y-3">
-                {availableProducts.map(p => (
-                  <TouchableOpacity
-                    key={p.id}
-                    onPress={() => addProductToRoutine(p.id)}
-                    className="flex-row items-center justify-between p-4 border border-brand-beige rounded-2xl bg-white active:bg-brand-beige/50"
-                  >
-                    <View className="flex-1">
-                      <Text className="font-sans text-sm font-bold text-brand-charcoal">
-                        {p.custom_name}
-                      </Text>
-                      <Text className="font-sans text-xs text-[#8E8E93]">
-                        {p.custom_brand} • <Text className="capitalize">{p.custom_category}</Text>
-                      </Text>
-                    </View>
-                    <Plus size={18} color="#B97C63" />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            )}
-          </View>
-        </View>
-      </Modal>
+        {generating ? (
+          <ActivityIndicator size="small" color="white" />
+        ) : (
+          <>
+            <Sparkles size={16} color="white" />
+            <Text className="text-white font-sans text-xs font-bold">{t('routine.generate_ai')}</Text>
+          </>
+        )}
+      </TouchableOpacity>
     </View>
-    </GestureHandlerRootView>
+
+    {/* AM/PM Tabs */}
+    <View className="flex-row px-6 my-4">
+      <TouchableOpacity
+        onPress={() => setActiveTab('AM')}
+        className={`flex-1 py-3 items-center rounded-2xl mr-2 ${activeTab === 'AM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
+      >
+        <Text className={`font-sans text-sm font-bold ${activeTab === 'AM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
+          {t('routine.am_label')}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => setActiveTab('PM')}
+        className={`flex-1 py-3 items-center rounded-2xl ${activeTab === 'PM' ? 'bg-brand-rose-light/10 border border-brand-rose-metallic/30' : 'bg-white border border-brand-beige'}`}
+      >
+        <Text className={`font-sans text-sm font-bold ${activeTab === 'PM' ? 'text-brand-rose-metallic' : 'text-[#8E8E93]'}`}>
+          {t('routine.pm_label')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+
+    <View className="flex-1">
+      {steps.length === 0 ? (
+        <ScrollView className="flex-1 px-6">
+          <View className="bg-white p-8 rounded-3xl border border-brand-beige items-center justify-center my-6">
+            <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed mb-6">
+              {t('routine.empty_desc')}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsAddModalOpen(true)}
+              className="px-6 py-3 bg-brand-rose-metallic rounded-full flex-row items-center space-x-2 shadow-sm"
+            >
+              <Plus size={16} color="white" />
+              <Text className="text-white font-sans text-sm font-bold">{t('routine.add_step')}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      ) : (
+        <DraggableFlatList
+          data={steps}
+          keyExtractor={(item) => item.id}
+          onDragEnd={({ data }) => handleReorderSteps(data)}
+          renderItem={renderRoutineStep}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
+          ListHeaderComponent={
+            <View className="mb-2">
+              {/* COMPATIBILITY STATUS BANNER */}
+              {steps.length > 1 && (
+                <View className={`p-4 rounded-3xl mb-4 border flex-row items-start ${
+                  compatStatus === 'red' 
+                    ? 'bg-red-500/10 border-red-500/30' 
+                    : compatStatus === 'yellow' 
+                      ? 'bg-yellow-500/10 border-yellow-500/30' 
+                      : 'bg-brand-sage-light/15 border-brand-sage-light/30'
+                }`}>
+                  <View className="mr-3 mt-0.5">
+                    {compatStatus === 'red' ? (
+                      <AlertCircle size={20} color="#EF4444" />
+                    ) : compatStatus === 'yellow' ? (
+                      <AlertTriangle size={20} color="#F5A623" />
+                    ) : (
+                      <CheckCircle size={20} color="#AEB09B" />
+                    )}
+                  </View>
+                  <View className="flex-1">
+                    <Text className={`font-serif text-sm font-bold ${
+                      compatStatus === 'red' ? 'text-red-500' : compatStatus === 'yellow' ? 'text-yellow-600' : 'text-brand-sage-dark'
+                    }`}>
+                      {compatStatus === 'red' ? t('compat.danger') : compatStatus === 'yellow' ? t('compat.caution') : t('compat.safe')}
+                    </Text>
+                    <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
+                      {compatStatus === 'green' ? t('compat.safe_desc') : (
+                        t('compat.conflict_count').replace('{n}', compatConflicts.length.toString())
+                      )}
+                    </Text>
+                    
+                    {/* Explicações adicionais do conflito */}
+                    {compatConflicts.length > 0 && (
+                      <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
+                        {compatConflicts.map((c, i) => (
+                          <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
+                            {c.severity === 'red' ? '❌' : '⚠️'} <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                              language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
+                            }
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+
+                    {/* Sinergias (Ótimas Combinações) */}
+                    {compatSynergies.length > 0 && (
+                      <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
+                        <Text className="font-sans text-[11px] font-bold text-brand-sage-dark uppercase tracking-wider">
+                          {language === 'pt' ? 'Sinergias Recomendadas ✨' : language === 'it' ? 'Sinergie Raccomandate ✨' : 'Recommended Synergies ✨'}
+                        </Text>
+                        {compatSynergies.map((c, i) => (
+                          <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
+                            ✨ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                              language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
+                            }
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              <Text className="font-sans text-xs text-brand-sage-dark mb-4">
+                {t('routine.order_hint')}
+              </Text>
+            </View>
+          }
+          ListFooterComponent={
+            <TouchableOpacity
+              onPress={() => setIsAddModalOpen(true)}
+              className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-4"
+            >
+              <Plus size={18} color="#B97C63" />
+              <Text className="text-brand-rose-metallic font-sans text-sm font-bold">{t('routine.add_step')}</Text>
+            </TouchableOpacity>
+          }
+        />
+      )}
+    </View>
+
+    {/* MODAL ADICIONAR PRODUTO */}
+    <Modal
+      visible={isAddModalOpen}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setIsAddModalOpen(false)}
+    >
+      <View className="flex-1 justify-end bg-black/40">
+        <View className="bg-white rounded-t-[32px] p-6 max-h-[80%]">
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-xl font-serif text-brand-bronze font-bold">
+              {t('routine.add_step')}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsAddModalOpen(false)}
+              className="p-2 bg-brand-beige rounded-full"
+            >
+              <X size={16} color="#8E8E93" />
+            </TouchableOpacity>
+          </View>
+
+          {availableProducts.length === 0 ? (
+            <View className="py-8 items-center">
+              <Text className="font-sans text-sm text-brand-sage-dark text-center leading-relaxed">
+                {t('routine.available_empty_desc')}
+              </Text>
+            </View>
+          ) : (
+            <ScrollView className="space-y-3">
+              {availableProducts.map(p => (
+                <TouchableOpacity
+                  key={p.id}
+                  onPress={() => addProductToRoutine(p.id)}
+                  className="flex-row items-center justify-between p-4 border border-brand-beige rounded-2xl bg-white active:bg-brand-beige/50"
+                >
+                  <View className="flex-1">
+                    <Text className="font-sans text-sm font-bold text-brand-charcoal">
+                      {p.custom_name}
+                    </Text>
+                    <Text className="font-sans text-xs text-[#8E8E93]">
+                      {p.custom_brand} • <Text className="capitalize">{p.custom_category}</Text>
+                    </Text>
+                  </View>
+                  <Plus size={18} color="#B97C63" />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </Modal>
+  </View>
   );
 }
