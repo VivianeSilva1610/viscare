@@ -370,7 +370,7 @@ export default function Onboarding() {
               {/* Language Selector */}
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 24, gap: 16 }}>
                 <TouchableOpacity onPress={() => setLanguage('pt')}>
-                  <Text style={{ fontSize: 22, opacity: language === 'pt' ? 1 : 0.35 }}>🇵🇹</Text>
+                  <Text style={{ fontSize: 22, opacity: language === 'pt' ? 1 : 0.35 }}>🇧🇷</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setLanguage('it')}>
                   <Text style={{ fontSize: 22, opacity: language === 'it' ? 1 : 0.35 }}>🇮🇹</Text>
