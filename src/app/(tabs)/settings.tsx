@@ -5,7 +5,7 @@ import { useTranslation, Language } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { NotificationService } from '../../services/notifications';
 import { Reminder } from '../../services/mockDb';
-import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X } from 'lucide-react-native';
+import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X, CheckCircle2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -248,16 +248,32 @@ export default function SettingsScreen() {
         </View>
 
         {!isPremium ? (
-          <TouchableOpacity
-            onPress={() => router.push('/paywall')}
-            activeOpacity={0.9}
-            className="w-full bg-brand-rose-metallic py-3 rounded-full flex-row items-center justify-center space-x-1 shadow-sm"
-          >
-            <Sparkles size={16} color="white" />
-            <Text className="text-white font-sans text-sm font-bold">
-              {t('settings.upgrade')}
-            </Text>
-          </TouchableOpacity>
+          <>
+            <View className="mb-5 space-y-2 pt-2 border-t border-brand-beige">
+              <View className="flex-row items-center space-x-2">
+                <CheckCircle2 size={14} color="#B97C63" />
+                <Text className="font-sans text-xs text-brand-charcoal">{language === 'pt' ? 'Análise Facial Ilimitada com IA' : language === 'it' ? 'Analisi Facciale Illimitata con IA' : 'Unlimited AI Facial Analysis'}</Text>
+              </View>
+              <View className="flex-row items-center space-x-2">
+                <CheckCircle2 size={14} color="#B97C63" />
+                <Text className="font-sans text-xs text-brand-charcoal">{language === 'pt' ? 'Busca inteligente de produtos' : language === 'it' ? 'Ricerca intelligente dei prodotti' : 'Smart product search'}</Text>
+              </View>
+              <View className="flex-row items-center space-x-2">
+                <CheckCircle2 size={14} color="#B97C63" />
+                <Text className="font-sans text-xs text-brand-charcoal">{language === 'pt' ? 'Geração de rotina avançada e personalizada' : language === 'it' ? 'Generazione routine avanzata e personalizzata' : 'Advanced and personalized routine generation'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              onPress={() => router.push('/paywall')}
+              activeOpacity={0.9}
+              className="w-full bg-brand-rose-metallic py-3 rounded-full flex-row items-center justify-center space-x-1 shadow-sm"
+            >
+              <Sparkles size={16} color="white" />
+              <Text className="text-white font-sans text-sm font-bold">
+                {t('settings.upgrade')}
+              </Text>
+            </TouchableOpacity>
+          </>
         ) : (
           <TouchableOpacity
             onPress={handleManageSubscription}

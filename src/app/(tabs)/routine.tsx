@@ -9,7 +9,6 @@ import { AIRecommendationService } from '../../services/aiRecommendations';
 import { SkinProfile } from '../../services/mockDb';
 import { useFocusEffect } from 'expo-router';
 import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
-import { TouchableOpacity as GHTouchableOpacity } from 'react-native-gesture-handler';
 
 export default function RoutineScreen() {
   const { user } = useAuth();
@@ -387,9 +386,9 @@ export default function RoutineScreen() {
           }`}
         >
           {/* Grip Handler */}
-          <GHTouchableOpacity onPressIn={drag} className="mr-3 p-1">
+          <TouchableOpacity onLongPress={drag} delayLongPress={150} className="mr-3 p-1">
             <GripVertical size={20} color="#AEB09B" />
-          </GHTouchableOpacity>
+          </TouchableOpacity>
           
           <View className="flex-1 pr-3">
             <View className="flex-row items-center space-x-2">
@@ -416,13 +415,13 @@ export default function RoutineScreen() {
           </View>
 
           <View className="flex-row items-center space-x-1">
-            <GHTouchableOpacity
+            <TouchableOpacity
               onPress={() => removeStep(step.id)}
               className="p-2 rounded-xl bg-red-500/10"
               accessibilityLabel={t('accessibility.remove_step')}
             >
               <Trash2 size={14} color="#EF4444" />
-            </GHTouchableOpacity>
+            </TouchableOpacity>
           </View>
         </View>
       </ScaleDecorator>

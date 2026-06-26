@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
-import { Ingredient, CompatibilityRule } from '../../services/mockDb';
+import { Ingredient, CompatibilityRule, Product } from '../../services/mockDb';
 import { 
   Search, Info, Award, AlertTriangle, ChevronRight, 
   HelpCircle, Sparkles, BrainCircuit 
@@ -21,6 +21,7 @@ export default function DiscoverScreen() {
   const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [rules, setRules] = useState<CompatibilityRule[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // Estado para busca com Inteligência Artificial
   const [aiSearching, setAiSearching] = useState<boolean>(false);
@@ -36,6 +37,9 @@ export default function DiscoverScreen() {
 
       const compRules = await DataService.getCompatibilityRules();
       setRules(compRules);
+
+      const prods = await DataService.getGlobalProducts();
+      setProducts(prods);
     } catch (e) {
       console.warn('Erro ao carregar ingredientes', e);
     } finally {
@@ -56,11 +60,28 @@ export default function DiscoverScreen() {
     }
     // Normaliza digitação incorreta (ex: pdnr -> pdrn)
     const q = searchQuery.toLowerCase().replace('pdnr', 'pdrn');
-    const filtered = ingredients.filter(i => 
+    
+    let matchedIngredients = ingredients.filter(i => 
       i.name.toLowerCase().includes(q)
     );
-    setFilteredIngredients(filtered);
-  }, [searchQuery, ingredients]);
+
+    if (isPremium) {
+      const matchedProducts = products.filter(p => 
+        p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
+      );
+
+      matchedProducts.forEach(p => {
+        p.active_ingredients.forEach(ingName => {
+          const found = ingredients.find(i => i.name.toLowerCase() === ingName.toLowerCase());
+          if (found && !matchedIngredients.some(mi => mi.id === found.id)) {
+            matchedIngredients.push(found);
+          }
+        });
+      });
+    }
+
+    setFilteredIngredients(matchedIngredients);
+  }, [searchQuery, ingredients, products, isPremium]);
 
   const toggleExpand = (id: string) => {
     if (expandedId === id) {
