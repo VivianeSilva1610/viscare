@@ -377,8 +377,7 @@ export default function RoutineScreen() {
       );
     }
 
-    return (
-      <ScaleDecorator>
+    const InnerContent = (
         <View
           className={`bg-white p-4 rounded-3xl flex-row items-center justify-between shadow-sm mb-4 ${
             isActive ? 'opacity-80 scale-105 border-brand-rose-metallic border-2' : 
@@ -386,7 +385,7 @@ export default function RoutineScreen() {
           }`}
         >
           {/* Grip Handler */}
-          <TouchableOpacity onLongPress={drag} delayLongPress={150} className="mr-3 p-1">
+          <TouchableOpacity onLongPress={Platform.OS === 'web' ? undefined : drag} delayLongPress={150} className={`mr-3 p-1 ${Platform.OS === 'web' ? 'opacity-50' : ''}`}>
             <GripVertical size={20} color="#AEB09B" />
           </TouchableOpacity>
           
@@ -424,6 +423,11 @@ export default function RoutineScreen() {
             </TouchableOpacity>
           </View>
         </View>
+    );
+
+    return Platform.OS === 'web' ? InnerContent : (
+      <ScaleDecorator>
+        {InnerContent}
       </ScaleDecorator>
     );
   };
