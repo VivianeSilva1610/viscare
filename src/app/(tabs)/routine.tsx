@@ -380,17 +380,14 @@ export default function RoutineScreen() {
 
     return (
       <ScaleDecorator>
-        <GHTouchableOpacity
-          activeOpacity={1}
-          onLongPress={drag}
-          delayLongPress={200}
+        <View
           className={`bg-white p-4 rounded-3xl flex-row items-center justify-between shadow-sm mb-4 ${
             isActive ? 'opacity-80 scale-105 border-brand-rose-metallic border-2' : 
             isConflicted ? 'border-2 border-red-300' : 'border border-brand-beige'
           }`}
         >
           {/* Grip Handler */}
-          <GHTouchableOpacity onPressIn={drag} className="mr-3">
+          <GHTouchableOpacity onPressIn={drag} className="mr-3 p-1">
             <GripVertical size={20} color="#AEB09B" />
           </GHTouchableOpacity>
           
@@ -427,7 +424,7 @@ export default function RoutineScreen() {
               <Trash2 size={14} color="#EF4444" />
             </GHTouchableOpacity>
           </View>
-        </GHTouchableOpacity>
+        </View>
       </ScaleDecorator>
     );
   };
