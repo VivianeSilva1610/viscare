@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, Platform, FlatList } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
@@ -488,12 +488,11 @@ export default function RoutineScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      ) : (
-        <DraggableFlatList
+      ) : Platform.OS === 'web' ? (
+        <FlatList
           data={steps}
           keyExtractor={(item) => item.id}
-          onDragEnd={({ data }) => handleReorderSteps(data)}
-          renderItem={renderRoutineStep}
+          renderItem={({ item, index }) => renderRoutineStep({ item, getIndex: () => index, isActive: false, drag: () => {} } as any)}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
           ListHeaderComponent={
             <View className="mb-2">
@@ -531,7 +530,95 @@ export default function RoutineScreen() {
                     {compatConflicts.length > 0 && (
                       <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
                         {compatConflicts.map((c, i) => (
+                           <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
+                            {c.severity === 'red' ? '❌' : '⚠️'} <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                              language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
+                            }
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+
+                    {/* Sinergias (Ótimas Combinações) */}
+                    {compatSynergies.length > 0 && (
+                      <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
+                        <Text className="font-sans text-[11px] font-bold text-brand-sage-dark uppercase tracking-wider">
+                          {t('compat.synergies_title')}
+                        </Text>
+                        {compatSynergies.map((c, i) => (
                           <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
+                            ✨ <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
+                              language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
+                            }
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              <Text className="font-sans text-xs text-brand-sage-dark mb-4">
+                {t('routine.order_hint')}
+              </Text>
+            </View>
+          }
+          ListFooterComponent={
+            <TouchableOpacity
+              onPress={() => setIsAddModalOpen(true)}
+              className="w-full py-4 border-2 border-dashed border-brand-rose-metallic/30 rounded-3xl flex-row items-center justify-center space-x-2 mt-4"
+            >
+              <Plus size={18} color="#B97C63" />
+              <Text className="text-brand-rose-metallic font-sans text-sm font-bold">{t('routine.add_step')}</Text>
+            </TouchableOpacity>
+          }
+        />
+      ) : (
+        <DraggableFlatList
+          data={steps}
+          keyExtractor={(item) => item.id}
+          onDragEnd={({ data }) => handleReorderSteps(data)}
+          renderItem={renderRoutineStep}
+          activationDistance={20}
+          containerStyle={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
+          ListHeaderComponent={
+            <View className="mb-2">
+              {/* COMPATIBILITY STATUS BANNER */}
+              {steps.length > 1 && (
+                <View className={`p-4 rounded-3xl mb-4 border flex-row items-start ${
+                  compatStatus === 'red' 
+                    ? 'bg-red-500/10 border-red-500/30' 
+                    : compatStatus === 'yellow' 
+                      ? 'bg-yellow-500/10 border-yellow-500/30' 
+                      : 'bg-brand-sage-light/15 border-brand-sage-light/30'
+                }`}>
+                  <View className="mr-3 mt-0.5">
+                    {compatStatus === 'red' ? (
+                      <AlertCircle size={20} color="#EF4444" />
+                    ) : compatStatus === 'yellow' ? (
+                      <AlertTriangle size={20} color="#F5A623" />
+                    ) : (
+                      <CheckCircle size={20} color="#AEB09B" />
+                    )}
+                  </View>
+                  <View className="flex-1">
+                    <Text className={`font-serif text-sm font-bold ${
+                      compatStatus === 'red' ? 'text-red-500' : compatStatus === 'yellow' ? 'text-yellow-600' : 'text-brand-sage-dark'
+                    }`}>
+                      {compatStatus === 'red' ? t('compat.danger') : compatStatus === 'yellow' ? t('compat.caution') : t('compat.safe')}
+                    </Text>
+                    <Text className="font-sans text-xs text-brand-charcoal mt-1 leading-relaxed">
+                      {compatStatus === 'green' ? t('compat.safe_desc') : (
+                        t('compat.conflict_count').replace('{n}', compatConflicts.length.toString())
+                      )}
+                    </Text>
+                    
+                    {/* Explicações adicionais do conflito */}
+                    {compatConflicts.length > 0 && (
+                      <View className="mt-3 pt-2 border-t border-black/5 space-y-2">
+                        {compatConflicts.map((c, i) => (
+                           <Text key={i} className="font-sans text-[11px] text-brand-charcoal leading-relaxed">
                             {c.severity === 'red' ? '❌' : '⚠️'} <Text className="font-semibold">{c.ingredient_a} + {c.ingredient_b}:</Text> {
                               language === 'pt' ? c.description_pt : language === 'en' ? c.description_en : c.description_it
                             }
