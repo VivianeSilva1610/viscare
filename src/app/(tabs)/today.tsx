@@ -1219,41 +1219,57 @@ export default function TodayScreen() {
 
                 <View className="space-y-4 mb-6">
                   <View>
-                    <View className="flex-row justify-between mb-1">
-                      <Text className="font-sans text-xs font-semibold text-brand-charcoal">{t('scan.score_hydration')}</Text>
+                    <View className="flex-row justify-between items-start mb-1">
+                      <View className="flex-1 pr-2">
+                        <Text className="font-sans text-xs font-semibold text-brand-charcoal leading-tight">
+                          {t('scan.score_hydration')}
+                        </Text>
+                      </View>
                       <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{scanResults.hydration}%</Text>
                     </View>
-                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden">
+                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden mt-1">
                       <View style={{ width: `${scanResults.hydration}%` }} className="h-full bg-brand-rose-metallic" />
                     </View>
                   </View>
 
                   <View>
-                    <View className="flex-row justify-between mb-1">
-                      <Text className="font-sans text-xs font-semibold text-brand-charcoal">{t('scan.score_wrinkles')}</Text>
+                    <View className="flex-row justify-between items-start mb-1">
+                      <View className="flex-1 pr-2">
+                        <Text className="font-sans text-xs font-semibold text-brand-charcoal leading-tight">
+                          {t('scan.score_wrinkles')}
+                        </Text>
+                      </View>
                       <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{scanResults.wrinkles}%</Text>
                     </View>
-                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden">
+                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden mt-1">
                       <View style={{ width: `${scanResults.wrinkles}%` }} className="h-full bg-brand-rose-metallic" />
                     </View>
                   </View>
 
                   <View>
-                    <View className="flex-row justify-between mb-1">
-                      <Text className="font-sans text-xs font-semibold text-brand-charcoal">{t('scan.score_sensitivity')}</Text>
+                    <View className="flex-row justify-between items-start mb-1">
+                      <View className="flex-1 pr-2">
+                        <Text className="font-sans text-xs font-semibold text-brand-charcoal leading-tight">
+                          {t('scan.score_sensitivity')}
+                        </Text>
+                      </View>
                       <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{scanResults.sensitivity}%</Text>
                     </View>
-                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden">
+                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden mt-1">
                       <View style={{ width: `${scanResults.sensitivity}%` }} className="h-full bg-brand-rose-metallic" />
                     </View>
                   </View>
 
                   <View>
-                    <View className="flex-row justify-between mb-1">
-                      <Text className="font-sans text-xs font-semibold text-brand-charcoal">{t('scan.score_acne')}</Text>
+                    <View className="flex-row justify-between items-start mb-1">
+                      <View className="flex-1 pr-2">
+                        <Text className="font-sans text-xs font-semibold text-brand-charcoal leading-tight">
+                          {t('scan.score_acne')}
+                        </Text>
+                      </View>
                       <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{scanResults.acne}%</Text>
                     </View>
-                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden">
+                    <View className="h-2 bg-brand-nude rounded-full overflow-hidden mt-1">
                       <View style={{ width: `${scanResults.acne}%` }} className="h-full bg-brand-rose-metallic" />
                     </View>
                   </View>
