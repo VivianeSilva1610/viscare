@@ -535,8 +535,8 @@ export class MockDatabase {
     }
 
     const isUnlimitedUser = profile.email?.toLowerCase() === 'viroedu@gmail.com';
-    if (count >= 2 && !isUnlimitedUser) {
-      return false; // Excedeu o limite de 2 mensais
+    if (count >= 6 && !isUnlimitedUser) {
+      return false; // Excedeu o limite de 6 mensais
     }
 
     await this.updateProfile(userId, {

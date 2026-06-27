@@ -12,14 +12,11 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-// ─── Constantes de Preço Base (em BRL) ───────────────────────────────────────
-export const PRICE_BRL_MONTHLY = 19.90;
-export const PRICE_BRL_YEARLY = 149.90;
-export const PRICE_MONTHLY_SAVINGS_PERCENT = 37; // vs mensal anualizado
+// ─── Constantes de Preço Base (em EUR) ───────────────────────────────────────
+export const PRICE_EUR_LIFETIME = 9.90;
 
 // Identificadores RevenueCat (configurar no painel após criar a conta)
-const RC_MONTHLY_ID = 'viscare_premium_monthly';
-const RC_YEARLY_ID = 'viscare_premium_yearly';
+const RC_LIFETIME_ID = 'viscare_premium_lifetime';
 
 // ─── Chaves de API (do .env) ──────────────────────────────────────────────────
 const RC_IOS_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '';
@@ -38,22 +35,15 @@ const isStripeConfigured =
   !STRIPE_PK.includes('SUBSTITUA');
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-export type PlanType = 'monthly' | 'yearly';
+export type PlanType = 'lifetime';
 
 export interface PricingInfo {
-  monthly: {
-    brl: number;
+  lifetime: {
+    eur: number;
     local: string; // valor formatado na moeda local
     currency: string;
     currencySymbol: string;
   };
-  yearly: {
-    brl: number;
-    local: string;
-    currency: string;
-    currencySymbol: string;
-  };
-  savingsPercent: number;
   country: string;
   isLoading: boolean;
 }
@@ -64,22 +54,22 @@ export interface PurchaseResult {
   error?: string;
 }
 
-// ─── Mapa de taxas de câmbio aproximadas (BRL como base) ─────────────────────
+// ─── Mapa de taxas de câmbio aproximadas (EUR como base) ─────────────────────
 // Stripe Adaptive Pricing atualiza esses valores automaticamente em tempo real.
 // Estas taxas são usadas apenas para a pré-visualização de preço no UI.
-const EXCHANGE_RATES_FROM_BRL: Record<string, { rate: number; symbol: string; decimals: number }> = {
-  'EUR': { rate: 0.17,  symbol: '€',  decimals: 2 }, // Zona do Euro (Itália, França, etc.)
-  'USD': { rate: 0.18,  symbol: '$',  decimals: 2 }, // EUA
-  'GBP': { rate: 0.15,  symbol: '£',  decimals: 2 }, // Reino Unido
-  'JPY': { rate: 27.5,  symbol: '¥',  decimals: 0 }, // Japão
-  'CHF': { rate: 0.16,  symbol: 'Fr', decimals: 2 }, // Suíça
-  'CAD': { rate: 0.25,  symbol: 'C$', decimals: 2 }, // Canadá
-  'AUD': { rate: 0.28,  symbol: 'A$', decimals: 2 }, // Austrália
-  'MXN': { rate: 3.55,  symbol: '$',  decimals: 2 }, // México
-  'ARS': { rate: 200.0, symbol: '$',  decimals: 0 }, // Argentina
-  'CLP': { rate: 170.0, symbol: '$',  decimals: 0 }, // Chile
-  'COP': { rate: 750.0, symbol: '$',  decimals: 0 }, // Colômbia
-  'BRL': { rate: 1.0,   symbol: 'R$', decimals: 2 }, // Brasil
+const EXCHANGE_RATES_FROM_EUR: Record<string, { rate: number; symbol: string; decimals: number }> = {
+  'EUR': { rate: 1.0,   symbol: '€',  decimals: 2 }, // Zona do Euro (Itália, França, etc.)
+  'USD': { rate: 1.06,  symbol: '$',  decimals: 2 }, // EUA
+  'GBP': { rate: 0.88,  symbol: '£',  decimals: 2 }, // Reino Unido
+  'JPY': { rate: 161.7, symbol: '¥',  decimals: 0 }, // Japão
+  'CHF': { rate: 0.94,  symbol: 'Fr', decimals: 2 }, // Suíça
+  'CAD': { rate: 1.47,  symbol: 'C$', decimals: 2 }, // Canadá
+  'AUD': { rate: 1.65,  symbol: 'A$', decimals: 2 }, // Austrália
+  'MXN': { rate: 20.88, symbol: '$',  decimals: 2 }, // México
+  'ARS': { rate: 1176.0,symbol: '$',  decimals: 0 }, // Argentina
+  'CLP': { rate: 1000.0,symbol: '$',  decimals: 0 }, // Chile
+  'COP': { rate: 4411.0,symbol: '$',  decimals: 0 }, // Colômbia
+  'BRL': { rate: 5.88,  symbol: 'R$', decimals: 2 }, // Brasil
 };
 
 // Mapa de localidades por país → moeda
@@ -161,9 +151,9 @@ export function detectLocalCurrency(): string {
 }
 
 // ─── Formatação de Preço ──────────────────────────────────────────────────────
-export function convertAndFormat(amountBRL: number, currency: string): { value: number; formatted: string; symbol: string } {
-  const rateInfo = EXCHANGE_RATES_FROM_BRL[currency] || EXCHANGE_RATES_FROM_BRL['BRL'];
-  const converted = amountBRL * rateInfo.rate;
+export function convertAndFormat(amountEUR: number, currency: string): { value: number; formatted: string; symbol: string } {
+  const rateInfo = EXCHANGE_RATES_FROM_EUR[currency] || EXCHANGE_RATES_FROM_EUR['EUR'];
+  const converted = amountEUR * rateInfo.rate;
   
   // Arredondamento psicológico (ex: 19.90 → 17.90 não 17.87)
   const rounded = rateInfo.decimals === 0
@@ -189,23 +179,15 @@ export function convertAndFormat(amountBRL: number, currency: string): { value: 
 // ─── Obter Informações de Preço Completas ─────────────────────────────────────
 export function getPricingInfo(): PricingInfo {
   const currency = detectLocalCurrency();
-  const monthly = convertAndFormat(PRICE_BRL_MONTHLY, currency);
-  const yearly = convertAndFormat(PRICE_BRL_YEARLY, currency);
+  const lifetime = convertAndFormat(PRICE_EUR_LIFETIME, currency);
 
   return {
-    monthly: {
-      brl: PRICE_BRL_MONTHLY,
-      local: monthly.formatted,
+    lifetime: {
+      eur: PRICE_EUR_LIFETIME,
+      local: lifetime.formatted,
       currency,
-      currencySymbol: monthly.symbol,
+      currencySymbol: lifetime.symbol,
     },
-    yearly: {
-      brl: PRICE_BRL_YEARLY,
-      local: yearly.formatted,
-      currency,
-      currencySymbol: yearly.symbol,
-    },
-    savingsPercent: PRICE_MONTHLY_SAVINGS_PERCENT,
     country: currency,
     isLoading: false,
   };
@@ -273,9 +255,7 @@ export async function purchaseWithRevenueCat(plan: PlanType): Promise<PurchaseRe
       return mockPurchase(plan);
     }
 
-    const pkg = plan === 'monthly'
-      ? (offering.monthly || offering.availablePackages[0])
-      : (offering.annual || offering.availablePackages[1] || offering.availablePackages[0]);
+    const pkg = offering.lifetime || offering.availablePackages[0];
 
     if (!pkg) {
       return mockPurchase(plan);

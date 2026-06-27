@@ -456,7 +456,7 @@ export default function TodayScreen() {
     }
 
     const isUnlimitedUser = user?.email?.toLowerCase() === 'viroedu@gmail.com';
-    if (count >= 2 && !isUnlimitedUser) {
+    if (count >= 6 && !isUnlimitedUser) {
       Alert.alert(t('common.warning'), t('scan.limit_reached'));
       return;
     }

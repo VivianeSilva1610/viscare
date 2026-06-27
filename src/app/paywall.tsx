@@ -23,12 +23,12 @@ export default function PaywallScreen() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [restoring, setRestoring] = useState<boolean>(false);
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('yearly'); // anual pré-selecionado (melhor valor)
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('lifetime');
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   
   // Controle de redirecionamento para o app nativo
   const [showNativeRedirect, setShowNativeRedirect] = useState<boolean>(false);
-  const [redirectPlan, setRedirectPlan] = useState<PlanType>('yearly');
+  const [redirectPlan, setRedirectPlan] = useState<PlanType>('lifetime');
   const [redirectType, setRedirectType] = useState<'success' | 'canceled' | null>(null);
 
   // Carregar informações de preço na moeda local do dispositivo
@@ -42,7 +42,7 @@ export default function PaywallScreen() {
     // 1. Tratamento no Mobile (Native Deep Linking)
     if (Platform.OS !== 'web') {
       if (localParams.success === 'true') {
-        const plan = (localParams.plan as PlanType) || 'yearly';
+        const plan = (localParams.plan as PlanType) || 'lifetime';
         handleWebPurchaseSuccess(plan);
       } else if (localParams.canceled === 'true') {
         Alert.alert(t('common.error'), 'Pagamento cancelado pelo usuário.');
@@ -55,7 +55,7 @@ export default function PaywallScreen() {
       const params = new URLSearchParams(window.location.search);
       const isSuccess = params.get('success') === 'true';
       const isCanceled = params.get('canceled') === 'true';
-      const plan = (params.get('plan') as PlanType) || 'yearly';
+      const plan = (params.get('plan') as PlanType) || 'lifetime';
 
       if (isSuccess) {
         if (!user) {
@@ -92,7 +92,7 @@ export default function PaywallScreen() {
     setLoading(true);
     try {
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + (plan === 'monthly' ? 30 : 365));
+      expiresAt.setFullYear(expiresAt.getFullYear() + 100);
       await DataService.updateProfile(user.id, {
         subscription_plan: 'premium',
         subscription_expires_at: expiresAt.toISOString(),
@@ -156,14 +156,7 @@ export default function PaywallScreen() {
   const formatPrice = (template: string, price: string) =>
     template.replace('{price}', price);
 
-  const monthlyPrice = pricing?.monthly.local || t('paywall.loading_price');
-  const yearlyPrice = pricing?.yearly.local || t('paywall.loading_price');
-  const yearlyMonthEquiv = pricing
-    ? (() => {
-        const v = convertAndFormatMonthEquiv(pricing);
-        return t('paywall.per_month_equivalent').replace('{price}', v);
-      })()
-    : '';
+  const lifetimePrice = pricing?.lifetime.local || t('paywall.loading_price');
 
   if (showNativeRedirect) {
     return (
@@ -309,102 +302,51 @@ export default function PaywallScreen() {
 
         {/* Seleção de Planos */}
         <View style={{ gap: 12, marginBottom: 24 }}>
-
-          {/* Plano Anual (destacado como melhor valor) */}
+          {/* Plano Vitalício */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setSelectedPlan('yearly')}
+            onPress={() => setSelectedPlan('lifetime')}
             style={{
               padding: 18, borderRadius: 20,
               borderWidth: 2,
-              borderColor: selectedPlan === 'yearly' ? '#B97C63' : '#EDE8E4',
-              backgroundColor: selectedPlan === 'yearly' ? 'rgba(185,124,99,0.06)' : '#fff',
+              borderColor: '#B97C63',
+              backgroundColor: 'rgba(185,124,99,0.06)',
               position: 'relative',
             }}
           >
-            {/* Badge Melhor Valor */}
+            {/* Badge */}
             <View style={{
               position: 'absolute', top: -10, right: 16,
               backgroundColor: '#B97C63', borderRadius: 999,
               paddingHorizontal: 10, paddingVertical: 3,
             }}>
               <Text style={{ fontSize: 10, color: '#fff', fontWeight: '700' }}>
-                {t('paywall.save_percent')}
+                {t('paywall.lifetime_badge') || 'PAGAMENTO ÚNICO'}
               </Text>
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1, paddingRight: 8 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: '#3D3D3D' }}>
-                  {t('paywall.yearly_plan')}
+                  {t('paywall.lifetime_plan') || 'Acesso Vitalício'}
                 </Text>
                 <Text style={{ fontSize: 12, color: '#8C8E78', marginTop: 2 }}>
-                  {t('paywall.yearly_desc')}
+                  {t('paywall.lifetime_desc') || 'Pague uma vez, use para sempre'}
                 </Text>
-                {yearlyMonthEquiv ? (
-                  <Text style={{ fontSize: 11, color: '#B97C63', marginTop: 4, fontWeight: '600' }}>
-                    {yearlyMonthEquiv}
-                  </Text>
-                ) : null}
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: '#B97C63' }}>
-                  {yearlyPrice}
-                </Text>
-                <Text style={{ fontSize: 10, color: '#8C8E78' }}>
-                  {t('paywall.price_year')}
+                  {lifetimePrice}
                 </Text>
               </View>
             </View>
 
-            {selectedPlan === 'yearly' && (
-              <View style={{
-                position: 'absolute', top: 16, left: -8,
-                width: 16, height: 16, borderRadius: 999,
-                backgroundColor: '#B97C63',
-                borderWidth: 2, borderColor: '#fff',
-              }} />
-            )}
-          </TouchableOpacity>
-
-          {/* Plano Mensal */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setSelectedPlan('monthly')}
-            style={{
-              padding: 18, borderRadius: 20,
-              borderWidth: 2,
-              borderColor: selectedPlan === 'monthly' ? '#B97C63' : '#EDE8E4',
-              backgroundColor: selectedPlan === 'monthly' ? 'rgba(185,124,99,0.06)' : '#fff',
-            }}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1, paddingRight: 8 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#3D3D3D' }}>
-                  {t('paywall.monthly_plan')}
-                </Text>
-                <Text style={{ fontSize: 12, color: '#8C8E78', marginTop: 2 }}>
-                  {t('paywall.monthly_desc')}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: '#3D3D3D' }}>
-                  {monthlyPrice}
-                </Text>
-                <Text style={{ fontSize: 10, color: '#8C8E78' }}>
-                  {t('paywall.price_month')}
-                </Text>
-              </View>
-            </View>
-
-            {selectedPlan === 'monthly' && (
-              <View style={{
-                position: 'absolute', top: 16, left: -8,
-                width: 16, height: 16, borderRadius: 999,
-                backgroundColor: '#B97C63',
-                borderWidth: 2, borderColor: '#fff',
-              }} />
-            )}
+            <View style={{
+              position: 'absolute', top: 16, left: -8,
+              width: 16, height: 16, borderRadius: 999,
+              backgroundColor: '#B97C63',
+              borderWidth: 2, borderColor: '#fff',
+            }} />
           </TouchableOpacity>
         </View>
 

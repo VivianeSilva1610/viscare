@@ -17,27 +17,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Preços em centavos (BRL) — evita decimais problemáticos
-const PRICES_BRL_CENTS: Record<string, Record<string, number>> = {
-  monthly: { BRL: 1990, EUR: 340, USD: 360, GBP: 280, JPY: 550 },
-  yearly:  { BRL: 14990, EUR: 2560, USD: 2700, GBP: 2100, JPY: 4150 },
-};
-
-// Mapas de moeda para Price IDs do Stripe (criar no painel stripe.com após configurar conta)
-// dashboard.stripe.com → Products → Add product → Add price
-const STRIPE_PRICE_IDS: Record<string, Record<string, string>> = {
-  monthly: {
-    BRL: 'price_viscare_monthly_brl', // Substituir pelos IDs reais após criar no Stripe
-    EUR: 'price_viscare_monthly_eur',
-    USD: 'price_viscare_monthly_usd',
-    DEFAULT: 'price_viscare_monthly_brl',
-  },
-  yearly: {
-    BRL: 'price_viscare_yearly_brl',
-    EUR: 'price_viscare_yearly_eur',
-    USD: 'price_viscare_yearly_usd',
-    DEFAULT: 'price_viscare_yearly_brl',
-  },
+// Preços em centavos (baseado em 9.90 EUR) — evita decimais problemáticos
+const PRICES_CENTS: Record<string, Record<string, number>> = {
+  lifetime: { BRL: 5880, EUR: 990, USD: 1060, GBP: 880, JPY: 16170, CAD: 1470, AUD: 1650, CHF: 940 },
 };
 
 Deno.serve(async (req: Request) => {
@@ -71,11 +53,11 @@ Deno.serve(async (req: Request) => {
       : 'BRL';
 
     // Preço em centavos para esta moeda
-    const planPrices = PRICES_BRL_CENTS[plan] || PRICES_BRL_CENTS.monthly;
+    const planPrices = PRICES_CENTS[plan] || PRICES_CENTS.lifetime;
     const amountCents = planPrices[validCurrency] || planPrices.BRL;
 
     if (useCheckout) {
-      // Cria uma Checkout Session de assinatura para redirecionamento web seguro
+      // Cria uma Checkout Session de pagamento único
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -83,27 +65,15 @@ Deno.serve(async (req: Request) => {
             price_data: {
               currency: validCurrency.toLowerCase(),
               product_data: {
-                name: plan === 'monthly' ? 'VisCare Premium — Mensal' : 'VisCare Premium — Anual',
-                description: plan === 'monthly' 
-                  ? 'Período gratuito de 7 dias. Depois, será cobrado o valor da assinatura mensal.'
-                  : 'Período gratuito de 7 dias. Depois, será cobrado o valor da assinatura anual (37% de desconto).',
+                name: 'VisCare Premium — Acesso Vitalício',
+                description: 'Acesso completo a todas as funcionalidades do app para sempre.',
               },
               unit_amount: amountCents,
-              recurring: {
-                interval: plan === 'monthly' ? 'month' : 'year',
-              },
             },
             quantity: 1,
           },
         ],
-        mode: 'subscription',
-        subscription_data: {
-          trial_period_days: 7,
-          metadata: {
-            userId,
-            plan,
-          },
-        },
+        mode: 'payment',
         success_url: `https://viscare.app.br/paywall?success=true&plan=${plan}`,
         cancel_url: `https://viscare.app.br/paywall?canceled=true`,
         metadata: {

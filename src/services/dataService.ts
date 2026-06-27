@@ -551,7 +551,7 @@ export class DataService {
       }
       
       const isUnlimitedUser = profile.email?.toLowerCase() === 'viroedu@gmail.com';
-      if (count >= 2 && !isUnlimitedUser) {
+      if (count >= 6 && !isUnlimitedUser) {
         return false;
       }
       await this.updateProfile(userId, {
