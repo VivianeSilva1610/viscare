@@ -25,6 +25,7 @@ export default function RoutineScreen() {
   const [compatStatus, setCompatStatus] = useState<'green' | 'yellow' | 'red'>('green');
   const [compatConflicts, setCompatConflicts] = useState<CompatibilityRule[]>([]);
   const [compatSynergies, setCompatSynergies] = useState<CompatibilityRule[]>([]);
+  const [allRules, setAllRules] = useState<CompatibilityRule[]>([]);
 
   // Estados para Adicionar Prodotto Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -41,6 +42,10 @@ export default function RoutineScreen() {
       setCabinet(products);
 
       // Carregar rotinas
+      // Carregar todas as regras de compatibilidade para verificação em tempo real
+      const rules = await DataService.getCompatibilityRules();
+      setAllRules(rules);
+
       const userRoutines = await DataService.getRoutines(user.id);
       setRoutines(userRoutines);
 
@@ -215,6 +220,40 @@ export default function RoutineScreen() {
       await DataService.saveRoutineSteps(currentRoutine.id, annotated as RoutineStep[]);
       await runCompatibilityCheck(annotated);
     }
+  };
+
+  // Verificar conflito de um produto potencial com a rotina atual
+  const checkProductConflictWithRoutine = (product: UserProduct) => {
+    const currentIngredients: string[] = [];
+    steps.forEach(s => {
+      if (s.product) {
+        s.product.custom_active_ingredients.forEach(ing => {
+          if (ing && !currentIngredients.includes(ing.toLowerCase())) {
+            currentIngredients.push(ing.toLowerCase());
+          }
+        });
+      }
+    });
+
+    const newIngredients = product.custom_active_ingredients.map(ing => ing.toLowerCase());
+    let severity: 'green' | 'yellow' | 'red' | 'none' = 'none';
+
+    for (const nIng of newIngredients) {
+      for (const cIng of currentIngredients) {
+        const matchingRule = allRules.find(r => {
+          const ruleA = r.ingredient_a.toLowerCase();
+          const ruleB = r.ingredient_b.toLowerCase();
+          return (ruleA === nIng && ruleB === cIng) || (ruleA === cIng && ruleB === nIng);
+        });
+
+        if (matchingRule) {
+          if (matchingRule.severity === 'red') severity = 'red';
+          else if (matchingRule.severity === 'yellow' && severity !== 'red') severity = 'yellow';
+        }
+      }
+    }
+
+    return severity;
   };
 
   // Adicionar produto selecionado à rotina
@@ -697,23 +736,42 @@ export default function RoutineScreen() {
             </View>
           ) : (
             <ScrollView className="space-y-3">
-              {availableProducts.map(p => (
-                <TouchableOpacity
-                  key={p.id}
-                  onPress={() => addProductToRoutine(p.id)}
-                  className="flex-row items-center justify-between p-4 border border-brand-beige rounded-2xl bg-white active:bg-brand-beige/50"
-                >
-                  <View className="flex-1">
-                    <Text className="font-sans text-sm font-bold text-brand-charcoal">
-                      {p.custom_name}
-                    </Text>
-                    <Text className="font-sans text-xs text-[#8E8E93]">
-                      {p.custom_brand} • <Text className="capitalize">{p.custom_category}</Text>
-                    </Text>
-                  </View>
-                  <Plus size={18} color="#B97C63" />
-                </TouchableOpacity>
-              ))}
+              {availableProducts.map(p => {
+                const severity = checkProductConflictWithRoutine(p);
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    onPress={() => addProductToRoutine(p.id)}
+                    className={`flex-row items-center justify-between p-4 border rounded-2xl bg-white active:bg-brand-beige/50 ${
+                      severity === 'red' ? 'border-red-300 bg-red-50/30' : 
+                      severity === 'yellow' ? 'border-yellow-300 bg-yellow-50/30' : 
+                      'border-brand-beige'
+                    }`}
+                  >
+                    <View className="flex-1">
+                      <View className="flex-row items-center space-x-2">
+                        <Text className="font-sans text-sm font-bold text-brand-charcoal">
+                          {p.custom_name}
+                        </Text>
+                        {severity === 'red' && (
+                          <View className="bg-red-100 px-2 py-0.5 rounded flex-row items-center">
+                            <Text className="text-[10px] text-red-600 font-bold ml-1">❌ Incompatível</Text>
+                          </View>
+                        )}
+                        {severity === 'yellow' && (
+                          <View className="bg-yellow-100 px-2 py-0.5 rounded flex-row items-center">
+                            <Text className="text-[10px] text-yellow-700 font-bold ml-1">⚠️ Atenção</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text className="font-sans text-xs text-[#8E8E93] mt-1">
+                        {p.custom_brand} • <Text className="capitalize">{p.custom_category}</Text>
+                      </Text>
+                    </View>
+                    <Plus size={18} color="#B97C63" />
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           )}
         </View>
