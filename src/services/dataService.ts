@@ -534,6 +534,18 @@ export class DataService {
     await MockDatabase.addFacialScan(userId, scanResult);
   }
 
+  static async deleteFacialScans(userId: string): Promise<void> {
+    const realUid = await this.getAuthUserId();
+    if (realUid) {
+      const { error } = await supabase
+        .from('facial_scans')
+        .delete()
+        .eq('user_id', realUid);
+      if (!error) return;
+    }
+    await MockDatabase.deleteFacialScans(userId);
+  }
+
   static async incrementScanCount(userId: string): Promise<boolean> {
     const realUid = await this.getAuthUserId();
     if (realUid) {

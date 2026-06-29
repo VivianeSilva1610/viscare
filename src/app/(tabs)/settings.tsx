@@ -105,6 +105,35 @@ export default function SettingsScreen() {
     }
   };
 
+  // Apagar histórico de análises faciais (revoga consentimento biométrico)
+  const handleDeleteScanHistory = () => {
+    Alert.alert(
+      t('settings.delete_scan_history'),
+      t('settings.delete_scan_history_warning'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('settings.delete_scan_history_confirm'),
+          style: 'destructive',
+          onPress: async () => {
+            if (!user) return;
+            setLoading(true);
+            try {
+              await DataService.deleteFacialScans(user.id);
+              await DataService.updateProfile(user.id, { biometric_consent_at: null });
+              Alert.alert(t('common.info'), t('settings.delete_scan_history_success'));
+            } catch (e) {
+              console.warn('Erro ao apagar histórico de análises:', e);
+              Alert.alert(t('common.error'), t('common.connection_error'));
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   // Tratar exclusão de conta (LGPD)
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -402,6 +431,17 @@ export default function SettingsScreen() {
           <Lock size={16} color="#B97C63" />
           <Text className="font-sans text-xs font-bold text-brand-charcoal">
             {t('settings.change_password')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Apagar histórico de análises (consentimento biométrico) */}
+        <TouchableOpacity
+          onPress={handleDeleteScanHistory}
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
+        >
+          <Trash2 size={16} color="#B97C63" />
+          <Text className="font-sans text-xs font-bold text-brand-charcoal">
+            {t('settings.delete_scan_history')}
           </Text>
         </TouchableOpacity>
 

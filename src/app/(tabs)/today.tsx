@@ -38,6 +38,8 @@ export default function TodayScreen() {
   const [scanResults, setScanResults] = useState<{ hydration: number; wrinkles: number; sensitivity: number; acne: number; diagnosis: string } | null>(null);
   const [scanLineTop, setScanLineTop] = useState<number>(10);
   const [scanImageUri, setScanImageUri] = useState<string | null>(null);
+  const [biometricConsentAt, setBiometricConsentAt] = useState<string | null>(null);
+  const [consentModalVisible, setConsentModalVisible] = useState<boolean>(false);
 
   // Interactive Agenda Modals & Form
   const [appModalVisible, setAppModalVisible] = useState<boolean>(false);
@@ -72,6 +74,7 @@ export default function TodayScreen() {
       setStreak(profile.streak_count);
       setScansCountThisMonth(profile.scans_count_this_month ?? 0);
       setLastScanDate(profile.last_scan_date ?? null);
+      setBiometricConsentAt(profile.biometric_consent_at ?? null);
       
       // Calculate dynamic score based on streak
       setSkinScore(Math.min(98, 75 + (profile.streak_count * 2)));
@@ -461,9 +464,35 @@ export default function TodayScreen() {
       return;
     }
 
+    if (!biometricConsentAt) {
+      setConsentModalVisible(true);
+      return;
+    }
+
     setScanStep('select');
     setScanResults(null);
     setScanModalVisible(true);
+  };
+
+  const handleConsentAccept = async () => {
+    setConsentModalVisible(false);
+    if (user) {
+      const now = new Date().toISOString();
+      setBiometricConsentAt(now);
+      try {
+        await DataService.updateProfile(user.id, { biometric_consent_at: now });
+      } catch (e) {
+        console.warn('Erro ao salvar consentimento biométrico:', e);
+      }
+    }
+    setScanStep('select');
+    setScanResults(null);
+    setScanModalVisible(true);
+  };
+
+  const handleConsentDecline = () => {
+    setConsentModalVisible(false);
+    Alert.alert(t('common.info'), t('consent.locked_message'));
   };
 
   const startScanning = async (source: 'camera' | 'gallery') => {
@@ -1294,6 +1323,45 @@ export default function TodayScreen() {
                 </TouchableOpacity>
               </ScrollView>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL 4: CONSENTIMENTO BIOMÉTRICO (LGPD/GDPR) */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={consentModalVisible}
+        onRequestClose={handleConsentDecline}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-[32px] p-6 pb-10">
+            <Text className="text-xl font-serif text-brand-bronze font-bold mb-4">
+              {t('consent.title')}
+            </Text>
+            <ScrollView className="max-h-[50vh] mb-6">
+              <Text className="font-sans text-sm text-brand-charcoal leading-relaxed">
+                {t('consent.body')}
+              </Text>
+            </ScrollView>
+            <TouchableOpacity
+              onPress={handleConsentAccept}
+              activeOpacity={0.9}
+              className="w-full bg-brand-rose-metallic py-4 rounded-full items-center mb-3"
+            >
+              <Text className="text-white font-sans text-base font-bold">
+                {t('consent.accept')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleConsentDecline}
+              activeOpacity={0.9}
+              className="w-full py-3 rounded-full items-center"
+            >
+              <Text className="text-brand-charcoal/60 font-sans text-sm font-semibold">
+                {t('consent.decline')}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

@@ -11,6 +11,7 @@ export interface Profile {
   last_active_date: string | null;
   scans_count_this_month?: number;
   last_scan_date?: string | null;
+  biometric_consent_at?: string | null;
 }
 
 export interface SkinProfile {
@@ -516,6 +517,10 @@ export class MockDatabase {
     };
     scans.push(newScan);
     await this.saveJson(`facial_scans_${userId}`, scans);
+  }
+
+  static async deleteFacialScans(userId: string): Promise<void> {
+    await this.saveJson(`facial_scans_${userId}`, []);
   }
 
   static async incrementScanCount(userId: string): Promise<boolean> {
