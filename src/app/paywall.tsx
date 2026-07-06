@@ -27,7 +27,6 @@ export default function PaywallScreen() {
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
 
   const [showNativeRedirect, setShowNativeRedirect] = useState<boolean>(false);
-  const [redirectPlan, setRedirectPlan] = useState<PlanType>('monthly');
   const [redirectType, setRedirectType] = useState<'success' | 'canceled' | null>(null);
 
   useEffect(() => {
@@ -54,24 +53,13 @@ export default function PaywallScreen() {
       if (isSuccess) {
         if (!user) {
           setShowNativeRedirect(true);
-          setRedirectPlan(plan);
           setRedirectType('success');
-          setTimeout(() => {
-            window.location.href = `viscare://paywall?success=true&plan=${plan}`;
-          }, 1000);
         } else {
           handleWebPurchaseSuccess(plan);
         }
       } else if (isCanceled) {
-        if (!user) {
-          setShowNativeRedirect(true);
-          setRedirectType('canceled');
-          setTimeout(() => {
-            window.location.href = `viscare://paywall?canceled=true`;
-          }, 1000);
-        } else {
-          Alert.alert(t('common.error'), t('paywall.cancelled'));
-        }
+        setShowNativeRedirect(true);
+        setRedirectType('canceled');
       }
     }
   }, [user, localParams.success, localParams.canceled]);
@@ -173,15 +161,16 @@ export default function PaywallScreen() {
         </Text>
         <TouchableOpacity
           onPress={() => {
-            const url = redirectType === 'success'
-              ? `viscare://paywall?success=true&plan=${redirectPlan}`
-              : 'viscare://paywall?canceled=true';
-            if (typeof window !== 'undefined') window.location.href = url;
+            if (redirectType === 'success') {
+              router.replace('/(tabs)/today');
+            } else {
+              router.replace('/paywall');
+            }
           }}
           style={{ backgroundColor: redirectType === 'success' ? '#4CAF50' : '#B97C63', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 12 }}
         >
           <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-            {redirectType === 'success' ? 'Abrir no Aplicativo' : 'Voltar ao Aplicativo'}
+            {redirectType === 'success' ? 'Continuar' : 'Voltar ao Aplicativo'}
           </Text>
         </TouchableOpacity>
       </View>
