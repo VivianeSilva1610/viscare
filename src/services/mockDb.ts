@@ -12,6 +12,10 @@ export interface Profile {
   scans_count_this_month?: number;
   last_scan_date?: string | null;
   biometric_consent_at?: string | null;
+  welcome_scans_used?: boolean;
+  welcome_searches_used?: boolean;
+  topup_scans?: number;
+  topup_searches?: number;
 }
 
 export interface SkinProfile {

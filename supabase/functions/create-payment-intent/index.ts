@@ -17,9 +17,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Preços em centavos (baseado em 9.90 EUR) — evita decimais problemáticos
+// Preços em centavos por plano e moeda (EUR como referência)
+// topup   = €2.99 (avulso: +2 análises +3 explorações)
+// monthly = €3.99 (premium mensal: tudo ilimitado)
 const PRICES_CENTS: Record<string, Record<string, number>> = {
-  lifetime: { BRL: 5880, EUR: 990, USD: 1060, GBP: 880, JPY: 16170, CAD: 1470, AUD: 1650, CHF: 940 },
+  topup:   { EUR: 299,  BRL: 1759, USD: 317,  GBP: 263, JPY: 483,  CAD: 440,  AUD: 493,  CHF: 281 },
+  monthly: { EUR: 399,  BRL: 2346, USD: 423,  GBP: 351, JPY: 645,  CAD: 587,  AUD: 658,  CHF: 375 },
 };
 
 Deno.serve(async (req: Request) => {
@@ -53,7 +56,7 @@ Deno.serve(async (req: Request) => {
       : 'BRL';
 
     // Preço em centavos para esta moeda
-    const planPrices = PRICES_CENTS[plan] || PRICES_CENTS.lifetime;
+    const planPrices = PRICES_CENTS[plan] ?? PRICES_CENTS.topup;
     const amountCents = planPrices[validCurrency] || planPrices.BRL;
 
     if (useCheckout) {
@@ -65,8 +68,12 @@ Deno.serve(async (req: Request) => {
             price_data: {
               currency: validCurrency.toLowerCase(),
               product_data: {
-                name: 'VisCare Premium — Acesso Vitalício',
-                description: 'Acesso completo a todas as funcionalidades do app para sempre.',
+                name: plan === 'topup'
+                  ? 'VisCare — Pacote Avulso (+2 análises +3 explorações)'
+                  : 'VisCare Premium Mensal — Tudo ilimitado por 30 dias',
+                description: plan === 'topup'
+                  ? '+2 análises faciais com IA e +3 explorações de ingredientes/produtos.'
+                  : 'Acesso completo e ilimitado a todas as funcionalidades por 30 dias.',
               },
               unit_amount: amountCents,
             },

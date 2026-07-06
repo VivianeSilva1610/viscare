@@ -31,8 +31,6 @@ export default function TodayScreen() {
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
 
   // AI Scanner & Profile Stats
-  const [scansCountThisMonth, setScansCountThisMonth] = useState<number>(0);
-  const [lastScanDate, setLastScanDate] = useState<string | null>(null);
   const [scanModalVisible, setScanModalVisible] = useState<boolean>(false);
   const [scanStep, setScanStep] = useState<'select' | 'scanning' | 'results'>('select');
   const [scanResults, setScanResults] = useState<{ hydration: number; wrinkles: number; sensitivity: number; acne: number; diagnosis: string } | null>(null);
@@ -40,6 +38,9 @@ export default function TodayScreen() {
   const [scanImageUri, setScanImageUri] = useState<string | null>(null);
   const [biometricConsentAt, setBiometricConsentAt] = useState<string | null>(null);
   const [consentModalVisible, setConsentModalVisible] = useState<boolean>(false);
+  // Sistema de créditos
+  const [welcomeScansUsed, setWelcomeScansUsed] = useState<boolean>(false);
+  const [topupScans, setTopupScans] = useState<number>(0);
 
   // Interactive Agenda Modals & Form
   const [appModalVisible, setAppModalVisible] = useState<boolean>(false);
@@ -72,9 +73,9 @@ export default function TodayScreen() {
     try {
       const profile = await DataService.getProfile(user.id);
       setStreak(profile.streak_count);
-      setScansCountThisMonth(profile.scans_count_this_month ?? 0);
-      setLastScanDate(profile.last_scan_date ?? null);
       setBiometricConsentAt(profile.biometric_consent_at ?? null);
+      setWelcomeScansUsed(profile.welcome_scans_used ?? false);
+      setTopupScans(profile.topup_scans ?? 0);
       
       // Calculate dynamic score based on streak
       setSkinScore(Math.min(98, 75 + (profile.streak_count * 2)));
@@ -440,27 +441,11 @@ export default function TodayScreen() {
   };
 
   const handleScanCardClick = () => {
-    if (!isPremium) {
-      router.push('/paywall');
-      return;
-    }
-    
-    // Verificar limite
-    const now = new Date();
-    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    let lastScanMonthStr = '';
-    if (lastScanDate) {
-      const lastScanD = new Date(lastScanDate);
-      lastScanMonthStr = `${lastScanD.getFullYear()}-${String(lastScanD.getMonth() + 1).padStart(2, '0')}`;
-    }
-    let count = scansCountThisMonth;
-    if (lastScanMonthStr && lastScanMonthStr !== currentMonthStr) {
-      count = 0;
-    }
+    const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+    const hasCredit = !welcomeScansUsed || topupScans > 0;
 
-    const isUnlimitedUser = user?.email?.toLowerCase() === 'viroedu@gmail.com';
-    if (count >= 6 && !isUnlimitedUser) {
-      Alert.alert(t('common.warning'), t('scan.limit_reached'));
+    if (!isPremium && !isUnlimited && !hasCredit) {
+      router.push('/paywall');
       return;
     }
 
@@ -638,10 +623,20 @@ export default function TodayScreen() {
 
       try {
         await DataService.addFacialScan(user.id, newScanResult);
-        const success = await DataService.incrementScanCount(user.id);
-        if (success) {
-          await loadData();
+        await DataService.incrementScanCount(user.id);
+        // Consumir crédito de análise para usuários não-premium
+        const isUnlimited = user.email?.toLowerCase() === 'viroedu@gmail.com';
+        if (!isPremium && !isUnlimited) {
+          if (!welcomeScansUsed) {
+            await DataService.updateProfile(user.id, { welcome_scans_used: true });
+            setWelcomeScansUsed(true);
+          } else if (topupScans > 0) {
+            const newCount = topupScans - 1;
+            await DataService.updateProfile(user.id, { topup_scans: newCount });
+            setTopupScans(newCount);
+          }
         }
+        await loadData();
       } catch (err) {
         console.warn('Erro ao salvar analise', err);
       }
@@ -705,47 +700,80 @@ export default function TodayScreen() {
               <Text className="font-sans text-xs uppercase tracking-widest font-bold text-brand-rose-metallic">
                 {t('scan.title')}
               </Text>
-              {!isPremium && (
-                <View className="bg-brand-rose-metallic px-2 py-0.5 rounded-full ml-2">
-                  <Text className="text-[8px] font-sans font-bold text-white uppercase">PREMIUM</Text>
-                </View>
-              )}
+              {/* Badge de estado */}
+              {(() => {
+                const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+                if (isPremium || isUnlimited) return null;
+                if (!welcomeScansUsed) return (
+                  <View className="bg-green-500 px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[8px] font-sans font-bold text-white uppercase">GRÁTIS</Text>
+                  </View>
+                );
+                if (topupScans > 0) return (
+                  <View className="bg-brand-bronze px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[8px] font-sans font-bold text-white">{topupScans}x</Text>
+                  </View>
+                );
+                return (
+                  <View className="bg-brand-rose-metallic px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[8px] font-sans font-bold text-white uppercase">PREMIUM</Text>
+                  </View>
+                );
+              })()}
             </View>
             <Text className="font-serif text-xl font-bold text-brand-charcoal leading-tight">
               {t('scan.subtitle')}
             </Text>
-            
-            {isPremium ? (
-              <Text className="font-sans text-xs text-brand-charcoal/70 mt-2 font-medium">
-                {user?.email?.toLowerCase() === 'viroedu@gmail.com'
-                  ? (language === 'pt' ? 'Acesso Ilimitado' : language === 'it' ? 'Accesso Illimitato' : 'Unlimited Access')
-                  : t('scan.remaining').replace('{n}', (Math.max(0, 2 - scansCountThisMonth)).toString())}
-              </Text>
-            ) : null}
+
+            {/* Subtexto de crédito */}
+            {(() => {
+              const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+              if (isPremium || isUnlimited) return (
+                <Text className="font-sans text-xs text-brand-charcoal/70 mt-2 font-medium">
+                  {language === 'pt' ? 'Acesso ilimitado' : language === 'it' ? 'Accesso illimitato' : 'Unlimited access'}
+                </Text>
+              );
+              if (!welcomeScansUsed) return (
+                <Text className="font-sans text-xs text-green-600 mt-2 font-semibold">
+                  {t('scan.welcome_gift')}
+                </Text>
+              );
+              if (topupScans > 0) return (
+                <Text className="font-sans text-xs text-brand-charcoal/70 mt-2 font-medium">
+                  {t('scan.topup_remaining').replace('{n}', String(topupScans))}
+                </Text>
+              );
+              return null;
+            })()}
           </View>
         </View>
 
-        {!isPremium ? (
-          <TouchableOpacity 
-            onPress={() => router.push('/paywall')}
-            className="w-full h-[52px] bg-brand-rose-metallic rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
-          >
-            <Sparkles size={18} color="white" style={{ marginRight: 8 }} />
-            <Text className="text-white font-sans text-sm font-bold tracking-wide">
-              {language === 'pt' ? 'Desbloquear a Análise Facial' : language === 'it' ? 'Sblocca l\'Analisi Facciale' : 'Unlock Facial Analysis'}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity 
-            onPress={handleScanCardClick}
-            className="w-full h-[52px] bg-brand-charcoal rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
-          >
-            <Camera size={18} color="white" style={{ marginRight: 8 }} />
-            <Text className="text-white font-sans text-sm font-bold tracking-wide">
-              {language === 'pt' ? 'Iniciar Escaneamento' : language === 'it' ? 'Inizia Scansione' : 'Start Scan'}
-            </Text>
-          </TouchableOpacity>
-        )}
+        {(() => {
+          const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+          const hasCredit = !welcomeScansUsed || topupScans > 0;
+          if (isPremium || isUnlimited || hasCredit) return (
+            <TouchableOpacity
+              onPress={handleScanCardClick}
+              className="w-full h-[52px] bg-brand-charcoal rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
+            >
+              <Camera size={18} color="white" style={{ marginRight: 8 }} />
+              <Text className="text-white font-sans text-sm font-bold tracking-wide">
+                {t('scan.start')}
+              </Text>
+            </TouchableOpacity>
+          );
+          return (
+            <TouchableOpacity
+              onPress={() => router.push('/paywall')}
+              className="w-full h-[52px] bg-brand-rose-metallic rounded-2xl flex-row items-center justify-center shadow-sm mt-2"
+            >
+              <Sparkles size={18} color="white" style={{ marginRight: 8 }} />
+              <Text className="text-white font-sans text-sm font-bold tracking-wide">
+                {t('scan.get_more')}
+              </Text>
+            </TouchableOpacity>
+          );
+        })()}
       </View>
 
       {/* Próximos Cuidados (Agenda Preview) */}

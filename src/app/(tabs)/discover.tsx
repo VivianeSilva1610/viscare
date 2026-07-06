@@ -12,8 +12,13 @@ import { useRouter } from 'expo-router';
 
 export default function DiscoverScreen() {
   const { t, language } = useTranslation();
-  const { isPremium } = useAuth();
+  const { isPremium, profile, user } = useAuth();
   const router = useRouter();
+
+  const welcomeSearchesUsed = profile?.welcome_searches_used ?? false;
+  const topupSearches       = profile?.topup_searches ?? 0;
+  const hasSearchCredit     = !welcomeSearchesUsed || topupSearches > 0;
+  const canSearch           = isPremium || hasSearchCredit;
 
   const [loading, setLoading] = useState<boolean>(true);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -65,8 +70,8 @@ export default function DiscoverScreen() {
       i.name.toLowerCase().includes(q)
     );
 
-    if (isPremium) {
-      const matchedProducts = products.filter(p => 
+    if (canSearch) {
+      const matchedProducts = products.filter(p =>
         p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
       );
 
@@ -100,9 +105,16 @@ export default function DiscoverScreen() {
     );
   };
 
-  // Executa busca com IA (Simulada Premium)
+  // Executa busca com IA — consome 1 crédito de busca se não-premium
   const runAISearch = async () => {
     if (!searchQuery.trim()) return;
+    if (!isPremium && user?.id) {
+      if (!welcomeSearchesUsed) {
+        await DataService.updateProfile(user.id, { welcome_searches_used: true });
+      } else if (topupSearches > 0) {
+        await DataService.updateProfile(user.id, { topup_searches: topupSearches - 1 });
+      }
+    }
     setAiSearching(true);
     setAiResult(null);
 
@@ -265,7 +277,7 @@ export default function DiscoverScreen() {
                      `Our AI can do an instant online search to explain what the ingredient "${searchQuery}" is for, its benefits, and usage tips.`}
                   </Text>
 
-                  {isPremium ? (
+                  {canSearch ? (
                     <TouchableOpacity
                       activeOpacity={0.8}
                       onPress={runAISearch}
@@ -286,9 +298,9 @@ export default function DiscoverScreen() {
                     >
                       <Sparkles size={14} color="#B97C63" style={{ marginRight: 6 }} />
                       <Text style={{ color: '#B97C63', fontSize: 13, fontWeight: '700' }}>
-                        {language === 'pt' ? 'Ativar Premium para Buscar' :
-                         language === 'it' ? 'Attiva Premium per cercare' :
-                         'Activate Premium to Search'}
+                        {language === 'pt' ? 'Obter acesso à Busca IA' :
+                         language === 'it' ? 'Ottieni accesso alla Ricerca IA' :
+                         'Get AI Search access'}
                       </Text>
                     </TouchableOpacity>
                   )}

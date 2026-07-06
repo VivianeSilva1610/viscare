@@ -547,31 +547,17 @@ export class DataService {
   }
 
   static async incrementScanCount(userId: string): Promise<boolean> {
-    const realUid = await this.getAuthUserId();
-    if (realUid) {
-      const profile = await this.getProfile(userId);
-      const now = new Date();
-      const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      let lastScanMonthStr = '';
-      if (profile.last_scan_date) {
-        const lastScanDate = new Date(profile.last_scan_date);
-        lastScanMonthStr = `${lastScanDate.getFullYear()}-${String(lastScanDate.getMonth() + 1).padStart(2, '0')}`;
-      }
-      let count = profile.scans_count_this_month ?? 0;
-      if (lastScanMonthStr && lastScanMonthStr !== currentMonthStr) {
-        count = 0;
-      }
-      
-      const isUnlimitedUser = profile.email?.toLowerCase() === 'viroedu@gmail.com';
-      if (count >= 6 && !isUnlimitedUser) {
-        return false;
-      }
-      await this.updateProfile(userId, {
-        scans_count_this_month: count + 1,
-        last_scan_date: now.toISOString()
-      });
-      return true;
-    }
-    return MockDatabase.incrementScanCount(userId);
+    const now = new Date();
+    await this.updateProfile(userId, { last_scan_date: now.toISOString() });
+    return true;
+  }
+
+  // Adiciona créditos avulso após compra do pacote topup
+  static async addTopupCredits(userId: string, scans: number, searches: number): Promise<void> {
+    const profile = await this.getProfile(userId);
+    await this.updateProfile(userId, {
+      topup_scans:    (profile.topup_scans    ?? 0) + scans,
+      topup_searches: (profile.topup_searches ?? 0) + searches,
+    });
   }
 }

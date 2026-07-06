@@ -10,13 +10,14 @@
  */
 
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
 
 // ─── Constantes de Preço Base (em EUR) ───────────────────────────────────────
-export const PRICE_EUR_LIFETIME = 9.90;
+export const PRICE_EUR_TOPUP   = 2.99; // avulso: +2 análises +3 explorações
+export const PRICE_EUR_MONTHLY = 3.99; // premium mensal: tudo ilimitado
 
 // Identificadores RevenueCat (configurar no painel após criar a conta)
-const RC_LIFETIME_ID = 'viscare_premium_lifetime';
+const RC_TOPUP_ID   = 'viscare_topup_pack';
+const RC_MONTHLY_ID = 'viscare_premium_monthly';
 
 // ─── Chaves de API (do .env) ──────────────────────────────────────────────────
 const RC_IOS_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '';
@@ -35,12 +36,18 @@ const isStripeConfigured =
   !STRIPE_PK.includes('SUBSTITUA');
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-export type PlanType = 'lifetime';
+export type PlanType = 'topup' | 'monthly';
 
 export interface PricingInfo {
-  lifetime: {
+  topup: {
     eur: number;
-    local: string; // valor formatado na moeda local
+    local: string;
+    currency: string;
+    currencySymbol: string;
+  };
+  monthly: {
+    eur: number;
+    local: string;
     currency: string;
     currencySymbol: string;
   };
@@ -179,14 +186,21 @@ export function convertAndFormat(amountEUR: number, currency: string): { value: 
 // ─── Obter Informações de Preço Completas ─────────────────────────────────────
 export function getPricingInfo(): PricingInfo {
   const currency = detectLocalCurrency();
-  const lifetime = convertAndFormat(PRICE_EUR_LIFETIME, currency);
+  const topup   = convertAndFormat(PRICE_EUR_TOPUP, currency);
+  const monthly = convertAndFormat(PRICE_EUR_MONTHLY, currency);
 
   return {
-    lifetime: {
-      eur: PRICE_EUR_LIFETIME,
-      local: lifetime.formatted,
+    topup: {
+      eur: PRICE_EUR_TOPUP,
+      local: topup.formatted,
       currency,
-      currencySymbol: lifetime.symbol,
+      currencySymbol: topup.symbol,
+    },
+    monthly: {
+      eur: PRICE_EUR_MONTHLY,
+      local: monthly.formatted,
+      currency,
+      currencySymbol: monthly.symbol,
     },
     country: currency,
     isLoading: false,
@@ -255,7 +269,9 @@ export async function purchaseWithRevenueCat(plan: PlanType): Promise<PurchaseRe
       return mockPurchase(plan);
     }
 
-    const pkg = offering.lifetime || offering.availablePackages[0];
+    const rcId = plan === 'monthly' ? RC_MONTHLY_ID : RC_TOPUP_ID;
+    const pkg = offering.availablePackages.find((p: any) => p.identifier === rcId)
+      || offering.availablePackages[0];
 
     if (!pkg) {
       return mockPurchase(plan);

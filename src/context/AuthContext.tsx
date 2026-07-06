@@ -21,6 +21,7 @@ interface AuthContextProps {
   signIn: (email: string, pass: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   purchasePremium: (plan: PlanType) => Promise<void>;
+  purchaseTopup: () => Promise<void>;
   restorePurchases: () => Promise<boolean>;
   refreshProfile: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
@@ -391,26 +392,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const purchasePremium = async (plan: PlanType) => {
     if (!user?.id) throw new Error('Usuário não autenticado.');
-
-    // Chamar o serviço de pagamento real (RevenueCat → lojas nativas, ou modo simulado)
     const result = await purchasePlan(plan, user.id);
-
     if (!result.success) {
       const errMsg = result.error || 'Erro desconhecido';
       if (errMsg === 'CANCELLED') throw new Error('CANCELLED');
       if (errMsg === 'REDIRECTED') throw new Error('REDIRECTED');
       throw new Error(errMsg);
     }
-
-    // Atualizar perfil local com o status premium
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + (plan === 'monthly' ? 30 : 365));
+    expiresAt.setDate(expiresAt.getDate() + 30); // 30 dias para plano mensal
     const updatedProfile = await DataService.updateProfile(user.id, {
       subscription_plan: 'premium',
       subscription_expires_at: expiresAt.toISOString(),
     });
     setProfile(updatedProfile);
     setIsPremium(true);
+  };
+
+  const purchaseTopup = async () => {
+    if (!user?.id) throw new Error('Usuário não autenticado.');
+    const result = await purchasePlan('topup', user.id);
+    if (!result.success) {
+      const errMsg = result.error || 'Erro desconhecido';
+      if (errMsg === 'CANCELLED') throw new Error('CANCELLED');
+      if (errMsg === 'REDIRECTED') throw new Error('REDIRECTED');
+      throw new Error(errMsg);
+    }
+    // Pagamento aprovado em modo simulado/RevenueCat — adiciona créditos localmente
+    await DataService.addTopupCredits(user.id, 2, 3);
+    const updatedProfile = await DataService.getProfile(user.id);
+    setProfile(updatedProfile);
   };
 
   const restorePurchases = async (): Promise<boolean> => {
@@ -442,6 +453,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signIn,
       signOut,
       purchasePremium,
+      purchaseTopup,
       restorePurchases,
       refreshProfile,
       resetPassword,
