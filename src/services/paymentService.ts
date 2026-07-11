@@ -388,7 +388,7 @@ export async function createStripeCheckoutSession(
  * Em modo simulado, a compra é "aprovada" localmente.
  * Útil para testes de UI antes de configurar RevenueCat/Stripe.
  */
-export async function mockPurchase(plan: PlanType): Promise<PurchaseResult> {
+export async function mockPurchase(_plan: PlanType): Promise<PurchaseResult> {
   // Simula um atraso de rede
   await new Promise(resolve => setTimeout(resolve, 1800));
   return { success: true, isPremium: true };
@@ -399,44 +399,32 @@ export async function purchasePlan(
   plan: PlanType,
   userId: string,
 ): Promise<PurchaseResult> {
-  // PRIORIDADE: Se Stripe estiver configurado, usamos Stripe (permite receber pagamentos fora das lojas nas duas plataformas)
+  // Mobile (iOS/Android): App Store / Google Play via RevenueCat
+  // Obrigatório pela política da Apple; necessário para distribuição via lojas.
+  if (Platform.OS !== 'web') {
+    if (isRevenueCatConfigured) {
+      return purchaseWithRevenueCat(plan);
+    }
+    // Dev sem RevenueCat configurado → modo simulado
+    const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
+    if (isDev) {
+      console.warn('[PaymentService] ⚠️ RevenueCat não configurado — usando modo SIMULADO.');
+      return mockPurchase(plan);
+    }
+    return { success: false, isPremium: false, error: 'Serviço de pagamento indisponível.' };
+  }
+
+  // Web: Stripe Checkout
   if (isStripeConfigured) {
     const currency = detectLocalCurrency();
     try {
       const { url, error } = await createStripeCheckoutSession(userId, plan, currency);
       if (url) {
-        if (Platform.OS === 'web') {
-          // Redireciona o navegador para o checkout seguro do Stripe (Web)
-          if (typeof window !== 'undefined') {
-            window.location.href = url;
-          }
-          return { success: false, isPremium: false, error: 'REDIRECTED' };
-        } else {
-          // No mobile, abrimos o checkout usando a sessão de autenticação do WebBrowser.
-          // Quando o checkout redirecionar para a nossa página de sucesso na web, ela disparará o deep link 'viscare://paywall'
-          // fechando o navegador e devolvendo o controle com 'success=true'.
-          const WebBrowser = await import('expo-web-browser').catch(() => null);
-          if (WebBrowser) {
-            const redirectUrl = 'viscare://paywall';
-            const authResult = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
-            if (authResult.type === 'success' && authResult.url) {
-              const returnedUrl = authResult.url;
-              if (returnedUrl.includes('success=true')) {
-                return { success: true, isPremium: true };
-              }
-            }
-            return { success: false, isPremium: false, error: 'CANCELLED' };
-          } else {
-            // Fallback usando o Linking padrão se o WebBrowser falhar
-            const Linking = await import('react-native').then(m => m.Linking).catch(() => null);
-            if (Linking) {
-              await Linking.openURL(url);
-              return { success: false, isPremium: false, error: 'REDIRECTED' };
-            }
-          }
+        if (typeof window !== 'undefined') {
+          window.location.href = url;
         }
+        return { success: false, isPremium: false, error: 'REDIRECTED' };
       }
-      // Se falhou ao obter a URL do Stripe, exibe o erro em produção ou usa mock em dev
       const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
       if (isDev) {
         console.warn('[PaymentService] Stripe Checkout indisponível, usando modo simulado:', error);
@@ -453,12 +441,7 @@ export async function purchasePlan(
     }
   }
 
-  // 1. Móvel com RevenueCat configurado → compra nativa (segunda opção se Stripe não estiver configurado)
-  if (Platform.OS !== 'web' && isRevenueCatConfigured) {
-    return purchaseWithRevenueCat(plan);
-  }
-
-  // 3. Modo simulado (fallback universal se nada estiver configurado)
+  // Fallback: modo simulado
   const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : (process.env.NODE_ENV === 'development');
   if (isDev) {
     console.warn('[PaymentService] ⚠️ Usando modo SIMULADO. Configure Stripe ou RevenueCat para produção.');
