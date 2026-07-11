@@ -31,6 +31,17 @@
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_live_51TiAWBRrnFB6eeUyqxj1EmAEZXV9b6l7Yqul6tN4xKTYD6ZW2vrAbzHdzrRaEZrlFk8tiF9P2LkM7AmTnizl0Yvf00PLSWskHP"
       }
     },
+    "shopify": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://covtpwbaghvrbfxyirga.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdnRwd2JhZ2h2cmJmeHlpcmdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTk5MDIsImV4cCI6MjA5NjczNTkwMn0.PtLl1pDM1sgPqvgwQU3-hgde7TUEwKankoVnXcBYPkU",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_live_51TiAWBRrnFB6eeUyqxj1EmAEZXV9b6l7Yqul6tN4xKTYD6ZW2vrAbzHdzrRaEZrlFk8tiF9P2LkM7AmTnizl0Yvf00PLSWskHP"
+      }
+    },
     "production": {
       "android": {
         "buildType": "app-bundle"
