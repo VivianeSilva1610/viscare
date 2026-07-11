@@ -21,8 +21,8 @@ const corsHeaders = {
 // topup   = €2.99 (avulso: +2 análises +3 explorações)
 // monthly = €3.99 (premium mensal: tudo ilimitado)
 const PRICES_CENTS: Record<string, Record<string, number>> = {
-  topup:   { EUR: 299,  BRL: 1759, USD: 317,  GBP: 263, JPY: 483,  CAD: 440,  AUD: 493,  CHF: 281 },
-  monthly: { EUR: 399,  BRL: 2346, USD: 423,  GBP: 351, JPY: 645,  CAD: 587,  AUD: 658,  CHF: 375 },
+  topup:   { EUR: 399,  BRL: 2346, USD: 423,  GBP: 351, JPY: 645,  CAD: 587,  AUD: 658,  CHF: 375 },
+  monthly: { EUR: 990,  BRL: 5821, USD: 1049, GBP: 871, JPY: 1601, CAD: 1455, AUD: 1634, CHF: 931 },
 };
 
 Deno.serve(async (req: Request) => {

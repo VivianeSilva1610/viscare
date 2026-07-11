@@ -12,8 +12,8 @@
 import { Platform } from 'react-native';
 
 // ─── Constantes de Preço Base (em EUR) ───────────────────────────────────────
-export const PRICE_EUR_TOPUP   = 2.99; // avulso: +2 análises +3 explorações
-export const PRICE_EUR_MONTHLY = 3.99; // premium mensal: tudo ilimitado
+export const PRICE_EUR_TOPUP   = 3.99; // avulso: +2 análises +3 explorações
+export const PRICE_EUR_MONTHLY = 9.90; // premium mensal: tudo ilimitado
 
 // Identificadores RevenueCat (configurar no painel após criar a conta)
 const RC_TOPUP_ID   = 'viscare_topup_pack';
