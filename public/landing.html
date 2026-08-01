@@ -175,6 +175,7 @@
       <div class="lang-switch">
         <button data-lang="pt">PT</button>
         <button data-lang="it">IT</button>
+        <button data-lang="en">EN</button>
       </div>
       <a class="cta" href="https://app.viscare.app.br" data-i18n="nav.cta">Entrar / Começar</a>
     </div>
@@ -269,7 +270,7 @@
         </ul>
         <a class="btn-outline" href="https://app.viscare.app.br" data-i18n="pricing.free.cta">Criar conta grátis</a>
       </div>
-      <div class="plan featured" data-badge-pt="Mais popular" data-badge-it="Più scelto">
+      <div class="plan featured" data-badge-pt="Mais popular" data-badge-it="Più scelto" data-badge-en="Most popular">
         <h3 data-i18n="pricing.monthly.name">Premium Mensal</h3>
         <div class="price"><span data-i18n="pricing.monthly.price">€9,90</span><span data-i18n="pricing.monthly.per">/mês</span></div>
         <ul>
@@ -448,30 +449,71 @@ const content = {
     'faq.q3': 'Funziona su iPhone e Android?', 'faq.a3': 'Sì, Viscare funziona direttamente dal browser su qualsiasi cellulare, senza bisogno di scaricare nulla da un app store.',
     'faq.q4': 'Come annullo il mio abbonamento?', 'faq.a4': 'In qualsiasi momento, direttamente in Impostazioni nell\'app — hai accesso a un portale dove gestisci o annulli da solo, senza dover contattare il supporto.',
     'footer.terms': 'Termini di Servizio', 'footer.privacy': 'Informativa sulla Privacy', 'footer.copyright': '© 2026 Viscare. Tutti i diritti riservati.'
+  },
+  en: {
+    'nav.how': 'How it works', 'nav.pricing': 'Pricing', 'nav.faq': 'FAQ', 'nav.cta': 'Log in / Get started',
+    'hero.eyebrow': 'Made for phototypes III–VI',
+    'hero.headline': 'Your skin is unique. Your skincare routine should be too.',
+    'hero.sub': 'Viscare analyzes your skin with Artificial Intelligence and builds a personalized skincare routine — with a special focus on medium, olive, and deep skin tones, an audience underserved by mainstream beauty apps.',
+    'hero.ctaPrimary': 'Start for free', 'hero.ctaSecondary': 'I want to install it now',
+    'pain.kicker': 'Does this sound familiar?', 'pain.title': "Skincare shouldn't be this frustrating",
+    'pain.p1': "Bought a product everyone recommended, but your skin reacted badly or nothing changed at all.",
+    'pain.p2': 'Wondered if you can use Vitamin C and Retinol together, and never got a clear answer.',
+    'pain.p3': 'The skincare apps you tried gave generic advice, without considering your skin tone.',
+    'pain.p4': "Spent money on a dermatologist just to learn basics you could've figured out at home.",
+    'pain.p5': 'Forget your night (or morning) routine because nobody reminds you.',
+    'pain.p6': "Never really know if your skin is improving, or if you're just getting used to the problem.",
+    'how.kicker': 'How it works', 'how.title': 'Three steps to your ideal routine', 'how.sub': 'No appointments, no guesswork. Your skin, actually analyzed.',
+    'how.step1Title': 'Take a selfie', 'how.step1Body': 'Right from the app, with your consent — the photo is never stored, only the analysis result.',
+    'how.step2Title': 'AI analyzes your skin', 'how.step2Body': 'Hydration, oiliness, sensitivity, and acne, with an easy-to-understand diagnosis.',
+    'how.step3Title': 'Get your routine', 'how.step3Body': 'Morning and night, with products that work well together and alerts for incompatible ingredients.',
+    'why.kicker': 'Why Viscare', 'why.title': 'Care that brings out your best',
+    'why.b1Title': 'AI facial analysis', 'why.b1Body': 'Skin diagnosis in seconds, no guesswork involved.',
+    'why.b2Title': 'Compatibility checker', 'why.b2Body': 'Instantly know if two products in your cabinet clash.',
+    'why.b3Title': 'Organized AM/PM routine', 'why.b3Body': 'Daily reminders so you never miss a step.',
+    'why.b4Title': 'Calibrated for your skin', 'why.b4Body': 'Recommendations built for phototypes III to VI, not just fair skin.',
+    'why.b5Title': 'Privacy first', 'why.b5Body': 'Your photo is never stored. GDPR-compliant, with data export and deletion under your control.',
+    'why.b6Title': 'Track your progress', 'why.b6Body': "Watch your skin's hydration and oiliness improve over time.",
+    'pricing.kicker': 'Plans', 'pricing.title': 'Start free, upgrade whenever you want', 'pricing.sub': 'No fine print. Cancel your subscription anytime, right in the app.',
+    'pricing.free.name': 'Welcome', 'pricing.free.price': 'Free', 'pricing.free.item1': '1 AI facial analysis', 'pricing.free.item2': '1 ingredient/product search', 'pricing.free.item3': 'Basic AM/PM routine', 'pricing.free.cta': 'Create free account',
+    'pricing.monthly.name': 'Monthly Premium', 'pricing.monthly.price': '€9.90', 'pricing.monthly.per': '/month', 'pricing.monthly.item1': 'Unlimited facial analyses', 'pricing.monthly.item2': 'Unlimited ingredient searches', 'pricing.monthly.item3': 'Auto-renews, cancel anytime', 'pricing.monthly.item4': 'All features unlocked', 'pricing.monthly.cta': 'Subscribe to Premium',
+    'pricing.topup.name': 'Top-up Pack', 'pricing.topup.price': '€3.99', 'pricing.topup.item1': '+2 facial analyses', 'pricing.topup.item2': '+3 product searches', 'pricing.topup.item3': 'No subscription, one-time payment', 'pricing.topup.cta': 'Buy top-up',
+    'install.title': 'Install Viscare on your phone', 'install.sub': "No app store needed — it's quick, right from your browser.",
+    'install.iosTitle': '📱 iPhone (Safari)', 'install.ios1': 'Open <strong>app.viscare.app.br</strong> in Safari', 'install.ios2': 'Tap the share icon (the square with the arrow)', 'install.ios3': 'Choose "Add to Home Screen"',
+    'install.androidTitle': '🤖 Android (Chrome)', 'install.android1': 'Open <strong>app.viscare.app.br</strong> in Chrome', 'install.android2': 'Tap the three dots in the top corner', 'install.android3': 'Choose "Add to Home screen" / "Install app"',
+    'install.apkTitle': '⬇️ Android — Direct APK', 'install.apkBody': 'Prefer to install without going through the browser? Download the installer directly to your Android.', 'install.apkButton': 'Download APK for Android', 'install.apkVersion': 'Version 1.0.0 — updated on 08/01/2026',
+    'install.cta': 'Open Viscare now',
+    'faq.kicker': 'FAQ', 'faq.title': 'Quick questions',
+    'faq.q1': 'Do I need to pay to try it?', 'faq.a1': 'No. Every new account gets 1 free facial analysis and 1 free product search, no credit card required.',
+    'faq.q2': 'Is my photo stored anywhere?', 'faq.a2': 'No. The photo is analyzed instantly by AI and immediately discarded — only the numeric results (hydration, oiliness, etc.) are saved to your profile.',
+    'faq.q3': 'Does it work on iPhone and Android?', 'faq.a3': 'Yes, Viscare works right from your browser on any phone, no app store download needed.',
+    'faq.q4': 'How do I cancel my subscription?', 'faq.a4': 'Anytime, right in Settings inside the app — you get access to a portal where you manage or cancel it yourself, no need to contact support.',
+    'footer.terms': 'Terms of Service', 'footer.privacy': 'Privacy Policy', 'footer.copyright': '© 2026 Viscare. All rights reserved.'
   }
 };
 
 function detectLang() {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const lang = (navigator.language || '').toLowerCase();
     const brazilZones = ['Sao_Paulo','Rio_Branco','Manaus','Fortaleza','Recife','Belem','Cuiaba','Bahia','Campo_Grande','Maceio','Araguaina','Boa_Vista','Porto_Velho','Santarem','Noronha'];
-    if (brazilZones.some(z => tz.includes(z))) return 'pt';
-    if ((navigator.language || '').toLowerCase().startsWith('pt')) return 'pt';
-    return 'it';
+    if (brazilZones.some(z => tz.includes(z)) || lang.startsWith('pt')) return 'pt';
+    if (tz.includes('Rome') || lang.startsWith('it')) return 'it';
+    return 'en';
   } catch (e) {
-    return 'it';
+    return 'en';
   }
 }
 
 function render(lang) {
-  const dict = content[lang] || content.it;
-  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'it';
+  const dict = content[lang] || content.en;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang === 'it' ? 'it' : 'en';
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (dict[key] !== undefined) el.innerHTML = dict[key];
   });
   document.querySelectorAll('.plan.featured').forEach(el => {
-    el.setAttribute('data-badge', lang === 'pt' ? el.getAttribute('data-badge-pt') : el.getAttribute('data-badge-it'));
+    el.setAttribute('data-badge', el.getAttribute('data-badge-' + lang) || el.getAttribute('data-badge-en'));
   });
   document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   localStorage.setItem('viscare_landing_lang', lang);
