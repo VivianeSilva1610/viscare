@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Viscare — Cuidado com a pele guiado por IA, feito para a sua pele de verdade</title>
-<meta name="description" content="Viscare analisa sua pele com Inteligência Artificial e monta uma rotina de skincare personalizada — com foco especial em peles morenas, pardas e negras (fototipos III–VI), pouco atendidas pelos apps de beleza tradicionais." />
+<title>Viscare</title>
+<meta name="description" content="Viscare analisa sua pele com Inteligência Artificial e monta uma rotina de skincare personalizada." />
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,12 +47,16 @@
   }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--bronze); font-size: 1.1rem; }
   .brand img { width: 32px; height: 32px; border-radius: 9px; }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+  .lang-switch { display: flex; gap: 6px; }
+  .lang-switch button { border: 1px solid var(--beige); background: #fff; border-radius: 999px; padding: 5px 11px; font-size: 0.75rem; font-weight: 600; cursor: pointer; color: var(--muted); }
+  .lang-switch button.active { background: var(--bronze); color: #fff; border-color: var(--bronze); }
   .nav a.cta {
     background: var(--bronze); color: #fff; padding: 10px 20px; border-radius: 999px;
     font-weight: 600; font-size: 0.9rem; text-decoration: none; white-space: nowrap;
   }
   .nav-links { display: none; gap: 28px; font-size: 0.92rem; font-weight: 500; }
-  @media (min-width: 760px) { .nav-links { display: flex; } }
+  @media (min-width: 860px) { .nav-links { display: flex; } }
   .nav-links a { text-decoration: none; color: var(--charcoal); }
 
   section { padding: 64px 0; }
@@ -109,7 +113,7 @@
   }
   .plan.featured { border-color: var(--bronze); box-shadow: 0 20px 40px -24px rgba(185,124,99,0.45); position: relative; }
   .plan.featured::before {
-    content: 'Mais popular'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    content: attr(data-badge); position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
     background: var(--bronze); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 5px 14px; border-radius: 999px;
   }
   .plan h3 { font-size: 1.05rem; color: var(--muted); font-weight: 600; font-family: 'Poppins', sans-serif; }
@@ -152,6 +156,7 @@
     body { background: var(--ivory); }
     header.site { background: rgba(28,25,23,0.85); }
     .band, .step, .plan, .install-card, details { background: #241F1C; }
+    .lang-switch button { background: #241F1C; }
   }
 </style>
 </head>
@@ -161,23 +166,29 @@
   <nav class="nav wrap">
     <div class="brand"><img src="/favicon.png" alt="Viscare" /> Viscare</div>
     <div class="nav-links">
-      <a href="#como-funciona">Como funciona</a>
-      <a href="#precos">Preços</a>
-      <a href="#faq">Dúvidas</a>
+      <a href="#como-funciona" data-i18n="nav.how">Como funciona</a>
+      <a href="#precos" data-i18n="nav.pricing">Preços</a>
+      <a href="#faq" data-i18n="nav.faq">Dúvidas</a>
     </div>
-    <a class="cta" href="https://app.viscare.app.br">Entrar / Começar</a>
+    <div class="nav-right">
+      <div class="lang-switch">
+        <button data-lang="pt">PT</button>
+        <button data-lang="it">IT</button>
+      </div>
+      <a class="cta" href="https://app.viscare.app.br" data-i18n="nav.cta">Entrar / Começar</a>
+    </div>
   </nav>
 </header>
 
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow">Feito para fototipos III–VI</span>
-      <h1 class="headline">Sua pele é única. Sua rotina de skincare também deveria ser.</h1>
-      <p class="sub">O Viscare analisa sua pele com Inteligência Artificial e monta uma rotina personalizada de cuidados — com foco especial em peles morenas, pardas e negras, um público pouco atendido pelos apps de beleza tradicionais.</p>
+      <span class="eyebrow" data-i18n="hero.eyebrow">Feito para fototipos III–VI</span>
+      <h1 class="headline" data-i18n="hero.headline">Sua pele é única. Sua rotina de skincare também deveria ser.</h1>
+      <p class="sub" data-i18n="hero.sub">O Viscare analisa sua pele com Inteligência Artificial e monta uma rotina personalizada de cuidados — com foco especial em peles morenas, pardas e negras, um público pouco atendido pelos apps de beleza tradicionais.</p>
       <div class="btn-row">
-        <a class="btn-primary" href="https://app.viscare.app.br">Começar gratuitamente</a>
-        <a class="btn-secondary" href="#install">Já quero instalar</a>
+        <a class="btn-primary" href="https://app.viscare.app.br" data-i18n="hero.ctaPrimary">Começar gratuitamente</a>
+        <a class="btn-secondary" href="#install" data-i18n="hero.ctaSecondary">Já quero instalar</a>
       </div>
     </div>
     <div class="hero-art">
@@ -188,24 +199,24 @@
 
 <section class="band" id="como-funciona">
   <div class="wrap">
-    <div class="kicker">Como funciona</div>
-    <h2 class="section-title">Três passos até a sua rotina ideal</h2>
-    <p class="section-sub">Sem consultas, sem adivinhação. Sua pele, analisada de verdade.</p>
+    <div class="kicker" data-i18n="how.kicker">Como funciona</div>
+    <h2 class="section-title" data-i18n="how.title">Três passos até a sua rotina ideal</h2>
+    <p class="section-sub" data-i18n="how.sub">Sem consultas, sem adivinhação. Sua pele, analisada de verdade.</p>
     <div class="steps">
       <div class="step">
         <div class="num">1</div>
-        <h3>Tire uma selfie</h3>
-        <p>Direto pelo app, com seu consentimento — a foto nunca fica guardada, só o resultado da análise.</p>
+        <h3 data-i18n="how.step1Title">Tire uma selfie</h3>
+        <p data-i18n="how.step1Body">Direto pelo app, com seu consentimento — a foto nunca fica guardada, só o resultado da análise.</p>
       </div>
       <div class="step">
         <div class="num">2</div>
-        <h3>A IA analisa sua pele</h3>
-        <p>Hidratação, oleosidade, sensibilidade e acne, com um diagnóstico simples de entender.</p>
+        <h3 data-i18n="how.step2Title">A IA analisa sua pele</h3>
+        <p data-i18n="how.step2Body">Hidratação, oleosidade, sensibilidade e acne, com um diagnóstico simples de entender.</p>
       </div>
       <div class="step">
         <div class="num">3</div>
-        <h3>Receba sua rotina</h3>
-        <p>Manhã e noite, com produtos que combinam entre si e alertas de ingredientes incompatíveis.</p>
+        <h3 data-i18n="how.step3Title">Receba sua rotina</h3>
+        <p data-i18n="how.step3Body">Manhã e noite, com produtos que combinam entre si e alertas de ingredientes incompatíveis.</p>
       </div>
     </div>
   </div>
@@ -213,55 +224,55 @@
 
 <section>
   <div class="wrap">
-    <div class="kicker">Por que o Viscare</div>
-    <h2 class="section-title">Cuidado que realça a sua melhor versão</h2>
+    <div class="kicker" data-i18n="why.kicker">Por que o Viscare</div>
+    <h2 class="section-title" data-i18n="why.title">Cuidado que realça a sua melhor versão</h2>
     <div class="grid-benefits">
-      <div class="benefit"><div class="icon">🔬</div><div><h3>Análise facial por IA</h3><p>Diagnóstico de pele em segundos, sem depender de achismo.</p></div></div>
-      <div class="benefit"><div class="icon">🧴</div><div><h3>Verificador de compatibilidade</h3><p>Saiba na hora se dois produtos do seu armário não combinam.</p></div></div>
-      <div class="benefit"><div class="icon">🗓️</div><div><h3>Rotina AM/PM organizada</h3><p>Lembretes diários pra você não esquecer o passo a passo.</p></div></div>
-      <div class="benefit"><div class="icon">🤎</div><div><h3>Calibrado pra sua pele</h3><p>Recomendações pensadas para fototipos III a VI, não só peles claras.</p></div></div>
-      <div class="benefit"><div class="icon">🔒</div><div><h3>Privacidade em primeiro lugar</h3><p>Sua foto nunca é armazenada. Conforme LGPD/GDPR, com exportação e exclusão de dados sob seu controle.</p></div></div>
-      <div class="benefit"><div class="icon">📈</div><div><h3>Acompanhe sua evolução</h3><p>Veja a hidratação e oleosidade da sua pele melhorarem com o tempo.</p></div></div>
+      <div class="benefit"><div class="icon">🔬</div><div><h3 data-i18n="why.b1Title">Análise facial por IA</h3><p data-i18n="why.b1Body">Diagnóstico de pele em segundos, sem depender de achismo.</p></div></div>
+      <div class="benefit"><div class="icon">🧴</div><div><h3 data-i18n="why.b2Title">Verificador de compatibilidade</h3><p data-i18n="why.b2Body">Saiba na hora se dois produtos do seu armário não combinam.</p></div></div>
+      <div class="benefit"><div class="icon">🗓️</div><div><h3 data-i18n="why.b3Title">Rotina AM/PM organizada</h3><p data-i18n="why.b3Body">Lembretes diários pra você não esquecer o passo a passo.</p></div></div>
+      <div class="benefit"><div class="icon">🤎</div><div><h3 data-i18n="why.b4Title">Calibrado pra sua pele</h3><p data-i18n="why.b4Body">Recomendações pensadas para fototipos III a VI, não só peles claras.</p></div></div>
+      <div class="benefit"><div class="icon">🔒</div><div><h3 data-i18n="why.b5Title">Privacidade em primeiro lugar</h3><p data-i18n="why.b5Body">Sua foto nunca é armazenada. Conforme LGPD/GDPR, com exportação e exclusão de dados sob seu controle.</p></div></div>
+      <div class="benefit"><div class="icon">📈</div><div><h3 data-i18n="why.b6Title">Acompanhe sua evolução</h3><p data-i18n="why.b6Body">Veja a hidratação e oleosidade da sua pele melhorarem com o tempo.</p></div></div>
     </div>
   </div>
 </section>
 
 <section class="band" id="precos">
   <div class="wrap">
-    <div class="kicker">Planos</div>
-    <h2 class="section-title">Comece de graça, evolua quando quiser</h2>
-    <p class="section-sub">Sem letras miúdas. Cancele sua assinatura quando quiser, direto pelo app.</p>
+    <div class="kicker" data-i18n="pricing.kicker">Planos</div>
+    <h2 class="section-title" data-i18n="pricing.title">Comece de graça, evolua quando quiser</h2>
+    <p class="section-sub" data-i18n="pricing.sub">Sem letras miúdas. Cancele sua assinatura quando quiser, direto pelo app.</p>
     <div class="pricing">
       <div class="plan">
-        <h3>Boas-vindas</h3>
-        <div class="price">Grátis</div>
+        <h3 data-i18n="pricing.free.name">Boas-vindas</h3>
+        <div class="price" data-i18n="pricing.free.price">Grátis</div>
         <ul>
-          <li>1 análise facial por IA</li>
-          <li>1 exploração de ingredientes/produtos</li>
-          <li>Rotina AM/PM básica</li>
+          <li data-i18n="pricing.free.item1">1 análise facial por IA</li>
+          <li data-i18n="pricing.free.item2">1 exploração de ingredientes/produtos</li>
+          <li data-i18n="pricing.free.item3">Rotina AM/PM básica</li>
         </ul>
-        <a class="btn-outline" href="https://app.viscare.app.br">Criar conta grátis</a>
+        <a class="btn-outline" href="https://app.viscare.app.br" data-i18n="pricing.free.cta">Criar conta grátis</a>
       </div>
-      <div class="plan featured">
-        <h3>Premium Mensal</h3>
-        <div class="price">€9,90<span>/mês</span></div>
+      <div class="plan featured" data-badge-pt="Mais popular" data-badge-it="Più scelto">
+        <h3 data-i18n="pricing.monthly.name">Premium Mensal</h3>
+        <div class="price"><span data-i18n="pricing.monthly.price">€9,90</span><span data-i18n="pricing.monthly.per">/mês</span></div>
         <ul>
-          <li>Análises faciais ilimitadas</li>
-          <li>Explorações de ingredientes ilimitadas</li>
-          <li>Renovação automática, cancele quando quiser</li>
-          <li>Todas as funcionalidades liberadas</li>
+          <li data-i18n="pricing.monthly.item1">Análises faciais ilimitadas</li>
+          <li data-i18n="pricing.monthly.item2">Explorações de ingredientes ilimitadas</li>
+          <li data-i18n="pricing.monthly.item3">Renovação automática, cancele quando quiser</li>
+          <li data-i18n="pricing.monthly.item4">Todas as funcionalidades liberadas</li>
         </ul>
-        <a class="btn-primary" href="https://app.viscare.app.br">Assinar Premium</a>
+        <a class="btn-primary" href="https://app.viscare.app.br" data-i18n="pricing.monthly.cta">Assinar Premium</a>
       </div>
       <div class="plan">
-        <h3>Pacote Avulso</h3>
-        <div class="price">€3,99</div>
+        <h3 data-i18n="pricing.topup.name">Pacote Avulso</h3>
+        <div class="price" data-i18n="pricing.topup.price">€3,99</div>
         <ul>
-          <li>+2 análises faciais</li>
-          <li>+3 explorações de produtos</li>
-          <li>Sem assinatura, pagamento único</li>
+          <li data-i18n="pricing.topup.item1">+2 análises faciais</li>
+          <li data-i18n="pricing.topup.item2">+3 explorações de produtos</li>
+          <li data-i18n="pricing.topup.item3">Sem assinatura, pagamento único</li>
         </ul>
-        <a class="btn-outline" href="https://app.viscare.app.br">Comprar avulso</a>
+        <a class="btn-outline" href="https://app.viscare.app.br" data-i18n="pricing.topup.cta">Comprar avulso</a>
       </div>
     </div>
   </div>
@@ -270,28 +281,28 @@
 <section id="install">
   <div class="wrap">
     <div class="install">
-      <h2 class="section-title">Instale o Viscare no seu celular</h2>
-      <p class="section-sub">Não precisa de loja de aplicativos — é rapidinho, direto pelo navegador.</p>
+      <h2 class="section-title" data-i18n="install.title">Instale o Viscare no seu celular</h2>
+      <p class="section-sub" data-i18n="install.sub">Não precisa de loja de aplicativos — é rapidinho, direto pelo navegador.</p>
       <div class="install-steps">
         <div class="install-card">
-          <h4>📱 iPhone (Safari)</h4>
+          <h4 data-i18n="install.iosTitle">📱 iPhone (Safari)</h4>
           <ol>
-            <li>Abra <strong>app.viscare.app.br</strong> no Safari</li>
-            <li>Toque no ícone de compartilhar (o quadrado com a seta)</li>
-            <li>Escolha "Adicionar à Tela de Início"</li>
+            <li data-i18n="install.ios1">Abra <strong>app.viscare.app.br</strong> no Safari</li>
+            <li data-i18n="install.ios2">Toque no ícone de compartilhar (o quadrado com a seta)</li>
+            <li data-i18n="install.ios3">Escolha "Adicionar à Tela de Início"</li>
           </ol>
         </div>
         <div class="install-card">
-          <h4>🤖 Android (Chrome)</h4>
+          <h4 data-i18n="install.androidTitle">🤖 Android (Chrome)</h4>
           <ol>
-            <li>Abra <strong>app.viscare.app.br</strong> no Chrome</li>
-            <li>Toque nos três pontinhos no canto superior</li>
-            <li>Escolha "Adicionar à tela inicial" / "Instalar app"</li>
+            <li data-i18n="install.android1">Abra <strong>app.viscare.app.br</strong> no Chrome</li>
+            <li data-i18n="install.android2">Toque nos três pontinhos no canto superior</li>
+            <li data-i18n="install.android3">Escolha "Adicionar à tela inicial" / "Instalar app"</li>
           </ol>
         </div>
       </div>
       <div class="btn-row" style="justify-content:center; margin-top:28px;">
-        <a class="btn-primary" href="https://app.viscare.app.br">Abrir o Viscare agora</a>
+        <a class="btn-primary" href="https://app.viscare.app.br" data-i18n="install.cta">Abrir o Viscare agora</a>
       </div>
     </div>
   </div>
@@ -299,24 +310,24 @@
 
 <section class="band" id="faq">
   <div class="wrap">
-    <div class="kicker">Dúvidas frequentes</div>
-    <h2 class="section-title">Perguntas rápidas</h2>
+    <div class="kicker" data-i18n="faq.kicker">Dúvidas frequentes</div>
+    <h2 class="section-title" data-i18n="faq.title">Perguntas rápidas</h2>
     <div class="faq">
       <details open>
-        <summary>Preciso pagar para testar?</summary>
-        <p>Não. Toda conta nova ganha 1 análise facial e 1 exploração de produtos gratuitas, sem cartão de crédito.</p>
+        <summary data-i18n="faq.q1">Preciso pagar para testar?</summary>
+        <p data-i18n="faq.a1">Não. Toda conta nova ganha 1 análise facial e 1 exploração de produtos gratuitas, sem cartão de crédito.</p>
       </details>
       <details>
-        <summary>Minha foto fica guardada em algum lugar?</summary>
-        <p>Não. A foto é analisada na hora por Inteligência Artificial e descartada imediatamente — só os resultados numéricos (hidratação, oleosidade, etc.) ficam salvos no seu perfil.</p>
+        <summary data-i18n="faq.q2">Minha foto fica guardada em algum lugar?</summary>
+        <p data-i18n="faq.a2">Não. A foto é analisada na hora por Inteligência Artificial e descartada imediatamente — só os resultados numéricos (hidratação, oleosidade, etc.) ficam salvos no seu perfil.</p>
       </details>
       <details>
-        <summary>Funciona em iPhone e Android?</summary>
-        <p>Sim, o Viscare funciona direto pelo navegador em qualquer celular, sem precisar baixar nada de loja de aplicativos.</p>
+        <summary data-i18n="faq.q3">Funciona em iPhone e Android?</summary>
+        <p data-i18n="faq.a3">Sim, o Viscare funciona direto pelo navegador em qualquer celular, sem precisar baixar nada de loja de aplicativos.</p>
       </details>
       <details>
-        <summary>Como cancelo minha assinatura?</summary>
-        <p>A qualquer momento, direto em Configurações dentro do app — você tem acesso a um portal onde gerencia ou cancela sozinho, sem precisar contatar o suporte.</p>
+        <summary data-i18n="faq.q4">Como cancelo minha assinatura?</summary>
+        <p data-i18n="faq.a4">A qualquer momento, direto em Configurações dentro do app — você tem acesso a um portal onde gerencia ou cancela sozinho, sem precisar contatar o suporte.</p>
       </details>
     </div>
   </div>
@@ -326,13 +337,114 @@
   <div class="wrap foot-row">
     <div class="brand"><img src="/favicon.png" alt="Viscare" /> Viscare</div>
     <div class="foot-links">
-      <a href="/terms">Termos de Uso</a>
-      <a href="/privacy">Política de Privacidade</a>
+      <a href="/terms" data-i18n="footer.terms">Termos de Uso</a>
+      <a href="/privacy" data-i18n="footer.privacy">Política de Privacidade</a>
       <a href="mailto:suporte@viscare.app.br">suporte@viscare.app.br</a>
     </div>
   </div>
-  <div class="wrap foot-note">© 2026 Viscare. Todos os direitos reservados.</div>
+  <div class="wrap foot-note" data-i18n="footer.copyright">© 2026 Viscare. Todos os direitos reservados.</div>
 </footer>
+
+<script>
+const content = {
+  pt: {
+    'nav.how': 'Como funciona', 'nav.pricing': 'Preços', 'nav.faq': 'Dúvidas', 'nav.cta': 'Entrar / Começar',
+    'hero.eyebrow': 'Feito para fototipos III–VI',
+    'hero.headline': 'Sua pele é única. Sua rotina de skincare também deveria ser.',
+    'hero.sub': 'O Viscare analisa sua pele com Inteligência Artificial e monta uma rotina personalizada de cuidados — com foco especial em peles morenas, pardas e negras, um público pouco atendido pelos apps de beleza tradicionais.',
+    'hero.ctaPrimary': 'Começar gratuitamente', 'hero.ctaSecondary': 'Já quero instalar',
+    'how.kicker': 'Como funciona', 'how.title': 'Três passos até a sua rotina ideal', 'how.sub': 'Sem consultas, sem adivinhação. Sua pele, analisada de verdade.',
+    'how.step1Title': 'Tire uma selfie', 'how.step1Body': 'Direto pelo app, com seu consentimento — a foto nunca fica guardada, só o resultado da análise.',
+    'how.step2Title': 'A IA analisa sua pele', 'how.step2Body': 'Hidratação, oleosidade, sensibilidade e acne, com um diagnóstico simples de entender.',
+    'how.step3Title': 'Receba sua rotina', 'how.step3Body': 'Manhã e noite, com produtos que combinam entre si e alertas de ingredientes incompatíveis.',
+    'why.kicker': 'Por que o Viscare', 'why.title': 'Cuidado que realça a sua melhor versão',
+    'why.b1Title': 'Análise facial por IA', 'why.b1Body': 'Diagnóstico de pele em segundos, sem depender de achismo.',
+    'why.b2Title': 'Verificador de compatibilidade', 'why.b2Body': 'Saiba na hora se dois produtos do seu armário não combinam.',
+    'why.b3Title': 'Rotina AM/PM organizada', 'why.b3Body': 'Lembretes diários pra você não esquecer o passo a passo.',
+    'why.b4Title': 'Calibrado pra sua pele', 'why.b4Body': 'Recomendações pensadas para fototipos III a VI, não só peles claras.',
+    'why.b5Title': 'Privacidade em primeiro lugar', 'why.b5Body': 'Sua foto nunca é armazenada. Conforme LGPD/GDPR, com exportação e exclusão de dados sob seu controle.',
+    'why.b6Title': 'Acompanhe sua evolução', 'why.b6Body': 'Veja a hidratação e oleosidade da sua pele melhorarem com o tempo.',
+    'pricing.kicker': 'Planos', 'pricing.title': 'Comece de graça, evolua quando quiser', 'pricing.sub': 'Sem letras miúdas. Cancele sua assinatura quando quiser, direto pelo app.',
+    'pricing.free.name': 'Boas-vindas', 'pricing.free.price': 'Grátis', 'pricing.free.item1': '1 análise facial por IA', 'pricing.free.item2': '1 exploração de ingredientes/produtos', 'pricing.free.item3': 'Rotina AM/PM básica', 'pricing.free.cta': 'Criar conta grátis',
+    'pricing.monthly.name': 'Premium Mensal', 'pricing.monthly.price': 'R$58,21', 'pricing.monthly.per': '/mês', 'pricing.monthly.item1': 'Análises faciais ilimitadas', 'pricing.monthly.item2': 'Explorações de ingredientes ilimitadas', 'pricing.monthly.item3': 'Renovação automática, cancele quando quiser', 'pricing.monthly.item4': 'Todas as funcionalidades liberadas', 'pricing.monthly.cta': 'Assinar Premium',
+    'pricing.topup.name': 'Pacote Avulso', 'pricing.topup.price': 'R$23,46', 'pricing.topup.item1': '+2 análises faciais', 'pricing.topup.item2': '+3 explorações de produtos', 'pricing.topup.item3': 'Sem assinatura, pagamento único', 'pricing.topup.cta': 'Comprar avulso',
+    'install.title': 'Instale o Viscare no seu celular', 'install.sub': 'Não precisa de loja de aplicativos — é rapidinho, direto pelo navegador.',
+    'install.iosTitle': '📱 iPhone (Safari)', 'install.ios1': 'Abra <strong>app.viscare.app.br</strong> no Safari', 'install.ios2': 'Toque no ícone de compartilhar (o quadrado com a seta)', 'install.ios3': 'Escolha "Adicionar à Tela de Início"',
+    'install.androidTitle': '🤖 Android (Chrome)', 'install.android1': 'Abra <strong>app.viscare.app.br</strong> no Chrome', 'install.android2': 'Toque nos três pontinhos no canto superior', 'install.android3': 'Escolha "Adicionar à tela inicial" / "Instalar app"',
+    'install.cta': 'Abrir o Viscare agora',
+    'faq.kicker': 'Dúvidas frequentes', 'faq.title': 'Perguntas rápidas',
+    'faq.q1': 'Preciso pagar para testar?', 'faq.a1': 'Não. Toda conta nova ganha 1 análise facial e 1 exploração de produtos gratuitas, sem cartão de crédito.',
+    'faq.q2': 'Minha foto fica guardada em algum lugar?', 'faq.a2': 'Não. A foto é analisada na hora por Inteligência Artificial e descartada imediatamente — só os resultados numéricos (hidratação, oleosidade, etc.) ficam salvos no seu perfil.',
+    'faq.q3': 'Funciona em iPhone e Android?', 'faq.a3': 'Sim, o Viscare funciona direto pelo navegador em qualquer celular, sem precisar baixar nada de loja de aplicativos.',
+    'faq.q4': 'Como cancelo minha assinatura?', 'faq.a4': 'A qualquer momento, direto em Configurações dentro do app — você tem acesso a um portal onde gerencia ou cancela sozinho, sem precisar contatar o suporte.',
+    'footer.terms': 'Termos de Uso', 'footer.privacy': 'Política de Privacidade', 'footer.copyright': '© 2026 Viscare. Todos os direitos reservados.'
+  },
+  it: {
+    'nav.how': 'Come funziona', 'nav.pricing': 'Prezzi', 'nav.faq': 'Domande', 'nav.cta': 'Accedi / Inizia',
+    'hero.eyebrow': 'Pensato per i fototipi III–VI',
+    'hero.headline': 'La tua pelle è unica. Anche la tua skincare routine dovrebbe esserlo.',
+    'hero.sub': 'Viscare analizza la tua pelle con l\'Intelligenza Artificiale e crea una routine di cura personalizzata — con un\'attenzione speciale alle pelli more, olivastre e scure, un pubblico poco servito dalle app di bellezza tradizionali.',
+    'hero.ctaPrimary': 'Inizia gratuitamente', 'hero.ctaSecondary': 'Voglio installarla subito',
+    'how.kicker': 'Come funziona', 'how.title': 'Tre passaggi per la tua routine ideale', 'how.sub': 'Niente visite, niente supposizioni. La tua pelle, analizzata sul serio.',
+    'how.step1Title': 'Scatta un selfie', 'how.step1Body': 'Direttamente dall\'app, con il tuo consenso — la foto non viene mai salvata, solo il risultato dell\'analisi.',
+    'how.step2Title': 'L\'IA analizza la tua pelle', 'how.step2Body': 'Idratazione, untuosità, sensibilità e acne, con una diagnosi semplice da capire.',
+    'how.step3Title': 'Ricevi la tua routine', 'how.step3Body': 'Mattina e sera, con prodotti che si abbinano tra loro e avvisi su ingredienti incompatibili.',
+    'why.kicker': 'Perché Viscare', 'why.title': 'Cura che valorizza la tua versione migliore',
+    'why.b1Title': 'Analisi facciale con IA', 'why.b1Body': 'Diagnosi della pelle in pochi secondi, senza supposizioni.',
+    'why.b2Title': 'Verifica di compatibilità', 'why.b2Body': 'Scopri subito se due prodotti del tuo beauty case non si abbinano.',
+    'why.b3Title': 'Routine mattina/sera organizzata', 'why.b3Body': 'Promemoria giornalieri per non dimenticare i passaggi.',
+    'why.b4Title': 'Calibrato per la tua pelle', 'why.b4Body': 'Consigli pensati per i fototipi da III a VI, non solo per pelli chiare.',
+    'why.b5Title': 'Privacy al primo posto', 'why.b5Body': 'La tua foto non viene mai memorizzata. Conforme al GDPR, con esportazione ed eliminazione dei dati sotto il tuo controllo.',
+    'why.b6Title': 'Segui i tuoi progressi', 'why.b6Body': 'Guarda l\'idratazione e l\'untuosità della tua pelle migliorare nel tempo.',
+    'pricing.kicker': 'Piani', 'pricing.title': 'Inizia gratis, evolvi quando vuoi', 'pricing.sub': 'Nessuna lettera piccola. Annulla il tuo abbonamento quando vuoi, direttamente dall\'app.',
+    'pricing.free.name': 'Benvenuto', 'pricing.free.price': 'Gratis', 'pricing.free.item1': '1 analisi facciale con IA', 'pricing.free.item2': '1 ricerca di ingredienti/prodotti', 'pricing.free.item3': 'Routine mattina/sera di base', 'pricing.free.cta': 'Crea account gratis',
+    'pricing.monthly.name': 'Premium Mensile', 'pricing.monthly.price': '€9,90', 'pricing.monthly.per': '/mese', 'pricing.monthly.item1': 'Analisi facciali illimitate', 'pricing.monthly.item2': 'Ricerche di ingredienti illimitate', 'pricing.monthly.item3': 'Rinnovo automatico, annulla quando vuoi', 'pricing.monthly.item4': 'Tutte le funzionalità sbloccate', 'pricing.monthly.cta': 'Abbonati a Premium',
+    'pricing.topup.name': 'Pacchetto Singolo', 'pricing.topup.price': '€3,99', 'pricing.topup.item1': '+2 analisi facciali', 'pricing.topup.item2': '+3 ricerche di prodotti', 'pricing.topup.item3': 'Nessun abbonamento, pagamento unico', 'pricing.topup.cta': 'Acquista il pacchetto',
+    'install.title': 'Installa Viscare sul tuo cellulare', 'install.sub': 'Non serve nessun app store — è velocissimo, direttamente dal browser.',
+    'install.iosTitle': '📱 iPhone (Safari)', 'install.ios1': 'Apri <strong>app.viscare.app.br</strong> in Safari', 'install.ios2': 'Tocca l\'icona di condivisione (il quadrato con la freccia)', 'install.ios3': 'Scegli "Aggiungi alla schermata Home"',
+    'install.androidTitle': '🤖 Android (Chrome)', 'install.android1': 'Apri <strong>app.viscare.app.br</strong> in Chrome', 'install.android2': 'Tocca i tre puntini in alto', 'install.android3': 'Scegli "Aggiungi alla schermata Home" / "Installa app"',
+    'install.cta': 'Apri Viscare ora',
+    'faq.kicker': 'Domande frequenti', 'faq.title': 'Domande rapide',
+    'faq.q1': 'Devo pagare per provarlo?', 'faq.a1': 'No. Ogni nuovo account riceve 1 analisi facciale e 1 ricerca di prodotti gratuite, senza carta di credito.',
+    'faq.q2': 'La mia foto viene salvata da qualche parte?', 'faq.a2': 'No. La foto viene analizzata al momento dall\'Intelligenza Artificiale e scartata immediatamente — solo i risultati numerici (idratazione, untuosità, ecc.) vengono salvati nel tuo profilo.',
+    'faq.q3': 'Funziona su iPhone e Android?', 'faq.a3': 'Sì, Viscare funziona direttamente dal browser su qualsiasi cellulare, senza bisogno di scaricare nulla da un app store.',
+    'faq.q4': 'Come annullo il mio abbonamento?', 'faq.a4': 'In qualsiasi momento, direttamente in Impostazioni nell\'app — hai accesso a un portale dove gestisci o annulli da solo, senza dover contattare il supporto.',
+    'footer.terms': 'Termini di Servizio', 'footer.privacy': 'Informativa sulla Privacy', 'footer.copyright': '© 2026 Viscare. Tutti i diritti riservati.'
+  }
+};
+
+function detectLang() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const brazilZones = ['Sao_Paulo','Rio_Branco','Manaus','Fortaleza','Recife','Belem','Cuiaba','Bahia','Campo_Grande','Maceio','Araguaina','Boa_Vista','Porto_Velho','Santarem','Noronha'];
+    if (brazilZones.some(z => tz.includes(z))) return 'pt';
+    if ((navigator.language || '').toLowerCase().startsWith('pt')) return 'pt';
+    return 'it';
+  } catch (e) {
+    return 'it';
+  }
+}
+
+function render(lang) {
+  const dict = content[lang] || content.it;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'it';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('.plan.featured').forEach(el => {
+    el.setAttribute('data-badge', lang === 'pt' ? el.getAttribute('data-badge-pt') : el.getAttribute('data-badge-it'));
+  });
+  document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  localStorage.setItem('viscare_landing_lang', lang);
+}
+
+document.querySelectorAll('.lang-switch button').forEach(b => {
+  b.addEventListener('click', () => render(b.dataset.lang));
+});
+
+render(localStorage.getItem('viscare_landing_lang') || detectLang());
+</script>
 
 </body>
 </html>
