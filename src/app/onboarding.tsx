@@ -113,7 +113,25 @@ export default function Onboarding() {
     }
 
     if (res.success) {
-      // Avança para o Disclaimer
+      // Login de quem já tem conta: se o quiz de pele já foi feito antes,
+      // vai direto pro app em vez de pedir Disclaimer/Quiz de novo.
+      if (!isSignUpMode) {
+        try {
+          const { data: authData } = await supabase.auth.getUser();
+          const uid = authData?.user?.id;
+          if (uid) {
+            const skinProfile = await DataService.getSkinProfile(uid);
+            if (skinProfile) {
+              router.replace('/(tabs)/today');
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Erro ao verificar quiz existente:', e);
+        }
+      }
+      // Conta nova, ou conta existente sem quiz ainda: avança para o Disclaimer
       nextStep();
     } else {
       Alert.alert(t('common.error'), res.error || t('alert.auth_error'));
@@ -329,9 +347,23 @@ export default function Onboarding() {
       };
       await DataService.saveSkinProfile(currentUid, skinData);
 
-      // Gerar recomendações via IA
-      const recs = await AIRecommendationService.getRecommendations({ user_id: currentUid, ...skinData });
-      setRecommendations(recs);
+      // Gerar recomendações via Agentes de IA (Gemini Edge Functions)
+      // Como o usuário ainda não fez análise facial, criamos um perfil de análise
+      // baseado nas respostas do quiz para alimentar o Agente Dermatológico.
+      const defaultAnalysis = {
+        hydration: skinData.skin_type === 'dry' ? 40 : 70,
+        wrinkles: skinData.age > 40 ? 50 : 80,
+        sensitivity: skinData.is_sensitive ? 70 : 20,
+        acne: skinData.concerns.some((c: string) => c.toLowerCase().includes('acne') || c.toLowerCase().includes('acn')) ? 40 : 85,
+        diagnosis: ''
+      };
+
+      const aiResult = await AIRecommendationService.getIntelligentRecommendations(
+        { user_id: currentUid, ...skinData },
+        defaultAnalysis,
+        language
+      );
+      setRecommendations(aiResult.products);
       
       setLoading(false);
       nextStep(); // Vai para Step 3 (Recomendações)
