@@ -103,12 +103,42 @@ export class DataService {
   static async addUserProduct(userId: string, product: Omit<UserProduct, 'id' | 'user_id'>): Promise<UserProduct> {
     const realUid = await this.getAuthUserId();
     if (realUid) {
+      let cleanProductId = product.product_id;
+      
+      // Validar se o product_id é um UUID válido
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (cleanProductId && !uuidRegex.test(cleanProductId)) {
+        try {
+          const { data: globalProd } = await supabase
+            .from('products')
+            .select('id')
+            .eq('name', product.custom_name)
+            .maybeSingle();
+          
+          if (globalProd) {
+            cleanProductId = globalProd.id;
+          } else {
+            cleanProductId = null;
+          }
+        } catch {
+          cleanProductId = null;
+        }
+      }
+
       const { data, error } = await supabase
         .from('user_products')
-        .insert({ user_id: realUid, ...product })
+        .insert({ 
+          user_id: realUid, 
+          ...product,
+          product_id: cleanProductId 
+        })
         .select()
         .single();
-      if (!error && data) return data as UserProduct;
+      if (error) {
+        console.error('Error inserting product to Supabase:', error);
+        throw new Error(error.message);
+      }
+      if (data) return data as UserProduct;
     }
     return MockDatabase.addUserProduct(userId, product);
   }
