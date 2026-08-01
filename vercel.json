@@ -2,40 +2,41 @@
   "version": 2,
   "buildCommand": "npx expo export",
   "outputDirectory": "dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/landing.html",
+      "src": "/",
+      "dest": "/landing.html",
       "has": [{ "type": "host", "value": "viscare.app.br" }]
     },
     {
-      "source": "/",
-      "destination": "/landing.html",
+      "src": "/",
+      "dest": "/landing.html",
       "has": [{ "type": "host", "value": "www.viscare.app.br" }]
     },
     {
-      "source": "/terms",
-      "destination": "/terms.html",
+      "src": "/terms",
+      "dest": "/terms.html",
       "has": [{ "type": "host", "value": "viscare.app.br" }]
     },
     {
-      "source": "/terms",
-      "destination": "/terms.html",
+      "src": "/terms",
+      "dest": "/terms.html",
       "has": [{ "type": "host", "value": "www.viscare.app.br" }]
     },
     {
-      "source": "/privacy",
-      "destination": "/privacy.html",
+      "src": "/privacy",
+      "dest": "/privacy.html",
       "has": [{ "type": "host", "value": "viscare.app.br" }]
     },
     {
-      "source": "/privacy",
-      "destination": "/privacy.html",
+      "src": "/privacy",
+      "dest": "/privacy.html",
       "has": [{ "type": "host", "value": "www.viscare.app.br" }]
     },
+    { "handle": "filesystem" },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
