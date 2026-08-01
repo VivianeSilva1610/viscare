@@ -286,7 +286,7 @@ export default function ProductsScreen() {
       {/* Banner da Loja Viscaree */}
       <TouchableOpacity 
         activeOpacity={0.9}
-        onPress={() => Linking.openURL('https://viscare.app.br')}
+        onPress={() => Linking.openURL('https://viscaree.com.br')}
         className="mx-6 mt-4 p-4 rounded-2xl flex-row items-center justify-between shadow-sm"
         style={{ backgroundColor: '#B97C63' }}
       >
@@ -295,7 +295,7 @@ export default function ProductsScreen() {
             {language === 'pt' ? 'Conheça nossa loja!' : language === 'it' ? 'Visita il nostro negozio!' : 'Visit our store!'}
           </Text>
           <Text className="font-sans text-white/90 text-xs leading-relaxed">
-            {language === 'pt' ? 'Compre produtos recomendados para sua rotina na viscare.app.br' : language === 'it' ? 'Acquista prodotti consigliati per la tua routine su viscare.app.br' : 'Buy recommended products for your routine at viscare.app.br'}
+            {language === 'pt' ? 'Compre produtos recomendados para sua rotina na viscaree.com.br' : language === 'it' ? 'Acquista prodotti consigliati per la tua routine su viscaree.com.br' : 'Buy recommended products for your routine at viscaree.com.br'}
           </Text>
         </View>
         <View className="bg-white/20 p-2 rounded-full">

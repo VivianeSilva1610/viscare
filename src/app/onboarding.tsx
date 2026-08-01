@@ -137,8 +137,8 @@ export default function Onboarding() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: Platform.OS === 'web' 
-            ? 'https://viscare.app.br/onboarding' 
+          redirectTo: Platform.OS === 'web'
+            ? 'https://app.viscare.app.br/onboarding'
             : 'viscare://onboarding',
         }
       });
@@ -289,10 +289,18 @@ export default function Onboarding() {
   };
 
   // === STEP 1: DISCLAIMER LOGIC ===
-  const handleDisclaimerNext = () => {
+  const handleDisclaimerNext = async () => {
     if (!disclaimerAccepted) {
       Alert.alert(t('common.warning'), t('alert.disclaimer_required'));
       return;
+    }
+    // Registra o consentimento aos Termos de Uso / Política de Privacidade (LGPD/GDPR)
+    if (user?.id) {
+      try {
+        await DataService.updateProfile(user.id, { terms_accepted_at: new Date().toISOString() });
+      } catch (e) {
+        console.warn('Erro ao registrar aceite dos termos:', e);
+      }
     }
     nextStep();
   };
@@ -546,8 +554,18 @@ export default function Onboarding() {
                 <View className={`w-5 h-5 rounded-md border items-center justify-center mr-3 ${disclaimerAccepted ? 'bg-[#8F9779] border-[#8F9779]' : 'border-[#C6C6C8]'}`}>
                   {disclaimerAccepted && <Check size={14} color="white" />}
                 </View>
-                <Text className="text-xs font-sans text-[#2C2C2E] font-medium">{t('welcome.accept_disclaimer')}</Text>
+                <Text className="text-xs font-sans text-[#2C2C2E] font-medium flex-1">{t('welcome.accept_disclaimer')}</Text>
               </TouchableOpacity>
+
+              <View className="flex-row flex-wrap px-2">
+                <TouchableOpacity onPress={() => Platform.OS === 'web' ? window.open('https://viscare.app.br/terms', '_blank') : WebBrowser.openBrowserAsync('https://viscare.app.br/terms')}>
+                  <Text className="text-xs font-sans text-[#8F9779] font-bold underline">{t('settings.terms')}</Text>
+                </TouchableOpacity>
+                <Text className="text-xs font-sans text-[#6E6E73] mx-1">·</Text>
+                <TouchableOpacity onPress={() => Platform.OS === 'web' ? window.open('https://viscare.app.br/privacy', '_blank') : WebBrowser.openBrowserAsync('https://viscare.app.br/privacy')}>
+                  <Text className="text-xs font-sans text-[#8F9779] font-bold underline">{t('settings.privacy')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity

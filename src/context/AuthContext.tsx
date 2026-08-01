@@ -361,7 +361,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: 'https://viscare.app.br/onboarding?reset=true',
+        redirectTo: 'https://app.viscare.app.br/onboarding?reset=true',
       });
       if (error) throw error;
       return { success: true };

@@ -1,19 +1,32 @@
 // Supabase Edge Function: analyze-skin
 // ─────────────────────────────────────────────────────────────────────────────
-// Esta função recebe uma imagem em base64 e o idioma, chama o Google Gemini 
+// Esta função recebe uma imagem em base64 e o idioma, chama o Google Gemini
 // e retorna a análise da pele estruturada em JSON.
+//
+// Para contas reais autenticadas, verifica Premium/créditos no servidor antes
+// de chamar o Gemini (evita que alguém chame a function direto, sem passar
+// pela tela, e gere análises ilimitadas às custas da API paga). Chamadas sem
+// um JWT válido (modo convidado) não têm essa checagem — ver plano de
+// segurança para o porquê desse limite de escopo.
 //
 // Para publicar:
 //   supabase functions deploy analyze-skin --no-verify-jwt
+//   (mantém --no-verify-jwt porque o modo convidado não tem JWT real; a
+//   checagem de identidade é feita manualmente dentro da função quando o
+//   header Authorization está presente.)
 //
 // Configurar variável de ambiente no painel Supabase:
 //   supabase secrets set GEMINI_API_KEY="SUA_CHAVE_AQUI"
 //
 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const UNLIMITED_EMAIL = 'viroedu@gmail.com';
 
 Deno.serve(async (req: Request) => {
   // CORS preflight
@@ -37,6 +50,52 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: 'Imagem em base64 é obrigatória.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Resolve a identidade real (se houver) para checar Premium/créditos no servidor.
+    // Sem header Authorization ou JWT inválido = chamada de convidado, segue sem checar.
+    let uid: string | null = null;
+    let userEmail: string | null = null;
+    const authHeader = req.headers.get('Authorization');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const adminClient = createClient(supabaseUrl, serviceKey);
+
+    if (authHeader) {
+      const callerClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData } = await callerClient.auth.getUser();
+      uid = userData?.user?.id ?? null;
+      userEmail = userData?.user?.email ?? null;
+    }
+
+    let profile: { subscription_plan?: string; subscription_expires_at?: string | null; welcome_scans_used?: boolean; topup_scans?: number } | null = null;
+    let isPremiumActive = false;
+    let isUnlimited = false;
+
+    if (uid) {
+      const { data } = await adminClient
+        .from('profiles')
+        .select('subscription_plan, subscription_expires_at, welcome_scans_used, topup_scans')
+        .eq('id', uid)
+        .maybeSingle();
+      profile = data;
+
+      isUnlimited = userEmail?.toLowerCase() === UNLIMITED_EMAIL;
+      if (profile?.subscription_plan === 'premium' || profile?.subscription_plan === 'influencer') {
+        isPremiumActive = !profile.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date();
+      }
+
+      const hasCredit = !profile?.welcome_scans_used || (profile?.topup_scans ?? 0) > 0;
+      if (!isPremiumActive && !isUnlimited && !hasCredit) {
+        // Sem crédito: nega ANTES de gastar dinheiro chamando o Gemini.
+        return new Response(
+          JSON.stringify({ noCredits: true }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Limpar o prefixo "data:image/...;base64," caso exista
@@ -165,6 +224,15 @@ Deno.serve(async (req: Request) => {
       }
     }
     const parsedResult = JSON.parse(cleanedText.trim());
+
+    // Consome o crédito no servidor após uma análise válida (imagens inválidas não gastam crédito).
+    if (uid && !parsedResult.invalidImage && !isPremiumActive && !isUnlimited) {
+      if (!profile?.welcome_scans_used) {
+        await adminClient.from('profiles').update({ welcome_scans_used: true }).eq('id', uid);
+      } else if ((profile?.topup_scans ?? 0) > 0) {
+        await adminClient.from('profiles').update({ topup_scans: (profile!.topup_scans ?? 0) - 1 }).eq('id', uid);
+      }
+    }
 
     return new Response(
       JSON.stringify(parsedResult),

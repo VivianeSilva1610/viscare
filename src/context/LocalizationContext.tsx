@@ -56,7 +56,7 @@ const translations = {
     'welcome.value_prop3': 'Genera la tua routine ottimale grazie all\'Intelligenza Artificiale.',
     'welcome.disclaimer_title': 'Dichiarazione di Non Responsabilità Medica',
     'welcome.disclaimer_text': 'Viscare non fornisce consigli medici o diagnosi. Le informazioni fornite dall\'app, inclusi i suggerimenti dell\'IA e i controlli di compatibilità, sono puramente a scopo informativo e di cura personale. Consulta sempre un dermatologo professionista per qualsiasi dubbio o problema persistente della pelle.',
-    'welcome.accept_disclaimer': 'Accetta ed Continua',
+    'welcome.accept_disclaimer': 'Ho letto e accetto i Termini di Servizio, l\'Informativa sulla Privacy e questa dichiarazione',
     'welcome.next': 'Continua',
 
     // Onboarding - Quiz (STEP 2)
@@ -206,6 +206,9 @@ const translations = {
     'settings.delete_scan_history_warning': 'Questo eliminerà permanentemente tutti i risultati delle tue analisi della pelle salvate. Questa azione non può essere annullata.',
     'settings.delete_scan_history_confirm': 'Sì, Elimina Cronologia',
     'settings.delete_scan_history_success': 'Cronologia delle analisi eliminata con successo.',
+    'settings.export_data': 'Esporta i Miei Dati',
+    'settings.export_data_success': 'Abbiamo inviato una copia di tutti i tuoi dati alla tua email.',
+    'settings.export_data_error': 'Non è stato possibile esportare i tuoi dati. Riprova più tardi.',
 
     // Consenso biometrico (scansione facciale)
     'consent.title': 'Sulla tua foto',
@@ -387,7 +390,7 @@ const translations = {
     'welcome.value_prop3': 'Generate your optimal routine powered by Artificial Intelligence.',
     'welcome.disclaimer_title': 'Medical Disclaimer',
     'welcome.disclaimer_text': 'Viscare does not provide medical advice or diagnosis. The information provided by the app, including AI suggestions and compatibility checks, is purely for informational and self-care purposes. Always consult a professional dermatologist for any concerns or persistent skin issues.',
-    'welcome.accept_disclaimer': 'Accept & Continue',
+    'welcome.accept_disclaimer': 'I have read and accept the Terms of Service, Privacy Policy, and this disclaimer',
     'welcome.next': 'Continue',
 
     // Onboarding - Quiz (STEP 2)
@@ -537,6 +540,9 @@ const translations = {
     'settings.delete_scan_history_warning': 'This will permanently delete all your saved skin analysis results. This action cannot be undone.',
     'settings.delete_scan_history_confirm': 'Yes, Delete History',
     'settings.delete_scan_history_success': 'Scan history deleted successfully.',
+    'settings.export_data': 'Export My Data',
+    'settings.export_data_success': 'We\'ve sent a copy of all your data to your email.',
+    'settings.export_data_error': 'Unable to export your data. Please try again later.',
 
     // Biometric consent (facial scan)
     'consent.title': 'About your photo',
@@ -718,7 +724,7 @@ const translations = {
     'welcome.value_prop3': 'Gere sua rotina ideal potencializada por Inteligência Artificial.',
     'welcome.disclaimer_title': 'Aviso de Isenção de Responsabilidade Médica',
     'welcome.disclaimer_text': 'O Viscare não fornece aconselhamento médico ou diagnóstico. As informações fornecidas pelo aplicativo, incluindo sugestões de IA e verificações de compatibilidade, são puramente para fins informativos e de autocuidado. Sempre consulte um dermatologista profissional para qualquer dúvida ou problema persistente na pele.',
-    'welcome.accept_disclaimer': 'Aceitar e Continuar',
+    'welcome.accept_disclaimer': 'Li e aceito os Termos de Uso, a Política de Privacidade e este aviso',
     'welcome.next': 'Continuar',
 
     // Onboarding - Quiz (STEP 2)
@@ -868,6 +874,9 @@ const translations = {
     'settings.delete_scan_history_warning': 'Isso vai apagar permanentemente todos os resultados salvos das suas análises de pele. Essa ação não pode ser desfeita.',
     'settings.delete_scan_history_confirm': 'Sim, Apagar Histórico',
     'settings.delete_scan_history_success': 'Histórico de análises apagado com sucesso.',
+    'settings.export_data': 'Exportar Meus Dados',
+    'settings.export_data_success': 'Enviamos uma cópia de todos os seus dados para o seu e-mail.',
+    'settings.export_data_error': 'Não foi possível exportar seus dados. Tente novamente mais tarde.',
 
     // Consentimento biométrico (scan facial)
     'consent.title': 'Sobre sua foto',

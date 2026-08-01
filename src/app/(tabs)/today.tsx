@@ -542,6 +542,7 @@ export default function TodayScreen() {
 
       const base64Data = selectedImage.base64;
       let newScanResult;
+      let aiModelVersion: string = 'fallback-heuristic-v1';
 
       try {
         if (!isSupabaseConfigured) throw new Error('Supabase not configured');
@@ -585,6 +586,11 @@ export default function TodayScreen() {
           throw new Error(`INVALID_IMAGE:${data.error_message || 'Imagem inválida. Envie uma foto do seu rosto.'}`);
         }
 
+        // Servidor negou por falta de créditos/Premium (checagem feita direto na Edge Function)
+        if (data.noCredits) {
+          throw new Error('NO_CREDITS');
+        }
+
         newScanResult = {
           hydration: data.hydration,
           wrinkles: data.wrinkles,
@@ -592,6 +598,7 @@ export default function TodayScreen() {
           acne: data.acne,
           diagnosis: data.diagnosis
         };
+        aiModelVersion = 'gemini-2.5-flash';
       } catch (err: any) {
         console.warn('AI analysis error', err);
         const errMsg = err?.message || '';
@@ -602,6 +609,14 @@ export default function TodayScreen() {
           Alert.alert(t('common.error'), userFriendlyMsg);
           setScanStep('select');
           setScanModalVisible(false);
+          return;
+        }
+
+        // Sem créditos/Premium (confirmado pelo servidor) — vai pro paywall em vez do fallback
+        if (errMsg === 'NO_CREDITS') {
+          setScanStep('select');
+          setScanModalVisible(false);
+          router.push('/paywall');
           return;
         }
 
@@ -622,20 +637,10 @@ export default function TodayScreen() {
       }
 
       try {
-        await DataService.addFacialScan(user.id, newScanResult);
+        await DataService.addFacialScan(user.id, { ...newScanResult, ai_model_version: aiModelVersion });
         await DataService.incrementScanCount(user.id);
-        // Consumir crédito de análise para usuários não-premium
-        const isUnlimited = user.email?.toLowerCase() === 'viroedu@gmail.com';
-        if (!isPremium && !isUnlimited) {
-          if (!welcomeScansUsed) {
-            await DataService.updateProfile(user.id, { welcome_scans_used: true });
-            setWelcomeScansUsed(true);
-          } else if (topupScans > 0) {
-            const newCount = topupScans - 1;
-            await DataService.updateProfile(user.id, { topup_scans: newCount });
-            setTopupScans(newCount);
-          }
-        }
+        // Consumo de crédito (welcome_scans_used/topup_scans) agora é feito no servidor,
+        // dentro da Edge Function analyze-skin — loadData() abaixo busca o valor atualizado.
         await loadData();
       } catch (err) {
         console.warn('Erro ao salvar analise', err);

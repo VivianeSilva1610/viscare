@@ -5,7 +5,7 @@ import { useTranslation, Language } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { NotificationService } from '../../services/notifications';
 import { Reminder } from '../../services/mockDb';
-import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X, CheckCircle2 } from 'lucide-react-native';
+import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X, CheckCircle2, Download } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -14,29 +14,21 @@ export default function SettingsScreen() {
   const { t, language, setLanguage } = useTranslation();
   const router = useRouter();
 
+  // Termos/Privacidade agora vivem no site de vendas (viscare.app.br), não no app —
+  // sempre abre externamente, em qualquer plataforma.
   const handleOpenPrivacy = async () => {
-    try {
-      if (Platform.OS === 'web') {
-        router.push('/privacy' as any);
-      } else {
-        await WebBrowser.openBrowserAsync('https://viscare.app.br/privacy');
-      }
-    } catch (e) {
-      console.warn('Erro ao abrir privacidade:', e);
-      router.push('/privacy' as any);
+    if (Platform.OS === 'web') {
+      window.open('https://viscare.app.br/privacy', '_blank');
+    } else {
+      await WebBrowser.openBrowserAsync('https://viscare.app.br/privacy');
     }
   };
 
   const handleOpenTerms = async () => {
-    try {
-      if (Platform.OS === 'web') {
-        router.push('/terms' as any);
-      } else {
-        await WebBrowser.openBrowserAsync('https://viscare.app.br/terms');
-      }
-    } catch (e) {
-      console.warn('Erro ao abrir termos:', e);
-      router.push('/terms' as any);
+    if (Platform.OS === 'web') {
+      window.open('https://viscare.app.br/terms', '_blank');
+    } else {
+      await WebBrowser.openBrowserAsync('https://viscare.app.br/terms');
     }
   };
 
@@ -134,6 +126,24 @@ export default function SettingsScreen() {
     );
   };
 
+  // Exportar meus dados (LGPD/GDPR — direito de portabilidade)
+  const handleExportData = async () => {
+    setLoading(true);
+    try {
+      const result = await DataService.exportUserData();
+      if (result.success) {
+        Alert.alert(t('common.info'), t('settings.export_data_success'));
+      } else {
+        Alert.alert(t('common.error'), t('settings.export_data_error'));
+      }
+    } catch (e) {
+      console.warn('Erro ao exportar dados:', e);
+      Alert.alert(t('common.error'), t('settings.export_data_error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Tratar exclusão de conta (LGPD)
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -192,22 +202,27 @@ export default function SettingsScreen() {
   };
 
   const handleManageSubscription = async () => {
-    const portalUrl = process.env.EXPO_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL || '';
-    if (!portalUrl || portalUrl.includes('YOUR_PORTAL_ID')) {
-      Alert.alert(
-        t('common.info') || 'Info',
-        language === 'pt' 
-          ? 'Para gerenciar ou cancelar sua assinatura, você pode utilizar o link "Gerenciar Assinatura" no e-mail de confirmação enviado pelo Stripe, ou entrar em contato com o suporte em suporte@viscare.app.'
-          : language === 'it'
-          ? 'Per gestire o annullare l\'abbonamento, puoi utilizzare il link "Gestisci abbonamento" nell\'e-mail di conferma inviata da Stripe, o contattare il supporto a supporto@viscare.app.'
-          : 'To manage or cancel your subscription, please use the "Manage Subscription" link in the confirmation email sent by Stripe, or contact support at support@viscare.app.'
-      );
+    setLoading(true);
+    const { url } = await DataService.createPortalSession();
+    setLoading(false);
+    if (url) {
+      if (Platform.OS === 'web') {
+        window.location.href = url;
+      } else {
+        const Linking = await import('react-native').then(m => m.Linking).catch(() => null);
+        if (Linking) await Linking.openURL(url);
+      }
       return;
     }
-    const Linking = await import('react-native').then(m => m.Linking).catch(() => null);
-    if (Linking) {
-      await Linking.openURL(portalUrl);
-    }
+    // Sem stripe_customer_id (nunca assinou pelo web/Stripe: guest, mobile/RevenueCat, etc.)
+    Alert.alert(
+      t('common.info') || 'Info',
+      language === 'pt'
+        ? 'Para gerenciar ou cancelar sua assinatura, você pode utilizar o link "Gerenciar Assinatura" no e-mail de confirmação enviado pelo Stripe, ou entrar em contato com o suporte em suporte@viscare.app.'
+        : language === 'it'
+        ? 'Per gestire o annullare l\'abbonamento, puoi utilizzare il link "Gestisci abbonamento" nell\'e-mail di conferma inviata da Stripe, o contattare il supporto a supporto@viscare.app.'
+        : 'To manage or cancel your subscription, please use the "Manage Subscription" link in the confirmation email sent by Stripe, or contact support at support@viscare.app.'
+    );
   };
 
   const handleLogout = async () => {
@@ -431,6 +446,17 @@ export default function SettingsScreen() {
           <Lock size={16} color="#B97C63" />
           <Text className="font-sans text-xs font-bold text-brand-charcoal">
             {t('settings.change_password')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Exportar meus dados (LGPD/GDPR) */}
+        <TouchableOpacity
+          onPress={handleExportData}
+          className="flex-row items-center space-x-2 py-1 border-t border-brand-beige pt-3"
+        >
+          <Download size={16} color="#B97C63" />
+          <Text className="font-sans text-xs font-bold text-brand-charcoal">
+            {t('settings.export_data')}
           </Text>
         </TouchableOpacity>
 

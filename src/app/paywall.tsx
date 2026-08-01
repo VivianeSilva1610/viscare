@@ -13,7 +13,6 @@ import {
 import {
   getPricingInfo, PricingInfo, PlanType
 } from '../services/paymentService';
-import { DataService } from '../services/dataService';
 
 export default function PaywallScreen() {
   const { purchasePremium, purchaseTopup, restorePurchases, isPremium, user, refreshProfile } = useAuth();
@@ -64,35 +63,27 @@ export default function PaywallScreen() {
     }
   }, [user, localParams.success, localParams.canceled]);
 
+  // O Stripe confirma o pagamento de verdade via webhook server-side
+  // (supabase/functions/stripe-webhook) e é ele quem grava Premium/créditos no
+  // perfil. Aqui só esperamos essa confirmação chegar e atualizamos a tela —
+  // nunca liberamos nada diretamente a partir da URL de retorno.
   const handleWebPurchaseSuccess = async (plan: PlanType) => {
     if (!user?.id) return;
     const setLoading = plan === 'topup' ? setLoadingTopup : setLoadingMonthly;
     setLoading(true);
     try {
-      if (plan === 'topup') {
-        await DataService.addTopupCredits(user.id, 2, 3);
+      // Dá um tempo para o webhook do Stripe processar antes de conferir o perfil.
+      for (let attempt = 0; attempt < 4; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
         await refreshProfile();
-        Alert.alert(
-          t('paywall.purchase_topup_title'),
-          t('paywall.purchase_topup_msg'),
-          [{ text: 'OK', onPress: () => router.replace('/(tabs)/today') }]
-        );
-      } else {
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30);
-        await DataService.updateProfile(user.id, {
-          subscription_plan: 'premium',
-          subscription_expires_at: expiresAt.toISOString(),
-        });
-        await refreshProfile();
-        Alert.alert(
-          t('paywall.purchase_success_title'),
-          t('paywall.purchase_success_msg'),
-          [{ text: 'OK', onPress: () => router.replace('/(tabs)/today') }]
-        );
       }
+      Alert.alert(
+        plan === 'topup' ? t('paywall.purchase_topup_title') : t('paywall.purchase_success_title'),
+        plan === 'topup' ? t('paywall.purchase_topup_msg') : t('paywall.purchase_success_msg'),
+        [{ text: 'OK', onPress: () => router.replace('/(tabs)/today') }]
+      );
     } catch {
-      Alert.alert(t('common.error'), 'Erro ao ativar. Contacte o suporte.');
+      Alert.alert(t('common.error'), 'Erro ao confirmar pagamento. Contacte o suporte.');
     } finally {
       setLoading(false);
     }

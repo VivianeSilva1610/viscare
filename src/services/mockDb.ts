@@ -12,6 +12,9 @@ export interface Profile {
   scans_count_this_month?: number;
   last_scan_date?: string | null;
   biometric_consent_at?: string | null;
+  terms_accepted_at?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   welcome_scans_used?: boolean;
   welcome_searches_used?: boolean;
   topup_scans?: number;

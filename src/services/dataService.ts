@@ -425,12 +425,12 @@ export class DataService {
   static async deleteAccount(userId: string): Promise<boolean> {
     const realUid = await this.getAuthUserId();
     if (realUid) {
-      // Chamar Supabase Auth para deletar usuário (se configurado um endpoint de edge function,
-      // ou se fizermos delete em cascades de profiles que por chave estrangeira ON DELETE CASCADE remove os dados).
-      // Mas o próprio Postgres fará a exclusão em cascata das outras tabelas
-      const { error } = await supabase.from('profiles').delete().eq('id', realUid);
-      if (error) {
-        console.error('Erro ao deletar perfil do Supabase', error);
+      // Chama a Edge Function delete-account: além do cascade em profiles,
+      // ela remove a identidade de verdade em auth.users (Admin API), o que
+      // um delete direto do client nunca conseguiria fazer.
+      const { data, error } = await supabase.functions.invoke('delete-account');
+      if (error || !data?.success) {
+        console.error('Erro ao deletar conta via Edge Function', error || data);
         return false;
       }
       await supabase.auth.signOut();
@@ -439,6 +439,32 @@ export class DataService {
     // Caso contrário, limpa os mocks locais
     await MockDatabase.clearAll();
     return true;
+  }
+
+  // Exportação de dados (direito de portabilidade — LGPD Art. 18 V / GDPR Art. 20)
+  static async exportUserData(): Promise<{ success: boolean; error?: string }> {
+    const realUid = await this.getAuthUserId();
+    if (!realUid) {
+      return { success: false, error: 'export.error_guest' };
+    }
+    const { data, error } = await supabase.functions.invoke('export-user-data');
+    if (error || !data?.success) {
+      return { success: false, error: error?.message };
+    }
+    return { success: true };
+  }
+
+  // Abre o Stripe Customer Portal para o usuário gerenciar/cancelar a assinatura mensal
+  static async createPortalSession(): Promise<{ url: string | null; error?: string }> {
+    const realUid = await this.getAuthUserId();
+    if (!realUid) {
+      return { url: null, error: 'guest' };
+    }
+    const { data, error } = await supabase.functions.invoke('create-portal-session');
+    if (error || !data?.url) {
+      return { url: null, error: data?.error || error?.message };
+    }
+    return { url: data.url };
   }
 
   // 18. APPOINTMENTS (AGENDA)

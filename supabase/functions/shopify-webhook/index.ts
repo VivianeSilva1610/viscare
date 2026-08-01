@@ -14,7 +14,7 @@ const SUPABASE_SERVICE   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 
 // Verifica a assinatura HMAC-SHA256 enviada pelo Shopify
 async function verifyHmac(body: string, hmacHeader: string): Promise<boolean> {
-  if (!WEBHOOK_SECRET) return true; // sem secret configurado: aceita (só em dev)
+  if (!WEBHOOK_SECRET) return false; // sem secret configurado: rejeita (nunca aceitar sem verificação)
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(WEBHOOK_SECRET),

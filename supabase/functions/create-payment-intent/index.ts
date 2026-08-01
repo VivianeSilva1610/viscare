@@ -60,7 +60,10 @@ Deno.serve(async (req: Request) => {
     const amountCents = planPrices[validCurrency] || planPrices.BRL;
 
     if (useCheckout) {
-      // Cria uma Checkout Session de pagamento único
+      const isMonthly = plan === 'monthly';
+
+      // Plano mensal é uma assinatura recorrente de verdade (cobra automaticamente
+      // todo mês); o pacote avulso continua sendo pagamento único.
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -70,23 +73,27 @@ Deno.serve(async (req: Request) => {
               product_data: {
                 name: plan === 'topup'
                   ? 'VisCare — Pacote Avulso (+2 análises +3 explorações)'
-                  : 'VisCare Premium Mensal — Tudo ilimitado por 30 dias',
+                  : 'VisCare Premium Mensal — Tudo ilimitado, renovação automática',
                 description: plan === 'topup'
                   ? '+2 análises faciais com IA e +3 explorações de ingredientes/produtos.'
-                  : 'Acesso completo e ilimitado a todas as funcionalidades por 30 dias.',
+                  : 'Acesso completo e ilimitado a todas as funcionalidades, cobrado automaticamente a cada 30 dias. Cancele quando quiser em Configurações.',
               },
               unit_amount: amountCents,
+              ...(isMonthly ? { recurring: { interval: 'month' } } : {}),
             },
             quantity: 1,
           },
         ],
-        mode: 'payment',
-        success_url: `https://viscare.app.br/paywall?success=true&plan=${plan}`,
-        cancel_url: `https://viscare.app.br/paywall?canceled=true`,
+        mode: isMonthly ? 'subscription' : 'payment',
+        success_url: `https://app.viscare.app.br/paywall?success=true&plan=${plan}`,
+        cancel_url: `https://app.viscare.app.br/paywall?canceled=true`,
         metadata: {
           userId,
           plan,
         },
+        // Grava o userId também na Subscription (não só na Session), porque os
+        // eventos de renovação (invoice.paid) não repetem o metadata da sessão.
+        ...(isMonthly ? { subscription_data: { metadata: { userId, plan } } } : {}),
       });
 
       return new Response(
