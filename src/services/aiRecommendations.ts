@@ -1,6 +1,7 @@
 import { SkinProfile, Product, MOCK_PRODUCTS } from './mockDb';
 import { DataService } from './dataService';
 import { Language } from '../context/LocalizationContext';
+import { supabase } from './supabase';
 
 export interface ProductRecommendation {
   product: Product;
@@ -21,6 +22,74 @@ export interface ProductRecommendation {
  * Mapeia skin_type + goals + concerns → produtos ideais do catálogo.
  */
 export class AIRecommendationService {
+
+  /**
+   * NOVA FASE 2: Orquestrador Inteligente (Gemini Edge Functions)
+   * Chama os 3 agentes em cadeia para montar uma recomendação totalmente personalizada.
+   */
+  static async getIntelligentRecommendations(userProfile: any, analysis: any, language: string = 'pt') {
+    try {
+      // 1. Agente Dermatológico
+      const { data: dermData, error: dermErr } = await supabase.functions.invoke('agent-dermatologist', {
+        body: { analysis, userProfile, language }
+      });
+      if (dermErr || !dermData) throw new Error(dermErr?.message || 'Erro no Agente Dermatológico');
+
+      // 2. Agente de Rotina
+      const { data: routineData, error: routineErr } = await supabase.functions.invoke('agent-routine', {
+        body: { 
+          recommendedIngredients: dermData.recommended_ingredients, 
+          avoidIngredients: dermData.avoid_ingredients,
+          userProfile,
+          language 
+        }
+      });
+      if (routineErr || !routineData) throw new Error(routineErr?.message || 'Erro no Agente de Rotina');
+
+      // 3. Agente de Produtos
+      let catalog = [];
+      try { catalog = await DataService.getGlobalProducts(); } catch { catalog = MOCK_PRODUCTS; }
+
+      const { data: prodData, error: prodErr } = await supabase.functions.invoke('agent-products', {
+        body: { 
+          recommendedIngredients: dermData.recommended_ingredients,
+          catalog,
+          language 
+        }
+      });
+      if (prodErr || !prodData) throw new Error(prodErr?.message || 'Erro no Agente de Produtos');
+
+      // Formatar produtos retornados
+      const recommendations: ProductRecommendation[] = [];
+      if (prodData.recommended_products) {
+        prodData.recommended_products.forEach((rec: any) => {
+          const product = catalog.find(p => p.id === rec.product_id);
+          if (product) {
+            recommendations.push({
+              product,
+              reason: { pt: rec.reason, en: rec.reason, it: rec.reason },
+              bestTime: { pt: 'Manhã/Noite', en: 'AM/PM', it: 'Mattina/Sera' }
+            });
+          }
+        });
+      }
+
+      return {
+        dermatologistAdvice: dermData.general_advice,
+        routine: routineData, // { am: [], pm: [] }
+        products: recommendations
+      };
+    } catch (err) {
+      console.warn('Erro na orquestração de IA:', err);
+      // Fallback para a lógica antiga caso a API falhe
+      const fallbackRecs = await this.getRecommendations(userProfile as SkinProfile);
+      return {
+        dermatologistAdvice: 'Baseado no seu perfil, recomendamos focar em hidratação e proteção.',
+        routine: null,
+        products: fallbackRecs
+      };
+    }
+  }
 
   static async getRecommendations(skinProfile: SkinProfile): Promise<ProductRecommendation[]> {
     // Buscar catálogo de produtos (do Supabase ou mock)

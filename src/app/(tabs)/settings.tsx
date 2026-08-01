@@ -5,7 +5,8 @@ import { useTranslation, Language } from '../../context/LocalizationContext';
 import { DataService } from '../../services/dataService';
 import { NotificationService } from '../../services/notifications';
 import { Reminder } from '../../services/mockDb';
-import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X, CheckCircle2, Download } from 'lucide-react-native';
+import { Globe, Bell, Star, Trash2, LogOut, ChevronRight, ShieldAlert, Sparkles, Lock, X, CheckCircle2, Download, BarChart2 } from 'lucide-react-native';
+import { supabase } from '../../services/supabase';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -39,6 +40,24 @@ export default function SettingsScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
+
+  // Admin Dashboard
+  const [adminReport, setAdminReport] = useState<any>(null);
+  const [loadingAdmin, setLoadingAdmin] = useState(false);
+  const isAdmin = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+
+  const loadAdminReport = async () => {
+    if (!isAdmin) return;
+    setLoadingAdmin(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('agent-admin');
+      if (!error && data) setAdminReport(data);
+    } catch (e) {
+      console.warn('Erro admin:', e);
+    } finally {
+      setLoadingAdmin(false);
+    }
+  };
 
   const loadReminders = async () => {
     if (!user) return;
@@ -493,6 +512,92 @@ export default function SettingsScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Painel Admin — visível SOMENTE para viroedu@gmail.com */}
+      {isAdmin && (
+        <View className="bg-white rounded-3xl p-5 mb-6 border border-brand-warm-gray shadow-sm">
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center">
+              <BarChart2 size={18} color="#B97C63" style={{ marginRight: 8 }} />
+              <Text className="font-serif text-lg font-bold text-brand-charcoal">Painel Admin 🔒</Text>
+            </View>
+            <TouchableOpacity
+              onPress={loadAdminReport}
+              disabled={loadingAdmin}
+              className="bg-brand-rose-metallic px-3 py-1.5 rounded-full"
+            >
+              {loadingAdmin ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text className="text-white text-xs font-bold font-sans">{adminReport ? 'Atualizar' : 'Carregar'}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {adminReport ? (
+            <View className="space-y-3">
+              {/* Usuários */}
+              <View className="bg-brand-ivory rounded-2xl p-4">
+                <Text className="font-sans text-xs font-bold text-brand-sage-dark uppercase mb-2">👥 Usuários</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Total</Text>
+                    <Text className="font-serif text-xl font-bold text-brand-charcoal">{adminReport.users?.total ?? '–'}</Text>
+                  </View>
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Premium Ativos</Text>
+                    <Text className="font-serif text-xl font-bold text-brand-rose-metallic">{adminReport.users?.premium_active ?? '–'}</Text>
+                  </View>
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Novos/Mês</Text>
+                    <Text className="font-serif text-xl font-bold text-green-600">{adminReport.users?.new_this_month ?? '–'}</Text>
+                  </View>
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Conversão</Text>
+                    <Text className="font-serif text-xl font-bold text-brand-charcoal">{adminReport.users?.conversion_rate_percent ?? '–'}%</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scans */}
+              <View className="bg-brand-ivory rounded-2xl p-4">
+                <Text className="font-sans text-xs font-bold text-brand-sage-dark uppercase mb-2">📸 Análises</Text>
+                <View className="flex-row gap-2">
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige flex-1">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Total</Text>
+                    <Text className="font-serif text-xl font-bold text-brand-charcoal">{adminReport.scans?.total ?? '–'}</Text>
+                  </View>
+                  <View className="bg-white rounded-xl px-3 py-2 border border-brand-beige flex-1">
+                    <Text className="font-sans text-xs text-brand-sage-dark">Este Mês</Text>
+                    <Text className="font-serif text-xl font-bold text-brand-bronze">{adminReport.scans?.this_month ?? '–'}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Top Produtos */}
+              {adminReport.top_products?.length > 0 && (
+                <View className="bg-brand-ivory rounded-2xl p-4">
+                  <Text className="font-sans text-xs font-bold text-brand-sage-dark uppercase mb-2">🏆 Top Produtos</Text>
+                  {adminReport.top_products.map((p: any, i: number) => (
+                    <View key={p.name} className="flex-row justify-between items-center py-1.5 border-b border-brand-beige">
+                      <Text className="font-sans text-xs text-brand-charcoal flex-1 pr-2" numberOfLines={1}>{i + 1}. {p.name}</Text>
+                      <Text className="font-sans text-xs font-bold text-brand-rose-metallic">{p.count}x</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              <Text className="font-sans text-[10px] text-brand-sage-dark text-center">
+                Gerado em: {adminReport.generated_at ? new Date(adminReport.generated_at).toLocaleString() : '–'}
+              </Text>
+            </View>
+          ) : (
+            <Text className="font-sans text-xs text-brand-sage-dark text-center py-4">
+              Toque em "Carregar" para ver as métricas do negócio.
+            </Text>
+          )}
+        </View>
+      )}
 
       {/* Modal Mudar Senha */}
       <Modal

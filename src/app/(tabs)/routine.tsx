@@ -318,8 +318,25 @@ export default function RoutineScreen() {
           return;
         }
 
-        // Buscar recomendações baseadas no perfil de pele
-        const recommendations = await AIRecommendationService.getRecommendations(skinProfile as SkinProfile);
+        // Buscar última análise facial para enriquecer o contexto dos agentes
+        const userId = user?.id || 'guest-user-id';
+        const scans = await DataService.getFacialScans(userId);
+        const lastScan = scans && scans.length > 0 ? scans[scans.length - 1] : null;
+        const analysisContext = lastScan ?? {
+          hydration: skinProfile.skin_type === 'dry' ? 40 : 70,
+          wrinkles: (skinProfile.age ?? 30) > 40 ? 50 : 80,
+          sensitivity: skinProfile.is_sensitive ? 70 : 20,
+          acne: 80,
+          diagnosis: ''
+        };
+
+        // Agentes de IA: Dermatológico + Produtos em cadeia
+        const aiResult = await AIRecommendationService.getIntelligentRecommendations(
+          skinProfile,
+          analysisContext,
+          language
+        );
+        const recommendations = aiResult.products;
 
         if (recommendations.length === 0) {
           Alert.alert(t('common.error'), t('alert.routine_error'));
@@ -328,7 +345,6 @@ export default function RoutineScreen() {
         }
 
         // Adicionar os produtos recomendados ao armário automaticamente
-        const userId = user?.id || 'guest-user-id';
         for (const rec of recommendations) {
           await DataService.addUserProduct(userId, {
             product_id: rec.product.id,
