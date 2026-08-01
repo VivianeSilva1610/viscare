@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Termos de Uso — Viscare</title>
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ivory:#F8F4F1; --bronze:#B97C63; --charcoal:#333; --muted:#8E8E93; --beige:#EDE8E4; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Poppins',sans-serif; background:var(--ivory); color:var(--charcoal); }
+  header { display:flex; align-items:center; gap:16px; padding:16px 20px; border-bottom:1px solid var(--beige); background:var(--ivory); position:sticky; top:0; }
+  header a.back { width:34px; height:34px; border-radius:999px; background:var(--beige); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--muted); font-size:1.1rem; }
+  header h1 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--bronze); margin:0; }
+  .lang-switch { margin-left:auto; display:flex; gap:6px; }
+  .lang-switch button { border:1px solid var(--beige); background:#fff; border-radius:999px; padding:6px 12px; font-size:0.8rem; font-weight:600; cursor:pointer; color:var(--muted); }
+  .lang-switch button.active { background:var(--bronze); color:#fff; border-color:var(--bronze); }
+  main { max-width:760px; margin:0 auto; padding:32px 24px 80px; }
+  h2.title { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--bronze); margin:0 0 6px; }
+  .updated { font-size:0.78rem; color:var(--muted); margin-bottom:24px; }
+  .intro, .footer-text { font-size:0.95rem; line-height:1.6; margin-bottom:20px; }
+  .footer-text { text-align:center; font-weight:600; color:var(--bronze); margin-top:24px; }
+  h3 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--bronze); margin:24px 0 10px; }
+  p { font-size:0.95rem; line-height:1.65; margin:0 0 10px; white-space:pre-line; }
+  p.note { font-style:italic; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ivory:#1C1917; --charcoal:#F2EDE9; --beige:#3A322D; }
+    header, .lang-switch button { background:#241F1C; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/">←</a>
+  <h1 id="headerTitle">Termini di Servizio</h1>
+  <div class="lang-switch">
+    <button data-lang="pt">PT</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="it">IT</button>
+  </div>
+</header>
+<main id="main"></main>
+
+<script>
+const content = {
+  it: {
+    headerTitle: "Termini di Servizio",
+    title: "Termini di Servizio – Viscare",
+    lastUpdated: "Ultimo aggiornamento: 29 Giugno 2026",
+    intro: "Benvenuto su Viscare. Accedendo o utilizzando la nostra applicazione, accetti i presenti Termini di Servizio. Se non sei d'accordo con questi termini, non utilizzare l'applicazione.",
+    sections: [
+      { title: "1. Scopo dell'applicazione", texts: ["Viscare è una piattaforma digitale progettata per aiutare gli utenti a organizzare le proprie routine di cura della pelle, fornendo informazioni educative, promemoria, monitoraggio dei progressi e raccomandazioni personalizzate basate sui dati forniti dall'utente."] },
+      { title: "2. Natura delle informazioni", texts: ["Le informazioni fornite da Viscare sono a scopo puramente informativo ed educativo.", "L'applicazione:\n• Non effettua diagnosi mediche;\n• Non sostituisce le visite mediche o dermatologiche;\n• Non prescrive farmaci;\n• Non garantisce risultati specifici.", "Qualsiasi decisione relativa alla salute della pelle deve essere presa con il supporto di un professionista qualificato."] },
+      { title: "3. Account utente", texts: ["Per accedere ad alcune funzionalità, l'utente può creare un account.", "L'utente è responsabile di:\n• Mantenere al sicuro le credenziali di accesso;\n• Fornire informazioni veritiere e aggiornate;\n• Non condividere il proprio account con terzi."] },
+      { title: "4. Fotografie e contenuti inviati", texts: ["Inviando fotografie della pelle o altre informazioni all'applicazione, l'utente dichiara di avere l'autorizzazione a condividere tale contenuto.", "Le immagini saranno utilizzate esclusivamente per:\n• Analizzare l'evoluzione della routine;\n• Generare report personalizzati;\n• Migliorare l'esperienza dell'utente."], note: "Le foto del viso inviate specificamente per la funzione di scansione della pelle tramite IA sono considerate dati biometrici sensibili. La foto viene elaborata da un servizio di intelligenza artificiale di terze parti (Google Gemini) solo al momento della scansione e non viene memorizzata sui nostri server — vengono salvati nel tuo profilo solo i risultati dell'analisi (punteggi di idratazione, untuosità, ecc.). Questa funzione richiede un consenso specifico, che può essere revocato in qualsiasi momento nelle Impostazioni." },
+      { title: "5. Intelligenza Artificiale", texts: ["Alcune raccomandazioni possono essere generate da sistemi di intelligenza artificiale.", "L'utente riconosce che:\n• Le raccomandazioni sono automatizzate;\n• Possono verificarsi imprecisioni;\n• I risultati devono essere valutati con senso critico;\n• L'IA non sostituisce una valutazione professionale."] },
+      { title: "6. Piano gratuito e piano premium", texts: ["Viscare può offrire funzionalità gratuite e funzionalità a pagamento tramite abbonamento.", "Le funzionalità disponibili in ciascuna modalità possono essere modificate in qualsiasi momento aggiornando questi termini."] },
+      { title: "7. Cancellazione", texts: ["L'utente può cancellare il proprio account in qualsiasi momento.", "La cancellazione dell'account può comportare la rimozione permanente dei dati associati, come descritto nell'Informativa sulla Privacy."] },
+      { title: "8. Uso vietato", texts: ["È vietato:\n• Utilizzare l'applicazione per attività illegali;\n• Tentare di accedere ad aree limitate del sistema;\n• Copiare, modificare o distribuire il software senza autorizzazione;\n• Inserire contenuti offensivi, fraudolenti o che violino i diritti di terzi."] },
+      { title: "9. Limitazione di responsabilità", texts: ["Nella misura massima consentita dalla legge applicabile, Viscare non sarà responsabile per:\n• Reazioni allergiche ai prodotti;\n• Decisioni prese esclusivamente sulla base delle raccomandazioni dell'applicazione;\n• Danni diretti o indireti derivanti dall'uso della piattaforma;\n• Interruzioni temporanee del servizio."] },
+      { title: "10. Proprietà intellettuale", texts: ["Tutto il contenuto dell'applicazione, inclusi loghi, design, testi, funzionalità e software, è protetto dalle leggi sulla proprietà intellettuale e appartiene a Viscare o ai suoi licenziatari."] },
+      { title: "11. Modifiche dei termini", texts: ["Ci riserviamo il diritto di modificare questi Termini di Servizio in qualsiasi momento.", "Le modifiche entreranno in vigore dopo la loro pubblicazione nell'applicazione."] },
+      { title: "12. Legge applicabile", texts: ["I presenti Termini di Servizio saranno interpretati in conformità con la legge applicabile del paese in cui il servizio è stabilito."] },
+      { title: "13. Contatti", texts: ["Per domande relative a questi Termini di Servizio:\n\nE-mail: viverevivi37@gmail.com\nResponsabile dell'applicazione: Viviane M Silva"] },
+    ],
+    footer: "Utilizzando Viscare, dichiari di aver letto, compreso e accettato questi Termini di Servizio."
+  },
+  en: {
+    headerTitle: "Terms of Service",
+    title: "Terms of Service – Viscare",
+    lastUpdated: "Last updated: June 29, 2026",
+    intro: "Welcome to Viscare. By accessing or using our application, you agree to these Terms of Service. If you do not agree to these terms, do not use the application.",
+    sections: [
+      { title: "1. Purpose of the application", texts: ["Viscare is a digital platform designed to assist users in organizing skincare routines, providing educational information, reminders, progress tracking, and personalized recommendations based on the data provided by the user."] },
+      { title: "2. Nature of the information", texts: ["The information provided by Viscare is for informational and educational purposes.", "The application:\n• Does not make medical diagnoses;\n• Does not replace medical or dermatological consultations;\n• Does not prescribe medications;\n• Does not guarantee specific results.", "Any decision related to skin health should be made with the guidance of a qualified professional."] },
+      { title: "3. User account", texts: ["To access certain features, the user may create an account.", "The user is responsible for:\n• Keeping access credentials secure;\n• Providing true and updated information;\n• Not sharing the account with third parties."] },
+      { title: "4. Photographs and submitted content", texts: ["By submitting photographs of the skin or other information to the application, the user declares that they have the authorization to share that content.", "The images will be used exclusively for:\n• Analyzing the routine evolution;\n• Generating personalized reports;\n• Improving user experience."], note: "Face photos submitted specifically for the AI skin-scan feature are considered sensitive biometric data. The photo is processed by a third-party AI service (Google Gemini) only at the moment of the scan and is not stored on our servers — only the analysis results (hydration, oiliness scores, etc.) are saved to your profile. This feature requires specific consent, which can be revoked at any time in Settings." },
+      { title: "5. Artificial Intelligence", texts: ["Some recommendations may be generated by artificial intelligence systems.", "The user acknowledges that:\n• Recommendations are automated;\n• Inaccuracies may occur;\n• Results should be evaluated critically;\n• AI does not replace professional evaluation."] },
+      { title: "6. Free plan and premium plan", texts: ["Viscare may offer free features and paid features via subscription.", "The features available in each tier may be modified at any time by updating these terms."] },
+      { title: "7. Cancellation", texts: ["The user may cancel their account at any time.", "Account deletion may result in the permanent removal of associated data, as described in the Privacy Policy."] },
+      { title: "8. Prohibited use", texts: ["It is prohibited to:\n• Use the application for illegal activities;\n• Attempt to access restricted areas of the system;\n• Copy, modify, or distribute the software without authorization;\n• Insert offensive, fraudulent content or content that violates third-party rights."] },
+      { title: "9. Limitation of liability", texts: ["To the maximum extent permitted by applicable law, Viscare will not be liable for:\n• Allergic reactions to products;\n• Decisions made solely based on the application's recommendations;\n• Direct or indirect damages resulting from the use of the platform;\n• Temporary service interruptions."] },
+      { title: "10. Intellectual property", texts: ["All application content, including logos, design, texts, features, and software, is protected by intellectual property laws and belongs to Viscare or its licensors."] },
+      { title: "11. Changes to terms", texts: ["We reserve the right to modify these Terms of Service at any time.", "Changes will take effect upon their publication in the application."] },
+      { title: "12. Applicable law", texts: ["These Terms of Service will be interpreted in accordance with the applicable laws of the country where the service is established."] },
+      { title: "13. Contact", texts: ["For questions related to these Terms of Service:\n\nEmail: viverevivi37@gmail.com\nPerson responsible for the application: Viviane M Silva"] },
+    ],
+    footer: "By using Viscare, you declare that you have read, understood, and accepted these Terms of Service."
+  },
+  pt: {
+    headerTitle: "Termos de Serviço",
+    title: "Termos de Serviço – Viscare",
+    lastUpdated: "Última atualização: 29 de Junho de 2026",
+    intro: "Bem-vindo ao Viscare. Ao acessar ou utilizar nosso aplicativo, você concorda com os presentes Termos de Serviço. Caso não concorde com estes termos, não utilize o aplicativo.",
+    sections: [
+      { title: "1. Objetivo do aplicativo", texts: ["O Viscare é uma plataforma digital destinada a auxiliar usuários na organização de rotinas de cuidados com a pele, fornecendo informações educativas, lembretes, acompanhamento de progresso e recomendações personalizadas baseadas nos dados fornecidos pelo usuário."] },
+      { title: "2. Natureza das informações", texts: ["As informações disponibilizadas pelo Viscare possuem caráter informativo e educacional.", "O aplicativo:\n• Não realiza diagnósticos médicos;\n• Não substitui consultas médicas ou dermatológicas;\n• Não prescreve medicamentos;\n• Não garante resultados específicos.", "Qualquer decisão relacionada à saúde da pele deve ser tomada com acompanhamento de um profissional qualificado."] },
+      { title: "3. Conta do usuário", texts: ["Para acessar determinadas funcionalidades, o usuário poderá criar uma conta.", "O usuário é responsável por:\n• Manter suas credenciais de acesso seguras;\n• Fornecer informações verdadeiras e atualizadas;\n• Não compartilhar sua conta com terceiros."] },
+      { title: "4. Fotografias e conteúdo enviado", texts: ["Ao enviar fotografias da pele ou outras informações ao aplicativo, o usuário declara possuir autorização para compartilhar esse conteúdo.", "As imagens serão utilizadas exclusivamente para:\n• Análise da evolução da rotina;\n• Geração de relatórios personalizados;\n• Melhorias na experiência do usuário."], note: "Fotos de rosto enviadas especificamente para a função de análise de pele por IA são consideradas dado biométrico sensível (LGPD, Art. 11). Essa foto é processada por um serviço de inteligência artificial de terceiros (Google Gemini) apenas no momento do escaneamento e não é armazenada em nossos servidores — apenas os resultados da análise (notas de hidratação, oleosidade etc.) ficam salvos no seu perfil. Essa função exige consentimento específico, que pode ser revogado a qualquer momento em Configurações." },
+      { title: "5. Inteligência Artificial", texts: ["Algumas recomendações podem ser geradas por sistemas de inteligência artificial.", "O usuário reconhece que:\n• As recomendações são automatizadas;\n• Podem ocorrer imprecisões;\n• Os resultados devem ser avaliados com senso crítico;\n• A IA não substitui avaliação profissional."] },
+      { title: "6. Plano gratuito e plano premium", texts: ["O Viscare poderá oferecer funcionalidades gratuitas e recursos pagos por assinatura.", "Os recursos disponíveis em cada modalidade poderão ser alterados a qualquer momento mediante atualização destes termos."] },
+      { title: "7. Cancelamento", texts: ["O usuário poderá cancelar sua conta a qualquer momento.", "A exclusão da conta poderá resultar na remoção permanente dos dados associados, conforme descrito na Política de Privacidade."] },
+      { title: "8. Uso proibido", texts: ["É proibido:\n• Utilizar o aplicativo para atividades ilegais;\n• Tentar acessar áreas restritas do sistema;\n• Copiar, modificar ou distribuir o software sem autorização;\n• Inserir conteúdo ofensivo, fraudulento ou que viole direitos de terceiros."] },
+      { title: "9. Limitação de responsabilidade", texts: ["Na máxima extensão permitida pela legislação aplicável, o Viscare não será responsável por:\n• Reações alérgicas a produtos;\n• Decisões tomadas exclusivamente com base nas recomendações do aplicativo;\n• Danos diretos ou indiretos decorrentes do uso da plataforma;\n• Interrupções temporárias do serviço."] },
+      { title: "10. Propriedade intelectual", texts: ["Todo o conteúdo do aplicativo, incluindo logotipos, design, textos, funcionalidades e software, é protegido pelas leis de propriedade intelectual e pertence ao Viscare ou aos seus licenciadores."] },
+      { title: "11. Alterações dos termos", texts: ["Reservamo-nos o direito de modificar estes Termos de Serviço a qualquer momento.", "As alterações entrarão em vigor após sua publicação no aplicativo."] },
+      { title: "12. Legislação aplicável", texts: ["Estes Termos de Serviço serão interpretados de acordo com a legislação aplicável do país onde o serviço estiver estabelecido."] },
+      { title: "13. Contato", texts: ["Para dúvidas relacionadas a estes Termos de Serviço:\n\nE-mail: viverevivi37@gmail.com\nResponsável pelo aplicativo: Viviane M Silva"] },
+    ],
+    footer: "Ao utilizar o Viscare, você declara ter lido, compreendido e aceitado estes Termos de Serviço."
+  }
+};
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.innerText = s;
+  return d.innerHTML;
+}
+
+function render(lang) {
+  const c = content[lang] || content.pt;
+  document.getElementById('headerTitle').innerText = c.headerTitle;
+  document.title = c.headerTitle + ' — Viscare';
+  let html = `<h2 class="title">${esc(c.title)}</h2><div class="updated">${esc(c.lastUpdated)}</div><p class="intro">${esc(c.intro)}</p>`;
+  c.sections.forEach(s => {
+    html += `<h3>${esc(s.title)}</h3>`;
+    s.texts.forEach(t => { html += `<p>${esc(t)}</p>`; });
+    if (s.note) html += `<p class="note">${esc(s.note)}</p>`;
+  });
+  html += `<p class="footer-text">${esc(c.footer)}</p>`;
+  document.getElementById('main').innerHTML = html;
+  document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  localStorage.setItem('viscare_site_lang', lang);
+}
+
+document.querySelectorAll('.lang-switch button').forEach(b => {
+  b.addEventListener('click', () => render(b.dataset.lang));
+});
+
+const browserLang = (navigator.language || 'pt').slice(0,2);
+const initialLang = localStorage.getItem('viscare_site_lang') || (content[browserLang] ? browserLang : 'pt');
+render(initialLang);
+</script>
+</body>
+</html>

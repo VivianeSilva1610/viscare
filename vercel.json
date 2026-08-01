@@ -4,6 +4,36 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/landing.html",
+      "has": [{ "type": "host", "value": "viscare.app.br" }]
+    },
+    {
+      "source": "/",
+      "destination": "/landing.html",
+      "has": [{ "type": "host", "value": "www.viscare.app.br" }]
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html",
+      "has": [{ "type": "host", "value": "viscare.app.br" }]
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html",
+      "has": [{ "type": "host", "value": "www.viscare.app.br" }]
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html",
+      "has": [{ "type": "host", "value": "viscare.app.br" }]
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html",
+      "has": [{ "type": "host", "value": "www.viscare.app.br" }]
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

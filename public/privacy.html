@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Política de Privacidade — Viscare</title>
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ivory:#F8F4F1; --bronze:#B97C63; --charcoal:#333; --muted:#8E8E93; --beige:#EDE8E4; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Poppins',sans-serif; background:var(--ivory); color:var(--charcoal); }
+  header { display:flex; align-items:center; gap:16px; padding:16px 20px; border-bottom:1px solid var(--beige); background:var(--ivory); position:sticky; top:0; }
+  header a.back { width:34px; height:34px; border-radius:999px; background:var(--beige); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--muted); font-size:1.1rem; }
+  header h1 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--bronze); margin:0; }
+  .lang-switch { margin-left:auto; display:flex; gap:6px; }
+  .lang-switch button { border:1px solid var(--beige); background:#fff; border-radius:999px; padding:6px 12px; font-size:0.8rem; font-weight:600; cursor:pointer; color:var(--muted); }
+  .lang-switch button.active { background:var(--bronze); color:#fff; border-color:var(--bronze); }
+  main { max-width:760px; margin:0 auto; padding:32px 24px 80px; }
+  h2.title { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--bronze); margin:0 0 6px; }
+  .updated { font-size:0.78rem; color:var(--muted); margin-bottom:24px; }
+  .intro, .footer-text { font-size:0.95rem; line-height:1.6; margin-bottom:20px; }
+  .footer-text { text-align:center; font-weight:600; color:var(--bronze); margin-top:24px; }
+  h3 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--bronze); margin:24px 0 10px; }
+  h4 { font-size:0.98rem; color:var(--charcoal); margin:16px 0 6px; }
+  p { font-size:0.95rem; line-height:1.65; margin:0 0 10px; white-space:pre-line; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ivory:#1C1917; --charcoal:#F2EDE9; --beige:#3A322D; }
+    header, .lang-switch button { background:#241F1C; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/">←</a>
+  <h1 id="headerTitle">Informativa sulla Privacy</h1>
+  <div class="lang-switch">
+    <button data-lang="pt">PT</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="it">IT</button>
+  </div>
+</header>
+<main id="main"></main>
+
+<script>
+const content = {
+  it: {
+    headerTitle: "Informativa sulla Privacy",
+    title: "Informativa sulla Privacy – Viscare",
+    lastUpdated: "Ultimo aggiornamento: 29 Giugno 2026",
+    intro: "Benvenuto su Viscare. La tua privacy è importante per noi. Questa Informativa sulla Privacy spiega come raccogliamo, utilizziamo, conserviamo e proteggiamo le tue informazioni quando utilizzi la nostra applicazione.",
+    sections: [
+      { title: "1. Informazioni che raccogliamo", texts: ["Possiamo raccogliere le seguenti informazioni:"], subs: [
+        { title: "Informazioni fornite dall'utente", body: "• Nome\n• Indirizzo e-mail\n• Età\n• Tipo di pelle\n• Obiettivi per la cura della pelle\n• Preferenze per la routine" },
+        { title: "Foto inviate dall'utente", body: "Per utilizzare la funzione di analisi della pelle basata su IA, invii una foto del tuo viso. Questa foto è un dato biometrico sensibile e viene trattata con particolare attenzione: viene inviata a un servizio di intelligenza artificiale di terze parti (Google Gemini) solo al momento della scansione, elaborata e immediatamente scartata — non memorizziamo la foto sui nostri server o in alcun database. Solo i risultati numerici dell'analisi (es. livello di idratazione, untuosità, sensibilità) vengono salvati nel tuo profilo per monitorare i tuoi progressi. Richiediamo il tuo consenso specifico prima del primo utilizzo di questa funzione, e puoi revocarlo o eliminare la cronologia delle scansioni in qualsiasi momento nelle Impostazioni." },
+        { title: "Dati di utilizzo", body: "• Interazioni con l'applicazione\n• Cronologia delle routine\n• Prodotti registrati\n• Impostazioni dell'applicazione" },
+      ]},
+      { title: "2. Come utilizziamo le tue informazioni", texts: ["Utilizziamo i dati per:\n• Creare routine di skincare personalizzate;\n• Generare promemoria e notifiche;\n• Migliorare l'esperienza dell'utente;\n• Fornire analisi e raccomandazioni basate sull'intelligenza artificiale;\n• Garantire il funzionamento e la sicurezza della piattaforma."] },
+      { title: "3. Condivisione delle informazioni", texts: ["Non vendiamo i tuoi dati personali.\n\nI dati possono essere condivisi solo con i fornitori di servizi necessari per il funzionamento dell'applicazione, come:\n• Hosting dei dati;\n• Servizi di autenticazione;\n• Servizi di intelligenza artificiale;\n• Servizi di notifica.\n\nTutti i partner sono tenuti a proteggere i dati degli utenti."] },
+      { title: "4. Conservazione e sicurezza", texts: ["Impieghiamo misure tecniche e organizzative per proteggere le tue informazioni da accessi non autorizzati, perdite, alterazioni o divulgazioni improprie."] },
+      { title: "5. Diritti dell'utente", texts: ["Puoi:\n• Richiedere l'accesso ai tuoi dati;\n• Correggere informazioni errate;\n• Richiedere una copia esportabile di tutti i tuoi dati (diritto alla portabilità), disponibile in Impostazioni;\n• Richiedere la cancellazione del tuo account;\n• Richiedere la cancellazione dei tuoi dati memorizzati;\n• Revocare il consenso all'analisi del viso tramite IA, senza che ciò influisca sul resto dell'applicazione."] },
+      { title: "6. Dati dei minori", texts: ["L'applicazione non è destinata a minori di 13 anni senza la supervisione dei genitori o dei tutori."] },
+      { title: "7. Limitazione di responsabilità", texts: ["Viscare fornisce informazioni educative e raccomandazioni sulla cura della pelle. L'applicazione non sostituisce la diagnosi, il trattamento o la consulenza medica professionale. In caso di dubbi o problemi dermatologici, consulta un dermatologo."] },
+      { title: "8. Modifiche alla presente informativa", texts: ["Potremmo aggiornare periodicamente questa Informativa sulla Privacy. Le modifiche saranno pubblicate su questa pagina."] },
+      { title: "9. Contatti", texts: ["Per domande sulla privacy o richieste di cancellazione dei dati, contattaci:\n\nE-mail: viverevivi37@gmail.com\nResponsabile: Viviane M Silva"] },
+    ],
+    footer: "Utilizzando l'applicazione, acconsenti a questa Informativa sulla Privacy."
+  },
+  en: {
+    headerTitle: "Privacy Policy",
+    title: "Privacy Policy – Viscare",
+    lastUpdated: "Last updated: June 29, 2026",
+    intro: "Welcome to Viscare. Your privacy is important to us. This Privacy Policy explains how we collect, use, store, and protect your information when using our application.",
+    sections: [
+      { title: "1. Information we collect", texts: ["We may collect the following information:"], subs: [
+        { title: "Information provided by the user", body: "• Name\n• Email address\n• Age\n• Skin type\n• Skincare goals\n• Routine preferences" },
+        { title: "Photos submitted by the user", body: "To use the AI skin-analysis feature, you submit a photo of your face. This photo is sensitive biometric data and is handled with special care: it is sent to a third-party AI service (Google Gemini) only at the moment of the scan, processed, and immediately discarded — we do not store the photo on our servers or in any database. Only the numeric analysis results (e.g. hydration, oiliness, sensitivity levels) are saved to your profile to track your progress. We request your specific consent before the first use of this feature, and you may revoke it or delete your scan history at any time in Settings." },
+        { title: "Usage data", body: "• Interactions with the application\n• Routine history\n• Registered products\n• Application settings" },
+      ]},
+      { title: "2. How we use your information", texts: ["We use the data to:\n• Create personalized skincare routines;\n• Generate reminders and notifications;\n• Improve user experience;\n• Provide analyses and recommendations powered by artificial intelligence;\n• Guarantee the operation and security of the platform."] },
+      { title: "3. Sharing of information", texts: ["We do not sell personal data.\n\nData may be shared only with service providers necessary for the operation of the application, such as:\n• Data hosting;\n• Authentication services;\n• Artificial intelligence services;\n• Notification services.\n\nAll partners are obligated to protect user data."] },
+      { title: "4. Storage and security", texts: ["We employ technical and organizational measures to protect your information against unauthorized access, loss, alteration, or improper disclosure."] },
+      { title: "5. User rights", texts: ["You can:\n• Request access to your data;\n• Correct incorrect information;\n• Request an exportable copy of all your data (right to portability), available in Settings;\n• Request deletion of your account;\n• Request deletion of your stored data;\n• Revoke consent for AI facial analysis, without affecting the rest of the application."] },
+      { title: "6. Minors' data", texts: ["The application is not intended for children under 13 years of age without parental or guardian supervision."] },
+      { title: "7. Limitation of liability", texts: ["Viscare provides educational information and skincare recommendations. The application does not replace professional medical diagnosis, treatment, or advice. In case of doubts or persistent skin issues, consult a dermatologist."] },
+      { title: "8. Changes to this policy", texts: ["We may update this Privacy Policy periodically. Changes will be posted on this page."] },
+      { title: "9. Contact", texts: ["For questions about privacy or requests for data deletion, please contact us:\n\nEmail: viverevivi37@gmail.com\nResponsible: Viviane M Silva"] },
+    ],
+    footer: "By using the application, you agree to this Privacy Policy."
+  },
+  pt: {
+    headerTitle: "Política de Privacidade",
+    title: "Política de Privacidade – Viscare",
+    lastUpdated: "Última atualização: 29 de Junho de 2026",
+    intro: "Bem-vindo ao Viscare. A sua privacidade é importante para nós. Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos e protegemos suas informações ao utilizar nosso aplicativo.",
+    sections: [
+      { title: "1. Informações que coletamos", texts: ["Podemos coletar as seguintes informações:"], subs: [
+        { title: "Informações fornecidas pelo usuário", body: "• Nome\n• Endereço de e-mail\n• Idade\n• Tipo de pele\n• Objetivos de cuidados com a pele\n• Preferências de rotina" },
+        { title: "Fotos enviadas pelo usuário", body: "Para usar a análise de pele por inteligência artificial, você envia uma foto do seu rosto. Essa foto é um dado biométrico sensível (LGPD, Art. 11) e é tratada com cuidado especial: ela é enviada para um serviço de IA de terceiros (Google Gemini) apenas no momento do escaneamento, é processada e descartada imediatamente — não armazenamos a foto em nossos servidores ou bancos de dados. Apenas os resultados numéricos da análise (por exemplo, nível de hidratação, oleosidade, sensibilidade) são salvos no seu perfil para acompanhar sua evolução. Pedimos seu consentimento específico antes do primeiro uso dessa função, e você pode revogá-lo ou apagar seu histórico de análises a qualquer momento em Configurações." },
+        { title: "Dados de uso", body: "• Interações com o aplicativo\n• Histórico de rotinas\n• Produtos cadastrados\n• Configurações do aplicativo" },
+      ]},
+      { title: "2. Como utilizamos suas informações", texts: ["Utilizamos os dados para:\n• Criar rotinas personalizadas de skincare;\n• Gerar lembretes e notificações;\n• Melhorar a experiência do usuário;\n• Fornecer análises e recomendações baseadas em inteligência artificial;\n• Garantir o funcionamento e a segurança da plataforma."] },
+      { title: "3. Compartilhamento de informações", texts: ["Não vendemos dados pessoais.\n\nOs dados poderão ser compartilhados apenas com fornecedores de serviços necessários para o funcionamento do aplicativo, como:\n• Hospedagem de dados;\n• Serviços de autenticação;\n• Serviços de inteligência artificial;\n• Serviços de notificações.\n\nTodos os parceiros são obrigados a proteger os dados dos usuários."] },
+      { title: "4. Armazenamento e segurança", texts: ["Empregamos medidas técnicas e organizacionais para proteger suas informações contra acesso não autorizado, perda, alteração ou divulgação indevida."] },
+      { title: "5. Direitos do usuário", texts: ["Você pode:\n• Solicitar acesso aos seus dados;\n• Corrigir informações incorretas;\n• Solicitar uma cópia exportável de todos os seus dados (direito à portabilidade), disponível em Configurações;\n• Solicitar a exclusão da sua conta;\n• Solicitar a exclusão dos seus dados armazenados;\n• Revogar o consentimento para a análise facial por IA, sem afetar o restante do aplicativo."] },
+      { title: "6. Dados de menores", texts: ["O aplicativo não é destinado a crianças menores de 13 anos sem supervisão dos responsáveis."] },
+      { title: "7. Limitação de responsabilidade", texts: ["O Viscare fornece informações educativas e recomendações de cuidados com a pele. O aplicativo não substitui diagnóstico, tratamento ou orientação médica profissional. Em caso de dúvidas ou problemas dermatológicos, consulte um dermatologista."] },
+      { title: "8. Alterações nesta política", texts: ["Podemos atualizar esta Política de Privacidade periodicamente. As alterações serão publicadas nesta página."] },
+      { title: "9. Contato", texts: ["Para dúvidas sobre privacidade ou solicitação de exclusão de dados, entre em contato:\n\nE-mail: viverevivi37@gmail.com\nResponsável: Viviane M Silva"] },
+    ],
+    footer: "Ao utilizar o aplicativo, você concorda com esta Política de Privacidade."
+  }
+};
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.innerText = s;
+  return d.innerHTML;
+}
+
+function render(lang) {
+  const c = content[lang] || content.pt;
+  document.getElementById('headerTitle').innerText = c.headerTitle;
+  document.title = c.headerTitle + ' — Viscare';
+  let html = `<h2 class="title">${esc(c.title)}</h2><div class="updated">${esc(c.lastUpdated)}</div><p class="intro">${esc(c.intro)}</p>`;
+  c.sections.forEach(s => {
+    html += `<h3>${esc(s.title)}</h3>`;
+    s.texts.forEach(t => { html += `<p>${esc(t)}</p>`; });
+    if (s.subs) {
+      s.subs.forEach(sub => {
+        html += `<h4>${esc(sub.title)}</h4><p>${esc(sub.body)}</p>`;
+      });
+    }
+  });
+  html += `<p class="footer-text">${esc(c.footer)}</p>`;
+  document.getElementById('main').innerHTML = html;
+  document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  localStorage.setItem('viscare_site_lang', lang);
+}
+
+document.querySelectorAll('.lang-switch button').forEach(b => {
+  b.addEventListener('click', () => render(b.dataset.lang));
+});
+
+const browserLang = (navigator.language || 'pt').slice(0,2);
+const initialLang = localStorage.getItem('viscare_site_lang') || (content[browserLang] ? browserLang : 'pt');
+render(initialLang);
+</script>
+</body>
+</html>
