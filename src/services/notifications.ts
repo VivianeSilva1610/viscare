@@ -1,5 +1,19 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { supabase } from './supabase';
+
+const VAPID_PUBLIC_KEY = process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY || '';
+
+// Converte a chave pública VAPID (base64url) pro formato Uint8Array que a
+// Push API do navegador espera em applicationServerKey.
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
 
 // Configurar o comportamento das notificações em primeiro plano
 Notifications.setNotificationHandler({
@@ -131,6 +145,65 @@ export class NotificationService {
   static async cancelAllReminders(): Promise<void> {
     if (Platform.OS === 'web') return;
     await Notifications.cancelAllScheduledNotificationsAsync();
+  }
+
+  // ─── Web Push (navegador) ────────────────────────────────────────────────
+  // expo-notifications não cobre push no browser — isso é feito via Service
+  // Worker + Push API nativa do navegador, com o envio de verdade disparado
+  // por um cron no servidor (supabase/functions/send-web-push-reminders).
+  static isWebPushSupported(): boolean {
+    return (
+      Platform.OS === 'web' &&
+      typeof navigator !== 'undefined' &&
+      'serviceWorker' in navigator &&
+      typeof window !== 'undefined' &&
+      'PushManager' in window &&
+      !!VAPID_PUBLIC_KEY
+    );
+  }
+
+  static async subscribeWebPush(userId: string, language: 'it' | 'en' | 'pt' = 'pt'): Promise<boolean> {
+    if (!this.isWebPushSupported()) return false;
+
+    try {
+      const permission = await window.Notification.requestPermission();
+      if (permission !== 'granted') return false;
+
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
+        });
+      }
+
+      const json = subscription.toJSON();
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+      const { error } = await supabase.from('push_subscriptions').upsert(
+        {
+          user_id: userId,
+          endpoint: json.endpoint!,
+          p256dh: json.keys!.p256dh,
+          auth: json.keys!.auth,
+          timezone,
+          language,
+        },
+        { onConflict: 'endpoint' }
+      );
+
+      if (error) {
+        console.warn('Erro ao salvar inscrição de web push', error);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.warn('Erro ao inscrever web push', e);
+      return false;
+    }
   }
 
   // Agendar lembrete para um tratamento específico (Agenda)

@@ -392,9 +392,16 @@ export default function Onboarding() {
   // === STEP 4: NOTIFICATIONS LOGIC ===
   const handleEnableNotifications = async () => {
     setLoading(true);
-    const granted = await NotificationService.requestPermissions();
-    if (granted) {
-      await NotificationService.scheduleDailyReminders(language);
+    if (Platform.OS === 'web') {
+      // No navegador, o lembrete de verdade é Web Push (Service Worker +
+      // VAPID) — expo-notifications não cobre essa plataforma.
+      const uid = user?.id;
+      if (uid) await NotificationService.subscribeWebPush(uid, language);
+    } else {
+      const granted = await NotificationService.requestPermissions();
+      if (granted) {
+        await NotificationService.scheduleDailyReminders(language);
+      }
     }
     setLoading(false);
     nextStep(); // Vai para Step 5 (Welcome)
