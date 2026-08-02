@@ -31,8 +31,8 @@ const corsHeaders = {
 // Preços em reais — mantenha sincronizado com FIXED_LOCAL_PRICES em
 // src/services/paymentService.ts e com PRICES_CENTS.BRL em create-payment-intent.
 const PRICE_BRL: Record<string, number> = {
-  topup: 34.90,
-  monthly: 24.90,
+  topup: 24.90,
+  monthly: 34.90,
 };
 
 function todayISO(): string {

@@ -65,7 +65,7 @@ export interface PurchaseResult {
 // Usado quando o preço em EUR × câmbio não reflete o preço de mercado desejado
 // para aquele país (ex: Brasil tem tabela própria, não é conversão flutuante).
 const FIXED_LOCAL_PRICES: Record<string, { topup: number; monthly: number }> = {
-  BRL: { topup: 34.90, monthly: 24.90 },
+  BRL: { topup: 24.90, monthly: 34.90 },
 };
 
 // ─── Mapa de taxas de câmbio aproximadas (EUR como base) ─────────────────────
