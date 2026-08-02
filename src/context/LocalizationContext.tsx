@@ -279,6 +279,7 @@ const translations = {
 
     'alert.disclaimer_required': 'Devi accettare il disclaimer per continuare.',
     'alert.invalid_age': 'Età non valida. Inserisci un numero tra 1 e 120.',
+    'alert.age_missing': 'Hai dimenticato di inserire la tua età.',
     'alert.fields_required': 'Nome e Marchio sono campi obbligatori.',
     'alert.delete_product_title': 'Elimina Prodotto',
     'alert.delete_product_msg': 'Sei sicuro di voler rimuovere questo prodotto? Verrà rimosso anche dalle tue routine.',
@@ -577,6 +578,7 @@ const translations = {
 
     'alert.disclaimer_required': 'You must accept the disclaimer to continue.',
     'alert.invalid_age': 'Invalid age. Please enter a number between 1 and 120.',
+    'alert.age_missing': 'You forgot to enter your age.',
     'alert.fields_required': 'Name and Brand are required fields.',
     'alert.delete_product_title': 'Delete Product',
     'alert.delete_product_msg': 'Are you sure you want to remove this product? It will also be removed from your routines.',
@@ -918,6 +920,7 @@ const translations = {
 
     'alert.disclaimer_required': 'Você precisa aceitar o aviso para continuar.',
     'alert.invalid_age': 'Idade inválida. Insira um número entre 1 e 120.',
+    'alert.age_missing': 'Você esqueceu de preencher a idade.',
     'alert.fields_required': 'Nome e Marca são campos obrigatórios.',
     'alert.delete_product_title': 'Excluir Produto',
     'alert.delete_product_msg': 'Tem certeza que deseja remover este produto? Ele também será removido das suas rotinas.',

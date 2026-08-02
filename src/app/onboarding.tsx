@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, Image, Modal, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
@@ -76,6 +76,7 @@ export default function Onboarding() {
 
   // STEP 2: Quiz
   const [age, setAge] = useState<string>('');
+  const ageInputRef = useRef<TextInput>(null);
   const [skinType, setSkinType] = useState<'oily' | 'dry' | 'combination' | 'normal'>('normal');
   const [isSensitive, setIsSensitive] = useState<boolean>(false);
   const [goals, setGoals] = useState<string[]>([]);
@@ -328,9 +329,15 @@ export default function Onboarding() {
   const toggleConcern = (c: string) => concerns.includes(c) ? setConcerns(concerns.filter(x => x !== c)) : setConcerns([...concerns, c]);
 
   const handleQuizSubmit = async () => {
+    if (!age.trim()) {
+      Alert.alert(t('common.error'), t('alert.age_missing'));
+      ageInputRef.current?.focus();
+      return;
+    }
     const parsedAge = parseInt(age, 10);
-    if (!age || isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
+    if (isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
       Alert.alert(t('common.error'), t('alert.invalid_age'));
+      ageInputRef.current?.focus();
       return;
     }
 
@@ -622,6 +629,7 @@ export default function Onboarding() {
               <View className="mt-6">
                 <Text className="text-sm font-sans text-[#2C2C2E] font-semibold mb-2">{t('quiz.age_question')}</Text>
                 <TextInput
+                  ref={ageInputRef}
                   placeholder="25"
                   keyboardType="number-pad"
                   value={age}
