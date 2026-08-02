@@ -61,6 +61,13 @@ export interface PurchaseResult {
   error?: string;
 }
 
+// ─── Preços locais fixos (sobrepõem a conversão automática por EUR) ──────────
+// Usado quando o preço em EUR × câmbio não reflete o preço de mercado desejado
+// para aquele país (ex: Brasil tem tabela própria, não é conversão flutuante).
+const FIXED_LOCAL_PRICES: Record<string, { topup: number; monthly: number }> = {
+  BRL: { topup: 34.90, monthly: 24.90 },
+};
+
 // ─── Mapa de taxas de câmbio aproximadas (EUR como base) ─────────────────────
 // Stripe Adaptive Pricing atualiza esses valores automaticamente em tempo real.
 // Estas taxas são usadas apenas para a pré-visualização de preço no UI.
@@ -158,14 +165,13 @@ export function detectLocalCurrency(): string {
 }
 
 // ─── Formatação de Preço ──────────────────────────────────────────────────────
-export function convertAndFormat(amountEUR: number, currency: string): { value: number; formatted: string; symbol: string } {
+function formatLocalAmount(amount: number, currency: string): { value: number; formatted: string; symbol: string } {
   const rateInfo = EXCHANGE_RATES_FROM_EUR[currency] || EXCHANGE_RATES_FROM_EUR['EUR'];
-  const converted = amountEUR * rateInfo.rate;
-  
+
   // Arredondamento psicológico (ex: 19.90 → 17.90 não 17.87)
   const rounded = rateInfo.decimals === 0
-    ? Math.round(converted)
-    : Math.round(converted * 100) / 100;
+    ? Math.round(amount)
+    : Math.round(amount * 100) / 100;
 
   // Formatação com Intl (disponível no Hermes/React Native)
   let formatted: string;
@@ -183,11 +189,17 @@ export function convertAndFormat(amountEUR: number, currency: string): { value: 
   return { value: rounded, formatted, symbol: rateInfo.symbol };
 }
 
+export function convertAndFormat(amountEUR: number, currency: string): { value: number; formatted: string; symbol: string } {
+  const rateInfo = EXCHANGE_RATES_FROM_EUR[currency] || EXCHANGE_RATES_FROM_EUR['EUR'];
+  return formatLocalAmount(amountEUR * rateInfo.rate, currency);
+}
+
 // ─── Obter Informações de Preço Completas ─────────────────────────────────────
 export function getPricingInfo(): PricingInfo {
   const currency = detectLocalCurrency();
-  const topup   = convertAndFormat(PRICE_EUR_TOPUP, currency);
-  const monthly = convertAndFormat(PRICE_EUR_MONTHLY, currency);
+  const fixed = FIXED_LOCAL_PRICES[currency];
+  const topup   = fixed ? formatLocalAmount(fixed.topup, currency)   : convertAndFormat(PRICE_EUR_TOPUP, currency);
+  const monthly = fixed ? formatLocalAmount(fixed.monthly, currency) : convertAndFormat(PRICE_EUR_MONTHLY, currency);
 
   return {
     topup: {

@@ -20,9 +20,12 @@ const corsHeaders = {
 // Preços em centavos por plano e moeda (EUR como referência)
 // topup   = €2.99 (avulso: +2 análises +3 explorações)
 // monthly = €3.99 (premium mensal: tudo ilimitado)
+// BRL foge da conversão automática por câmbio: usa tabela de preço local fixa
+// (R$24,90/mês e R$34,90 avulso), definida junto com o app em FIXED_LOCAL_PRICES
+// (src/services/paymentService.ts) — mantenha os dois em sincronia.
 const PRICES_CENTS: Record<string, Record<string, number>> = {
-  topup:   { EUR: 399,  BRL: 2346, USD: 423,  GBP: 351, JPY: 645,  CAD: 587,  AUD: 658,  CHF: 375 },
-  monthly: { EUR: 990,  BRL: 5821, USD: 1049, GBP: 871, JPY: 1601, CAD: 1455, AUD: 1634, CHF: 931 },
+  topup:   { EUR: 399,  BRL: 3490, USD: 423,  GBP: 351, JPY: 645,  CAD: 587,  AUD: 658,  CHF: 375 },
+  monthly: { EUR: 990,  BRL: 2490, USD: 1049, GBP: 871, JPY: 1601, CAD: 1455, AUD: 1634, CHF: 931 },
 };
 
 Deno.serve(async (req: Request) => {
