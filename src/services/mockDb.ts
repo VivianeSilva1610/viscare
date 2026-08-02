@@ -19,6 +19,7 @@ export interface Profile {
   welcome_searches_used?: boolean;
   topup_scans?: number;
   topup_searches?: number;
+  topup_vis_questions?: number;
 }
 
 export interface SkinProfile {

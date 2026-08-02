@@ -41,6 +41,7 @@ export default function TodayScreen() {
   // Sistema de créditos
   const [welcomeScansUsed, setWelcomeScansUsed] = useState<boolean>(false);
   const [topupScans, setTopupScans] = useState<number>(0);
+  const [topupVisQuestions, setTopupVisQuestions] = useState<number>(0);
 
   // Interactive Agenda Modals & Form
   const [appModalVisible, setAppModalVisible] = useState<boolean>(false);
@@ -76,6 +77,7 @@ export default function TodayScreen() {
       setBiometricConsentAt(profile.biometric_consent_at ?? null);
       setWelcomeScansUsed(profile.welcome_scans_used ?? false);
       setTopupScans(profile.topup_scans ?? 0);
+      setTopupVisQuestions(profile.topup_vis_questions ?? 0);
       
       // Calculate dynamic score based on streak
       setSkinScore(Math.min(98, 75 + (profile.streak_count * 2)));
@@ -781,10 +783,11 @@ export default function TodayScreen() {
         })()}
       </View>
 
-      {/* Card: Chat com a Vis (Assistente de Skincare) — recurso Premium */}
+      {/* Card: Chat com a Vis (Assistente de Skincare) — Premium, ou crédito avulso */}
       {(() => {
         const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
-        const hasAssistantAccess = isPremium || isUnlimited;
+        const usingTopupCredit = !isPremium && !isUnlimited && topupVisQuestions > 0;
+        const hasAssistantAccess = isPremium || isUnlimited || usingTopupCredit;
         return (
           <TouchableOpacity
             onPress={() => router.push(hasAssistantAccess ? '/chat' : '/paywall')}
@@ -803,6 +806,11 @@ export default function TodayScreen() {
                 {!hasAssistantAccess && (
                   <View className="bg-white/25 px-2 py-0.5 rounded-full ml-2">
                     <Text className="text-[9px] font-sans font-bold text-white tracking-wide">PREMIUM</Text>
+                  </View>
+                )}
+                {usingTopupCredit && (
+                  <View className="bg-white/25 px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[9px] font-sans font-bold text-white tracking-wide">{topupVisQuestions}x</Text>
                   </View>
                 )}
               </View>

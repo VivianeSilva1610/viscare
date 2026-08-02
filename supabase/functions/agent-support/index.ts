@@ -56,7 +56,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: profile } = await adminClient
       .from('profiles')
-      .select('email, subscription_plan, subscription_expires_at')
+      .select('email, subscription_plan, subscription_expires_at, topup_vis_questions')
       .eq('id', userId)
       .single();
 
@@ -64,7 +64,13 @@ Deno.serve(async (req: Request) => {
     const plan = profile?.subscription_plan;
     const isPlanPremium = plan === 'premium' || plan === 'influencer';
     const isNotExpired = !profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date();
-    const hasAccess = isUnlimitedTestAccount || (isPlanPremium && isNotExpired);
+    const isPremiumAccess = isUnlimitedTestAccount || (isPlanPremium && isNotExpired);
+
+    // Quem comprou o Pacote Avulso ganha 3 perguntas pra Vis, consumidas uma a
+    // uma aqui — mesmo sem ser assinante Premium.
+    const topupQuestionsLeft = profile?.topup_vis_questions ?? 0;
+    const usingTopupCredit = !isPremiumAccess && topupQuestionsLeft > 0;
+    const hasAccess = isPremiumAccess || usingTopupCredit;
 
     if (!hasAccess) {
       return new Response(
@@ -124,8 +130,14 @@ Deno.serve(async (req: Request) => {
 
     if (!assistantReply) throw new Error('Nenhuma resposta do Gemini.');
 
+    let remainingTopupQuestions: number | null = null;
+    if (usingTopupCredit) {
+      remainingTopupQuestions = topupQuestionsLeft - 1;
+      await adminClient.from('profiles').update({ topup_vis_questions: remainingTopupQuestions }).eq('id', userId);
+    }
+
     return new Response(
-      JSON.stringify({ reply: assistantReply.trim() }),
+      JSON.stringify({ reply: assistantReply.trim(), remainingTopupQuestions }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: unknown) {

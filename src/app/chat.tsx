@@ -27,13 +27,15 @@ interface Message {
 }
 
 export default function ChatScreen() {
-  const { user, isPremium } = useAuth();
+  const { user, profile, isPremium, refreshProfile } = useAuth();
   const { language } = useTranslation();
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
 
   const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
-  const hasAccess = isPremium || isUnlimited;
+  const topupQuestionsLeft = profile?.topup_vis_questions ?? 0;
+  const usingTopupCredit = !isPremium && !isUnlimited && topupQuestionsLeft > 0;
+  const hasAccess = isPremium || isUnlimited || usingTopupCredit;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -98,6 +100,10 @@ export default function ChatScreen() {
           : data.reply;
 
       setMessages((prev) => [...prev, { id: `vis-${Date.now()}`, role: 'model', text: replyText, timestamp: new Date() }]);
+
+      // Atualiza o perfil pra refletir o consumo do crédito avulso (se for o
+      // caso) em toda a app — inclusive o selo/contador na tela inicial.
+      if (usingTopupCredit) await refreshProfile();
     } catch (e) {
       console.warn('Erro no chat:', e);
     } finally {
@@ -203,6 +209,19 @@ export default function ChatScreen() {
           </Text>
         </View>
       </View>
+
+      {/* Aviso de créditos avulsos (só pra quem não é Premium) */}
+      {usingTopupCredit && (
+        <View className="bg-brand-rose-metallic/10 px-4 py-2 border-b border-brand-beige">
+          <Text className="font-sans text-xs text-brand-rose-metallic text-center font-semibold">
+            {language === 'pt'
+              ? `${topupQuestionsLeft} pergunta${topupQuestionsLeft === 1 ? '' : 's'} avulsa${topupQuestionsLeft === 1 ? '' : 's'} restante${topupQuestionsLeft === 1 ? '' : 's'}`
+              : language === 'it'
+              ? `${topupQuestionsLeft} domanda${topupQuestionsLeft === 1 ? '' : 'e'} extra rimanent${topupQuestionsLeft === 1 ? 'e' : 'i'}`
+              : `${topupQuestionsLeft} extra question${topupQuestionsLeft === 1 ? '' : 's'} left`}
+          </Text>
+        </View>
+      )}
 
       {/* @ts-ignore — wrapperProps varia por plataforma */}
       <Wrapper {...wrapperProps}>

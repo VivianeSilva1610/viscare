@@ -110,13 +110,14 @@ Deno.serve(async (req: Request) => {
     if (plan === 'topup') {
       const { data: profile } = await adminClient
         .from('profiles')
-        .select('topup_scans, topup_searches')
+        .select('topup_scans, topup_searches, topup_vis_questions')
         .eq('id', userId)
         .single();
 
       await adminClient.from('profiles').update({
         topup_scans: (profile?.topup_scans ?? 0) + 2,
         topup_searches: (profile?.topup_searches ?? 0) + 3,
+        topup_vis_questions: (profile?.topup_vis_questions ?? 0) + 3,
       }).eq('id', userId);
 
       console.log(`[stripe-webhook] Pacote Avulso concedido para userId=${userId}`);
