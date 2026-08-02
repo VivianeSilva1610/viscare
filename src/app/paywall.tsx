@@ -169,6 +169,7 @@ export default function PaywallScreen() {
       );
     } catch (e: any) {
       if (e?.message !== 'CANCELLED' && e?.message !== 'REDIRECTED') {
+        console.error('[Paywall] Erro ao comprar avulso:', e);
         Alert.alert(t('common.error'), t('alert.purchase_error'));
       }
     } finally {
@@ -187,6 +188,7 @@ export default function PaywallScreen() {
       );
     } catch (e: any) {
       if (e?.message !== 'CANCELLED' && e?.message !== 'REDIRECTED') {
+        console.error('[Paywall] Erro ao assinar mensal:', e);
         Alert.alert(t('common.error'), t('alert.purchase_error'));
       }
     } finally {
