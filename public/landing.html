@@ -93,6 +93,12 @@
     border: 1px solid var(--line); padding: 14px; background: var(--white);
   }
 
+  .video-frame {
+    max-width: 760px; margin: 0 auto;
+    border: 1px solid var(--line); padding: 14px; background: var(--white);
+  }
+  .video-frame video { width: 100%; display: block; background: #000; }
+
   .band { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .kicker { display: flex; justify-content: center; }
   h2.section-title { text-align: center; font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 500; color: var(--ink); margin-bottom: 18px; }
@@ -240,6 +246,19 @@
         <h3 data-i18n="how.step3Title">Receba sua rotina</h3>
         <p data-i18n="how.step3Body">Manhã e noite, com produtos que combinam entre si e alertas de ingredientes incompatíveis.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="demo">
+  <div class="wrap">
+    <div class="kicker" data-i18n="demo.kicker">Veja na prática</div>
+    <h2 class="section-title" data-i18n="demo.title">O Viscare mostrando sua evolução</h2>
+    <p class="section-sub" data-i18n="demo.sub">Um minuto pra entender como a análise de IA acompanha a sua pele ao longo do tempo.</p>
+    <div class="video-frame">
+      <video id="demo-video" controls playsinline preload="metadata" poster="/hero.jpg">
+        <source data-src-pt="/videos/viscare-demo-pt.mp4" data-src-it="/videos/viscare-demo-it.mp4" data-src-en="/videos/viscare-demo-en.mp4" src="/videos/viscare-demo-pt.mp4" type="video/mp4">
+      </video>
     </div>
   </div>
 </section>
@@ -392,6 +411,7 @@ const content = {
     'how.step1Title': 'Tire uma selfie', 'how.step1Body': 'Direto pelo app, com seu consentimento — a foto nunca fica guardada, só o resultado da análise.',
     'how.step2Title': 'A IA analisa sua pele', 'how.step2Body': 'Hidratação, oleosidade, sensibilidade e acne, com um diagnóstico simples de entender.',
     'how.step3Title': 'Receba sua rotina', 'how.step3Body': 'Manhã e noite, com produtos que combinam entre si e alertas de ingredientes incompatíveis.',
+    'demo.kicker': 'Veja na prática', 'demo.title': 'O Viscare mostrando sua evolução', 'demo.sub': 'Um minuto pra entender como a análise de IA acompanha a sua pele ao longo do tempo.',
     'why.kicker': 'Por que o Viscare', 'why.title': 'Cuidado que realça a sua melhor versão',
     'why.b1Title': 'Análise facial por IA', 'why.b1Body': 'Diagnóstico de pele em segundos, sem depender de achismo.',
     'why.b2Title': 'Verificador de compatibilidade', 'why.b2Body': 'Saiba na hora se dois produtos do seu armário não combinam.',
@@ -432,6 +452,7 @@ const content = {
     'how.step1Title': 'Scatta un selfie', 'how.step1Body': 'Direttamente dall\'app, con il tuo consenso — la foto non viene mai salvata, solo il risultato dell\'analisi.',
     'how.step2Title': 'L\'IA analizza la tua pelle', 'how.step2Body': 'Idratazione, untuosità, sensibilità e acne, con una diagnosi semplice da capire.',
     'how.step3Title': 'Ricevi la tua routine', 'how.step3Body': 'Mattina e sera, con prodotti che si abbinano tra loro e avvisi su ingredienti incompatibili.',
+    'demo.kicker': 'Guardalo in azione', 'demo.title': 'Viscare mostra la tua evoluzione', 'demo.sub': 'Un minuto per capire come l\'analisi IA segue la tua pelle nel tempo.',
     'why.kicker': 'Perché Viscare', 'why.title': 'Cura che valorizza la tua versione migliore',
     'why.b1Title': 'Analisi facciale con IA', 'why.b1Body': 'Diagnosi della pelle in pochi secondi, senza supposizioni.',
     'why.b2Title': 'Verifica di compatibilità', 'why.b2Body': 'Scopri subito se due prodotti del tuo beauty case non si abbinano.',
@@ -472,6 +493,7 @@ const content = {
     'how.step1Title': 'Take a selfie', 'how.step1Body': 'Right from the app, with your consent — the photo is never stored, only the analysis result.',
     'how.step2Title': 'AI analyzes your skin', 'how.step2Body': 'Hydration, oiliness, sensitivity, and acne, with an easy-to-understand diagnosis.',
     'how.step3Title': 'Get your routine', 'how.step3Body': 'Morning and night, with products that work well together and alerts for incompatible ingredients.',
+    'demo.kicker': 'See it in action', 'demo.title': 'Viscare tracking your progress', 'demo.sub': "One minute to see how the AI analysis follows your skin over time.",
     'why.kicker': 'Why Viscare', 'why.title': 'Care that brings out your best',
     'why.b1Title': 'AI facial analysis', 'why.b1Body': 'Skin diagnosis in seconds, no guesswork involved.',
     'why.b2Title': 'Compatibility checker', 'why.b2Body': 'Instantly know if two products in your cabinet clash.',
@@ -521,6 +543,14 @@ function render(lang) {
     el.setAttribute('data-badge', el.getAttribute('data-badge-' + lang) || el.getAttribute('data-badge-en'));
   });
   document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  const demoSource = document.querySelector('#demo-video source');
+  if (demoSource) {
+    const newSrc = demoSource.getAttribute('data-src-' + lang) || demoSource.getAttribute('data-src-en');
+    if (demoSource.getAttribute('src') !== newSrc) {
+      demoSource.setAttribute('src', newSrc);
+      demoSource.closest('video').load();
+    }
+  }
   localStorage.setItem('viscare_landing_lang', lang);
 }
 
