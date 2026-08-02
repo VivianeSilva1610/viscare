@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useTranslation } from '../../context/LocalizationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +10,8 @@ export default function AgendaScreen() {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<number>(new Date().getDate());
+  const weekScrollRef = useRef<ScrollView>(null);
+  const [weekScrollWidth, setWeekScrollWidth] = useState(0);
 
   // Estados de dados dinâmicos
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -154,10 +156,10 @@ export default function AgendaScreen() {
     const today = new Date();
     let currentDay = today.getDay();
     if (currentDay === 0) currentDay = 7; // Sunday is 0, make it 7
-    
+
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - currentDay + 1);
-    
+
     for (let i = 0; i < 7; i++) {
       const d = new Date(startOfWeek);
       d.setDate(startOfWeek.getDate() + i);
@@ -169,6 +171,23 @@ export default function AgendaScreen() {
     }
     return result;
   }, [currentWeekdays]);
+
+  // Índice de hoje dentro de `days` (0 = segunda, 6 = domingo) — usado pra
+  // centralizar o carrossel em "hoje" em vez de sempre abrir na segunda.
+  const todayIndex = React.useMemo(() => {
+    let currentDay = new Date().getDay();
+    if (currentDay === 0) currentDay = 7;
+    return currentDay - 1;
+  }, []);
+
+  // Rola o carrossel de dias pra deixar "hoje" visível (centralizado quando
+  // possível) assim que soubermos a largura da área visível.
+  useEffect(() => {
+    if (weekScrollWidth === 0) return;
+    const ITEM_WIDTH = 76; // w-16 (64) + mr-3 (12)
+    const targetX = Math.max(0, (todayIndex * ITEM_WIDTH) - (weekScrollWidth / 2) + (ITEM_WIDTH / 2));
+    weekScrollRef.current?.scrollTo({ x: targetX, animated: false });
+  }, [weekScrollWidth, todayIndex]);
 
   const upcomingList = appointments.filter(a => a.status === 'upcoming');
   const completedList = appointments.filter(a => a.status === 'completed');
@@ -208,7 +227,13 @@ export default function AgendaScreen() {
 
       {/* Calendário Elegante (Horizontal) */}
       <View className="mb-8">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="overflow-visible">
+        <ScrollView
+          ref={weekScrollRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="overflow-visible"
+          onLayout={(e) => setWeekScrollWidth(e.nativeEvent.layout.width)}
+        >
           {days.map(d => {
             const isSelected = d.date === selectedDate;
             return (
