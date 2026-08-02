@@ -231,7 +231,6 @@ export default function AgendaScreen() {
           ref={weekScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="overflow-visible"
           onLayout={(e) => setWeekScrollWidth(e.nativeEvent.layout.width)}
         >
           {days.map(d => {
