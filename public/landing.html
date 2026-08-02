@@ -393,6 +393,17 @@
 </footer>
 
 <script>
+(function () {
+  // Se um redirect de auth do Supabase (Google login, magic link, reset de senha)
+  // cair aqui no site institucional por engano, encaminha pro app em vez de
+  // deixar o token perdido na URL.
+  var hash = window.location.hash || '';
+  var search = window.location.search || '';
+  if (hash.indexOf('access_token=') !== -1 || search.indexOf('code=') !== -1) {
+    window.location.replace('https://app.viscare.app.br/onboarding' + search + hash);
+  }
+})();
+
 const content = {
   pt: {
     'nav.how': 'Como funciona', 'nav.pricing': 'Preços', 'nav.faq': 'Dúvidas', 'nav.cta': 'Entrar / Começar',
