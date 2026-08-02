@@ -260,6 +260,13 @@ const translations = {
     'paywall.price_month': 'al mese',
     'paywall.store_info': 'Il pagamento viene elaborato in modo sicuro da Apple / Google. I dati della tua carta non vengono mai condivisi con noi.',
     'paywall.cancelled': 'Acquisto annullato.',
+    'paywall.pix_btn': 'o paga con Pix',
+    'paywall.pix_modal_title': 'Paga con Pix',
+    'paywall.pix_modal_subtitle': 'Scansiona il QR Code con l\'app della tua banca o copia il codice qui sotto.',
+    'paywall.pix_copy_code': 'Copia codice Pix',
+    'paywall.pix_copied': 'Codice copiato!',
+    'paywall.pix_waiting': 'In attesa di conferma del pagamento...',
+    'paywall.pix_retry': 'Riprova',
 
     // Alerts e mensagens comuns
     'common.cancel': 'Annulla',
@@ -631,6 +638,13 @@ const translations = {
     'paywall.price_month': 'per month',
     'paywall.store_info': 'Payment securely processed by Apple / Google. Your card details are never shared with us.',
     'paywall.cancelled': 'Purchase cancelled.',
+    'paywall.pix_btn': 'or pay with Pix',
+    'paywall.pix_modal_title': 'Pay with Pix',
+    'paywall.pix_modal_subtitle': 'Scan the QR code with your bank app or copy the code below.',
+    'paywall.pix_copy_code': 'Copy Pix code',
+    'paywall.pix_copied': 'Code copied!',
+    'paywall.pix_waiting': 'Waiting for payment confirmation...',
+    'paywall.pix_retry': 'Try again',
 
     // Agenda
     'agenda.title': 'My Schedule',
@@ -990,6 +1004,13 @@ const translations = {
     'paywall.price_month': 'por mês',
     'paywall.store_info': 'Pagamento processado com segurança pela Apple / Google. Seus dados de cartão nunca são compartilhados conosco.',
     'paywall.cancelled': 'Compra cancelada.',
+    'paywall.pix_btn': 'ou pagar com Pix',
+    'paywall.pix_modal_title': 'Pague com Pix',
+    'paywall.pix_modal_subtitle': 'Escaneie o QR Code com o app do seu banco ou copie o código abaixo.',
+    'paywall.pix_copy_code': 'Copiar código Pix',
+    'paywall.pix_copied': 'Código copiado!',
+    'paywall.pix_waiting': 'Aguardando confirmação do pagamento...',
+    'paywall.pix_retry': 'Tentar novamente',
 
     'today.manage_favorites': 'Gerenciar Favoritos',
     'today.no_favorites': 'Nenhum produto favorito selecionado.',

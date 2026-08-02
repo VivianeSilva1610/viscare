@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  Alert, ActivityIndicator, Platform
+  Alert, ActivityIndicator, Platform, Modal, Image
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../context/LocalizationContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
   Sparkles, Check, X, ShieldCheck, Lock, CreditCard,
-  RefreshCw, BadgeCheck, Zap, Star, Gift
+  RefreshCw, BadgeCheck, Zap, Star, Gift, QrCode, Copy
 } from 'lucide-react-native';
 import {
-  getPricingInfo, PricingInfo, PlanType
+  getPricingInfo, PricingInfo, PlanType, createPixCharge, PixChargeResult
 } from '../services/paymentService';
 
 export default function PaywallScreen() {
-  const { purchasePremium, purchaseTopup, restorePurchases, isPremium, user, refreshProfile } = useAuth();
+  const { purchasePremium, purchaseTopup, restorePurchases, isPremium, user, refreshProfile, profile } = useAuth();
   const { t, language } = useTranslation();
   const router = useRouter();
   const localParams = useLocalSearchParams();
@@ -28,9 +28,74 @@ export default function PaywallScreen() {
   const [showNativeRedirect, setShowNativeRedirect] = useState<boolean>(false);
   const [redirectType, setRedirectType] = useState<'success' | 'canceled' | null>(null);
 
+  // ── Pix via Asaas (só web + BRL; lojas de app não permitem pagamento
+  // alternativo dentro do app nativo, por isso não aparece fora da web) ──────
+  const [pixPlan, setPixPlan] = useState<PlanType | null>(null);
+  const [pixData, setPixData] = useState<PixChargeResult | null>(null);
+  const [pixLoading, setPixLoading] = useState<boolean>(false);
+  const [pixCopied, setPixCopied] = useState<boolean>(false);
+  const pixSnapshotRef = useRef<{ isPremium: boolean; topupScans: number } | null>(null);
+
   useEffect(() => {
     setPricing(getPricingInfo());
   }, []);
+
+  const handleOpenPix = async (plan: PlanType) => {
+    if (!user?.id) return;
+    pixSnapshotRef.current = { isPremium, topupScans: profile?.topup_scans ?? 0 };
+    setPixPlan(plan);
+    setPixData(null);
+    setPixCopied(false);
+    setPixLoading(true);
+    const result = await createPixCharge(user.id, plan);
+    setPixLoading(false);
+    setPixData(result);
+  };
+
+  const handleClosePix = () => {
+    setPixPlan(null);
+    setPixData(null);
+  };
+
+  const handleCopyPixCode = async () => {
+    if (!pixData?.payload || typeof navigator === 'undefined' || !navigator.clipboard) return;
+    await navigator.clipboard.writeText(pixData.payload);
+    setPixCopied(true);
+    setTimeout(() => setPixCopied(false), 2500);
+  };
+
+  // Enquanto o modal do Pix está aberto, confere a cada poucos segundos se o
+  // asaas-webhook já confirmou o pagamento (comparando com o perfil no
+  // momento em que o QR Code foi gerado).
+  useEffect(() => {
+    if (!pixPlan || !pixData?.paymentId) return;
+    const snapshot = pixSnapshotRef.current;
+    if (!snapshot) return;
+
+    const interval = setInterval(async () => {
+      await refreshProfile();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [pixPlan, pixData?.paymentId]);
+
+  useEffect(() => {
+    if (!pixPlan || !pixData?.paymentId) return;
+    const snapshot = pixSnapshotRef.current;
+    if (!snapshot) return;
+
+    const confirmedTopup = pixPlan === 'topup' && (profile?.topup_scans ?? 0) > snapshot.topupScans;
+    const confirmedMonthly = pixPlan === 'monthly' && isPremium && !snapshot.isPremium;
+
+    if (confirmedTopup || confirmedMonthly) {
+      const confirmedPlan = pixPlan;
+      handleClosePix();
+      Alert.alert(
+        confirmedPlan === 'topup' ? t('paywall.purchase_topup_title') : t('paywall.purchase_success_title'),
+        confirmedPlan === 'topup' ? t('paywall.purchase_topup_msg') : t('paywall.purchase_success_msg'),
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    }
+  }, [profile?.topup_scans, isPremium]);
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -131,6 +196,10 @@ export default function PaywallScreen() {
 
   const topupPrice   = pricing?.topup.local   || t('paywall.loading_price');
   const monthlyPrice = pricing?.monthly.local  || t('paywall.loading_price');
+
+  // Pix só faz sentido pra web + BRL — nas lojas de app (iOS/Android), pagamento
+  // alternativo dentro do app nativo fere as políticas da Apple/Google.
+  const showPixOption = Platform.OS === 'web' && pricing?.country === 'BRL';
 
   if (showNativeRedirect) {
     return (
@@ -273,6 +342,17 @@ export default function PaywallScreen() {
                 </>
             }
           </TouchableOpacity>
+
+          {showPixOption && (
+            <TouchableOpacity
+              onPress={() => handleOpenPix('topup')}
+              disabled={loadingTopup || loadingMonthly}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 10, paddingVertical: 4 }}
+            >
+              <QrCode size={13} color="#B97C63" />
+              <Text style={{ fontSize: 12, color: '#B97C63', fontWeight: '600' }}>{t('paywall.pix_btn')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ── PLANO MENSAL (destaque) ──────────────────────────────────── */}
@@ -351,6 +431,17 @@ export default function PaywallScreen() {
                 </>
             }
           </TouchableOpacity>
+
+          {showPixOption && (
+            <TouchableOpacity
+              onPress={() => handleOpenPix('monthly')}
+              disabled={loadingTopup || loadingMonthly}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 10, paddingVertical: 4 }}
+            >
+              <QrCode size={13} color="#B97C63" />
+              <Text style={{ fontSize: 12, color: '#B97C63', fontWeight: '600' }}>{t('paywall.pix_btn')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Restaurar Compras */}
@@ -414,6 +505,73 @@ export default function PaywallScreen() {
         </View>
 
       </ScrollView>
+
+      {/* ── Modal Pix ─────────────────────────────────────────────────── */}
+      <Modal visible={!!pixPlan} transparent animationType="fade" onRequestClose={handleClosePix}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <View style={{ width: '100%', maxWidth: 340, backgroundColor: '#fff', borderRadius: 24, padding: 24 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={{ fontSize: 17, fontWeight: '700', color: '#3D3D3D' }}>{t('paywall.pix_modal_title')}</Text>
+              <TouchableOpacity onPress={handleClosePix} style={{ padding: 4 }}>
+                <X size={18} color="#8E8E93" />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ fontSize: 12, color: '#8C8E78', marginBottom: 16, lineHeight: 17 }}>
+              {t('paywall.pix_modal_subtitle')}
+            </Text>
+
+            {pixLoading && (
+              <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#B97C63" />
+              </View>
+            )}
+
+            {!pixLoading && pixData?.error && (
+              <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                <Text style={{ fontSize: 13, color: '#F44336', textAlign: 'center', marginBottom: 14 }}>
+                  {pixData.error}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => pixPlan && handleOpenPix(pixPlan)}
+                  style={{ backgroundColor: '#B97C63', borderRadius: 999, paddingVertical: 10, paddingHorizontal: 20 }}
+                >
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>{t('paywall.pix_retry')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {!pixLoading && pixData?.qrCodeBase64 && (
+              <>
+                <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                  <Image
+                    source={{ uri: `data:image/png;base64,${pixData.qrCodeBase64}` }}
+                    style={{ width: 200, height: 200, borderRadius: 12, borderWidth: 1, borderColor: '#EDE8E4' }}
+                    resizeMode="contain"
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleCopyPixCode}
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    backgroundColor: pixCopied ? '#E8F5E9' : '#F5EDE9', borderRadius: 12, paddingVertical: 12, marginBottom: 16,
+                  }}
+                >
+                  <Copy size={14} color={pixCopied ? '#4CAF50' : '#B97C63'} />
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: pixCopied ? '#4CAF50' : '#B97C63' }}>
+                    {pixCopied ? t('paywall.pix_copied') : t('paywall.pix_copy_code')}
+                  </Text>
+                </TouchableOpacity>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <ActivityIndicator size="small" color="#B97C63" />
+                  <Text style={{ fontSize: 12, color: '#8C8E78' }}>{t('paywall.pix_waiting')}</Text>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

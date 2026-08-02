@@ -395,6 +395,51 @@ export async function createStripeCheckoutSession(
   }
 }
 
+// ─── Pix via Asaas (alternativa ao cartão, só para BRL) ───────────────────────
+export interface PixChargeResult {
+  paymentId: string | null;
+  qrCodeBase64: string | null;
+  payload: string | null;
+  expiresAt: string | null;
+  error?: string;
+}
+
+/**
+ * Cria uma cobrança Pix via Asaas e devolve o QR Code + código copia-e-cola.
+ * Quem confirma o pagamento de verdade é o asaas-webhook (server-side) — esta
+ * chamada só gera a cobrança para o usuário pagar.
+ */
+export async function createPixCharge(userId: string, plan: PlanType): Promise<PixChargeResult> {
+  if (!SUPABASE_URL) {
+    return { paymentId: null, qrCodeBase64: null, payload: null, expiresAt: null, error: 'Supabase não configurado.' };
+  }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/create-pix-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ userId, plan }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { paymentId: null, qrCodeBase64: null, payload: null, expiresAt: null, error: data.error || `Erro HTTP ${response.status}` };
+    }
+
+    return {
+      paymentId: data.paymentId,
+      qrCodeBase64: data.qrCodeBase64,
+      payload: data.payload,
+      expiresAt: data.expiresAt,
+    };
+  } catch (e: any) {
+    return { paymentId: null, qrCodeBase64: null, payload: null, expiresAt: null, error: e.message };
+  }
+}
+
 // ─── Modo Simulado (quando não há chaves de API) ──────────────────────────────
 /**
  * Em modo simulado, a compra é "aprovada" localmente.
