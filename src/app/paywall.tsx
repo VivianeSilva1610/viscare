@@ -226,7 +226,17 @@ export default function PaywallScreen() {
             if (redirectType === 'success') {
               router.replace('/(tabs)/today');
             } else {
-              router.replace('/paywall');
+              // Já estamos em /paywall — navegar pra mesma rota não reseta o
+              // estado local (o expo-router não remonta a tela), então isso
+              // ficava preso mostrando "Pagamento Cancelado" pra sempre.
+              // Reseta o estado direto pra voltar à tela normal do paywall.
+              setShowNativeRedirect(false);
+              setRedirectType(null);
+              // Limpa o ?canceled=true da URL (sem navegar) pra um reload
+              // da página não cair de novo na tela de cancelado.
+              if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                window.history.replaceState(null, '', '/paywall');
+              }
             }
           }}
           style={{ backgroundColor: redirectType === 'success' ? '#4CAF50' : '#B97C63', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 12 }}
