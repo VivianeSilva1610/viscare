@@ -17,9 +17,9 @@
 //   supabase functions deploy create-pix-payment --no-verify-jwt
 //
 // Configurar no painel Supabase (Settings → Edge Functions → Environment variables):
-//   ASAAS_API_KEY = sua chave de API do Asaas (produção ou sandbox)
-//   ASAAS_API_URL = https://api.asaas.com/v3 (produção) ou
-//                   https://sandbox.asaas.com/api/v3 (sandbox)
+//   ASAAS_KEY_SECRET = sua chave de API do Asaas (produção ou sandbox)
+//   ASAAS_API_URL    = https://api.asaas.com/v3 (produção) ou
+//                      https://sandbox.asaas.com/api/v3 (sandbox)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -54,11 +54,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const asaasApiKey = Deno.env.get('ASAAS_API_KEY');
+    const asaasApiKey = Deno.env.get('ASAAS_KEY_SECRET') || Deno.env.get('ASAAS_API_KEY');
     const asaasApiUrl = Deno.env.get('ASAAS_API_URL') || 'https://api.asaas.com/v3';
     if (!asaasApiKey) {
       return new Response(
-        JSON.stringify({ error: 'Asaas não configurado no servidor. Adicione ASAAS_API_KEY nas variáveis de ambiente do Supabase.' }),
+        JSON.stringify({ error: 'Asaas não configurado no servidor. Adicione ASAAS_KEY_SECRET nas variáveis de ambiente do Supabase.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
