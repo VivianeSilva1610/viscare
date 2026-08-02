@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../context/LocalizationContext';
 import { DataService } from '../services/dataService';
 import { supabase } from '../services/supabase';
-import { ArrowLeft, Send, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, Send, Sparkles, Lock } from 'lucide-react-native';
 
 interface Message {
   id: string;
@@ -27,10 +27,13 @@ interface Message {
 }
 
 export default function ChatScreen() {
-  const { user } = useAuth();
+  const { user, isPremium } = useAuth();
   const { language } = useTranslation();
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
+
+  const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+  const hasAccess = isPremium || isUnlimited;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -39,6 +42,7 @@ export default function ChatScreen() {
 
   // Mensagem de boas-vindas da Vis
   useEffect(() => {
+    if (!hasAccess) return;
     const welcome =
       language === 'pt'
         ? '👋 Olá! Eu sou a Vis, sua assistente de skincare pessoal! Posso te ajudar com dúvidas sobre ingredientes, rotinas, ou o que você quiser saber sobre cuidados com a pele. Como posso te ajudar hoje? ✨'
@@ -83,7 +87,7 @@ export default function ChatScreen() {
     try {
       const history = newMessages.slice(1).map((m) => ({ role: m.role, text: m.text }));
       const { data, error } = await supabase.functions.invoke('agent-support', {
-        body: { userMessage: text, history, userContext, language },
+        body: { userId: user?.id, userMessage: text, history, userContext, language },
       });
 
       const replyText =
@@ -142,6 +146,43 @@ export default function ChatScreen() {
   const wrapperProps = Platform.OS === 'web'
     ? { style: { flex: 1 } }
     : { behavior: Platform.OS === 'ios' ? 'padding' : 'height', style: { flex: 1 }, keyboardVerticalOffset: 0 };
+
+  if (!hasAccess) {
+    return (
+      <SafeAreaView className="flex-1 bg-brand-ivory">
+        <StatusBar style="dark" />
+        <View className="flex-row items-center px-4 py-3 border-b border-brand-beige bg-brand-ivory">
+          <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1">
+            <ArrowLeft size={22} color="#3D2B1F" />
+          </TouchableOpacity>
+          <Text className="font-sans text-base font-bold text-brand-charcoal">Vis</Text>
+        </View>
+        <View className="flex-1 items-center justify-center px-8">
+          <View className="w-16 h-16 rounded-2xl bg-brand-rose-metallic/10 items-center justify-center mb-5">
+            <Lock size={28} color="#B97C63" />
+          </View>
+          <Text className="font-serif text-xl font-bold text-brand-charcoal text-center mb-2">
+            {language === 'pt' ? 'Converse com a Vis é Premium' : language === 'it' ? 'Parlare con Vis è Premium' : 'Chatting with Vis is Premium'}
+          </Text>
+          <Text className="font-sans text-sm text-brand-sage-dark text-center leading-5 mb-7">
+            {language === 'pt'
+              ? 'Assine o Premium pra tirar dúvidas ilimitadas sobre skincare com a Vis, a qualquer hora.'
+              : language === 'it'
+              ? 'Abbonati al Premium per fare domande illimitate sulla skincare a Vis, in qualsiasi momento.'
+              : 'Subscribe to Premium to ask Vis unlimited skincare questions, anytime.'}
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.replace('/paywall')}
+            className="bg-brand-rose-metallic px-8 py-3.5 rounded-full"
+          >
+            <Text className="font-sans text-sm font-bold text-white">
+              {language === 'pt' ? 'Ver planos Premium' : language === 'it' ? 'Vedi i piani Premium' : 'See Premium plans'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-brand-ivory">

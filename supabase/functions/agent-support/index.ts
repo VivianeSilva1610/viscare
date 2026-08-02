@@ -3,8 +3,15 @@
 // Agente de Atendimento / Coach (IA Conversacional)
 // Funciona como um assistente dermatológico particular que responde dúvidas,
 // comenta sobre a rotina e encoraja o usuário. Engloba o papel do Agente Coach.
-// 
+//
+// Recurso Premium: cada mensagem custa uma chamada à API do Gemini, então só
+// libera para quem tem assinatura ativa. A checagem é feita aqui (servidor),
+// não só no client — o client só decide se mostra a tela, quem garante o
+// acesso de verdade é este check contra o profile no banco.
+//
 // Para publicar: supabase functions deploy agent-support --no-verify-jwt
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,12 +34,42 @@ Deno.serve(async (req: Request) => {
 
     // history: Array de { role: 'user' | 'model', text: string }
     // userContext: dados do usuário (perfil de pele, última análise, rotina atual, etc.)
-    const { userMessage, history = [], userContext = {}, language = 'pt' } = await req.json();
+    const { userId, userMessage, history = [], userContext = {}, language = 'pt' } = await req.json();
 
     if (!userMessage) {
       return new Response(
         JSON.stringify({ error: 'userMessage é obrigatório.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'userId é obrigatório.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const adminClient = createClient(supabaseUrl, serviceKey);
+
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('email, subscription_plan, subscription_expires_at')
+      .eq('id', userId)
+      .single();
+
+    const isUnlimitedTestAccount = profile?.email?.toLowerCase() === 'viroedu@gmail.com';
+    const plan = profile?.subscription_plan;
+    const isPlanPremium = plan === 'premium' || plan === 'influencer';
+    const isNotExpired = !profile?.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date();
+    const hasAccess = isUnlimitedTestAccount || (isPlanPremium && isNotExpired);
+
+    if (!hasAccess) {
+      return new Response(
+        JSON.stringify({ error: 'PREMIUM_REQUIRED', reply: null }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

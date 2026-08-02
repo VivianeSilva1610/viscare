@@ -781,29 +781,42 @@ export default function TodayScreen() {
         })()}
       </View>
 
-      {/* Card: Chat com a Vis (Assistente de Skincare) */}
-      <TouchableOpacity
-        onPress={() => router.push('/chat')}
-        className="bg-brand-rose-metallic rounded-3xl p-5 mb-8 flex-row items-center shadow-sm overflow-hidden"
-      >
-        {/* Ícone */}
-        <View className="w-12 h-12 bg-white/20 rounded-2xl items-center justify-center mr-4">
-          <Sparkles size={24} color="#FFF" />
-        </View>
-        {/* Texto */}
-        <View className="flex-1">
-          <Text className="font-sans text-xs uppercase tracking-widest font-bold text-white/80 mb-0.5">
-            {language === 'pt' ? 'Assistente IA' : language === 'it' ? 'Assistente IA' : 'AI Assistant'}
-          </Text>
-          <Text className="font-serif text-lg font-bold text-white leading-tight">
-            {language === 'pt' ? 'Converse com a Vis ✨' : language === 'it' ? 'Parla con Vis ✨' : 'Chat with Vis ✨'}
-          </Text>
-          <Text className="font-sans text-xs text-white/80 mt-0.5">
-            {language === 'pt' ? 'Dúvidas sobre sua pele? Ela sabe!' : language === 'it' ? 'Domande sulla tua pelle?' : 'Questions about your skin?'}
-          </Text>
-        </View>
-        <ArrowRight size={20} color="rgba(255,255,255,0.7)" />
-      </TouchableOpacity>
+      {/* Card: Chat com a Vis (Assistente de Skincare) — recurso Premium */}
+      {(() => {
+        const isUnlimited = user?.email?.toLowerCase() === 'viroedu@gmail.com';
+        const hasAssistantAccess = isPremium || isUnlimited;
+        return (
+          <TouchableOpacity
+            onPress={() => router.push(hasAssistantAccess ? '/chat' : '/paywall')}
+            className="bg-brand-rose-metallic rounded-3xl p-5 mb-8 flex-row items-center shadow-sm overflow-hidden"
+          >
+            {/* Ícone */}
+            <View className="w-12 h-12 bg-white/20 rounded-2xl items-center justify-center mr-4">
+              <Sparkles size={24} color="#FFF" />
+            </View>
+            {/* Texto */}
+            <View className="flex-1">
+              <View className="flex-row items-center mb-0.5">
+                <Text className="font-sans text-xs uppercase tracking-widest font-bold text-white/80">
+                  {language === 'pt' ? 'Assistente IA' : language === 'it' ? 'Assistente IA' : 'AI Assistant'}
+                </Text>
+                {!hasAssistantAccess && (
+                  <View className="bg-white/25 px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[9px] font-sans font-bold text-white tracking-wide">PREMIUM</Text>
+                  </View>
+                )}
+              </View>
+              <Text className="font-serif text-lg font-bold text-white leading-tight">
+                {language === 'pt' ? 'Converse com a Vis ✨' : language === 'it' ? 'Parla con Vis ✨' : 'Chat with Vis ✨'}
+              </Text>
+              <Text className="font-sans text-xs text-white/80 mt-0.5">
+                {language === 'pt' ? 'Dúvidas sobre sua pele? Ela sabe!' : language === 'it' ? 'Domande sulla tua pelle?' : 'Questions about your skin?'}
+              </Text>
+            </View>
+            <ArrowRight size={20} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
+        );
+      })()}
 
       {/* Próximos Cuidados (Agenda Preview) */}
       <View className="mb-8">
