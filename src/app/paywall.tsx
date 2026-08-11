@@ -40,6 +40,16 @@ export default function PaywallScreen() {
     setPricing(getPricingInfo());
   }, []);
 
+  // Dispara o evento de Compra pro Meta Pixel (base instalado em
+  // public/index.html) só depois da confirmação real do pagamento — nunca a
+  // partir de um redirect por si só, mesma regra do que libera o benefício.
+  const trackMetaPurchase = (plan: PlanType) => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined' || !(window as any).fbq) return;
+    const info = pricing ?? getPricingInfo();
+    const detail = plan === 'topup' ? info.topup : info.monthly;
+    (window as any).fbq('track', 'Purchase', { value: detail.value, currency: detail.currency });
+  };
+
   const handleOpenPix = async (plan: PlanType) => {
     if (!user?.id) return;
     pixSnapshotRef.current = { isPremium, topupScans: profile?.topup_scans ?? 0 };
@@ -89,6 +99,7 @@ export default function PaywallScreen() {
     if (confirmedTopup || confirmedMonthly) {
       const confirmedPlan = pixPlan;
       handleClosePix();
+      trackMetaPurchase(confirmedPlan);
       Alert.alert(
         confirmedPlan === 'topup' ? t('paywall.purchase_topup_title') : t('paywall.purchase_success_title'),
         confirmedPlan === 'topup' ? t('paywall.purchase_topup_msg') : t('paywall.purchase_success_msg'),
@@ -142,6 +153,7 @@ export default function PaywallScreen() {
         await new Promise(resolve => setTimeout(resolve, 1500));
         await refreshProfile();
       }
+      trackMetaPurchase(plan);
       Alert.alert(
         plan === 'topup' ? t('paywall.purchase_topup_title') : t('paywall.purchase_success_title'),
         plan === 'topup' ? t('paywall.purchase_topup_msg') : t('paywall.purchase_success_msg'),

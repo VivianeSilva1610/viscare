@@ -42,12 +42,14 @@ export interface PricingInfo {
   topup: {
     eur: number;
     local: string;
+    value: number;
     currency: string;
     currencySymbol: string;
   };
   monthly: {
     eur: number;
     local: string;
+    value: number;
     currency: string;
     currencySymbol: string;
   };
@@ -205,12 +207,14 @@ export function getPricingInfo(): PricingInfo {
     topup: {
       eur: PRICE_EUR_TOPUP,
       local: topup.formatted,
+      value: topup.value,
       currency,
       currencySymbol: topup.symbol,
     },
     monthly: {
       eur: PRICE_EUR_MONTHLY,
       local: monthly.formatted,
+      value: monthly.value,
       currency,
       currencySymbol: monthly.symbol,
     },
